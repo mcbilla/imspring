@@ -1,0 +1,1 @@
+模仿spring的框架，支持ioc、aop等功能

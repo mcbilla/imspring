@@ -1,0 +1,27 @@
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:javaee="http://java.sun.com/xml/ns/javaee"
+         xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+    <display-name>Web Application</display-name>
+    <!--配置第一个servlet-->
+    <servlet>
+        <!-- servlet自定义命名 -->
+        <servlet-name>immvc</servlet-name>
+        <servlet-class>com.mcb.imspring.web.DispatchServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>application.properties</param-value>
+        </init-param>
+        <!--tomcat容器启动后自动初始化该servlet类-->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <!--配置如何访问这个servlet-->
+    <servlet-mapping>
+        <!--上面的servlet命名-->
+        <servlet-name>immvc</servlet-name>
+        <!--访问这个servlet的url路径-->
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+</web-app>
