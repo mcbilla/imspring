@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Controller
-@RequestMapping("/test")
+@RequestMapping("test")
 public class TestController {
     @RequestMapping("/hello")
     public void hello(HttpServletRequest req, HttpServletResponse resp, @RequestParam("name") String name) throws IOException {
