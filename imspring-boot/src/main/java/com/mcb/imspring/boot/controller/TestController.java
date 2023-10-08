@@ -12,7 +12,7 @@ import java.io.IOException;
 @RequestMapping("test")
 public class TestController {
     @RequestMapping("/hello")
-    public void hello(HttpServletRequest req, HttpServletResponse resp, @RequestParam("name") String name) throws IOException {
-        resp.getWriter().write("hello " + name);
+    public String hello(HttpServletRequest req, HttpServletResponse resp, @RequestParam("name") String name) throws IOException {
+        return "hello " + name;
     }
 }

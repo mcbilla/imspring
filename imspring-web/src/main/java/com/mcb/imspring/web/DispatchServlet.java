@@ -12,10 +12,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DispatchServlet extends HttpServlet {
     private final Logger logger = LoggerFactory.getLogger(DispatchServlet.class);
@@ -30,9 +33,7 @@ public class DispatchServlet extends HttpServlet {
     private Map<String, Object> ioc = new HashMap<>();
 
     // 保存url和Method的对应关系
-    private Map<String, Method> handlerMapping = new HashMap<>();
-
-    private Map<String, Object> mapping = new HashMap<String, Object>();
+    private List<Handler> handlerMapping = new ArrayList<>();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -49,71 +50,101 @@ public class DispatchServlet extends HttpServlet {
     }
 
     private void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        Handler handler = getHandler(req);
+        if (handler == null) {
+            resp.getWriter().write("404 Not Found!!!");
+            return;
+        }
+
+        // 获得方法的形参列表
+        Class<?>[] paramTypes = handler.getParamTypes();
+
+        Object[] paramValues = new Object[paramTypes.length];
+
+        Map<String, String[]> params = req.getParameterMap();
+        for (Map.Entry<String, String[]> parm : params.entrySet()) {
+            String value = Arrays.toString(parm.getValue()).replaceAll("\\[|\\]", "")
+                    .replaceAll("\\s", ",");
+
+            if (!handler.paramIndexMapping.containsKey(parm.getKey())) {
+                continue;
+            }
+
+            int index = handler.paramIndexMapping.get(parm.getKey());
+            paramValues[index] = convert(paramTypes[index], value);
+        }
+
+        if (handler.paramIndexMapping.containsKey(HttpServletRequest.class.getName())) {
+            int reqIndex = handler.paramIndexMapping.get(HttpServletRequest.class.getName());
+            paramValues[reqIndex] = req;
+        }
+
+        if (handler.paramIndexMapping.containsKey(HttpServletResponse.class.getName())) {
+            int respIndex = handler.paramIndexMapping.get(HttpServletResponse.class.getName());
+            paramValues[respIndex] = resp;
+        }
+
+        Object returnValue = handler.method.invoke(handler.controller, paramValues);
+        if (returnValue == null || returnValue instanceof Void) {
+            return;
+        }
+        resp.getWriter().write(returnValue.toString());
+    }
+
+    private Handler getHandler(HttpServletRequest req) {
+        if (handlerMapping.isEmpty()) {
+            return null;
+        }
         // 绝对路径
         String url = req.getRequestURI();
         // 处理成相对路径
         String contextPath = req.getContextPath();
         url = url.replaceAll(contextPath, "").replaceAll("/+", "/");
 
-        if (!this.handlerMapping.containsKey(url)) {
-            resp.getWriter().write("404 Not Found!!!");
-            return;
-        }
-
-        Method method = this.handlerMapping.get(url);
-
-        // 从reqest中拿到url传过来的参数
-        Map<String, String[]> params = req.getParameterMap();
-
-        // 获取方法的形参列表
-        Class<?>[] parameterTypes = method.getParameterTypes();
-
-        Object[] paramValues = new Object[parameterTypes.length];
-
-        for (int i = 0; i < parameterTypes.length; i++) {
-            Class parameterType = parameterTypes[i];
-            // 不能用instanceof，parameterType它不是实参，而是形参
-            if (parameterType == HttpServletRequest.class) {
-                paramValues[i] = req;
+        for (Handler handler : this.handlerMapping) {
+            Matcher matcher = handler.getPattern().matcher(url);
+            if (!matcher.matches()) {
                 continue;
-            } else if (parameterType == HttpServletResponse.class) {
-                paramValues[i] = resp;
-                continue;
-            } else if (parameterType == String.class) {
-                RequestParam requestParam = (RequestParam) parameterType.getAnnotation(RequestParam.class);
-                if (params.containsKey(requestParam.value())) {
-                    for (Map.Entry<String, String[]> param : params.entrySet()) {
-                        String value = Arrays.toString(param.getValue())
-                                .replaceAll("\\[|\\]", "")
-                                .replaceAll("\\s", ",");
-                        paramValues[i] = value;
-                    }
-                }
             }
+            return handler;
         }
+        return null;
+    }
 
-        // 投机取巧的方式
-        // 通过反射拿到method所在class，拿到class之后还是拿到class的名称
-        // 再调用toLowerFirstCase获得beanName
-        String beanName = toLowerFirstCase(method.getDeclaringClass().getSimpleName());
-        method.invoke(ioc.get(beanName), paramValues);
+    /**
+     * url传过来的参数都是String类型的，HTTP是基于字符串协议，只需要把String转换为任意类型就好
+     * @param type
+     * @param value
+     * @return
+     */
+    private Object convert(Class<?> type, String value) {
+        // 如果是int
+        if (Integer.class == type) {
+            return Integer.valueOf(value);
+        } else if (Double.class == type) {
+            return Double.valueOf(value);
+        }
+        // 如果还有double或者其他类型，继续加if
+        // 这时候，我们应该想到策略模式了
+        // 在这里暂时不实现，希望小伙伴自己来实现
+        return value;
     }
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        //1、加载配置文件
+        // 1、加载配置文件
         doLoadConfig(config.getInitParameter("contextConfigLocation"));
 
-        //2、扫描相关的类
+        // 2、扫描相关的类
         doScanner(contextConfig.getProperty("scanPackage"));
 
-        //3、初始化扫描到的类，并且将它们放入到ICO容器之中
+        // 3、初始化扫描到的类，并且将它们放入到ICO容器之中
         doInstance();
 
-        //4、完成依赖注入
+        // 4、完成依赖注入
         doAutowired();
 
-        //5、初始化HandlerMapping
+        // 5、初始化HandlerMapping
         initHandlerMapping();
 
         logger.info("Spring framework is init.");
@@ -155,13 +186,13 @@ public class DispatchServlet extends HttpServlet {
                     continue;
                 }
                 String clazzName = (scanPackage + "." + file.getName().replace(".class", ""));
-                mapping.put(clazzName, null);
+                classNames.add(clazzName);
             }
         }
     }
 
     private void doInstance() {
-        //初始化，为DI做准备
+        // 初始化，为DI做准备
         if (classNames.isEmpty()) {
             return;
         }
@@ -273,10 +304,79 @@ public class DispatchServlet extends HttpServlet {
 
                 RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
                 // //demo///query
-                String url = ("/" + baseUrl + "/" + requestMapping.value())
+                String regex = ("/" + baseUrl + "/" + requestMapping.value())
                         .replaceAll("/+", "/");
-                handlerMapping.put(url, method);
-                logger.info("Mapped url: [{}], method: [{}]", url, method);
+                Pattern pattern = Pattern.compile(regex);
+                this.handlerMapping.add(new Handler(pattern, entry.getValue(), method));
+                logger.info("Mapped url=[{}]，method=[{}]", pattern, method);
+            }
+        }
+    }
+
+    /**
+     * 保存一个url和一个Method的关系，把url放到HandlerMapping
+     */
+    public class Handler {
+        private Pattern pattern;
+
+        private Method method;
+
+        private Object controller;
+
+        private Class<?>[] paramTypes;
+
+        // 形参列表，参数的名字作为key，数的顺序位置作为值
+        private Map<String, Integer> paramIndexMapping;
+
+        public Pattern getPattern() {
+            return pattern;
+        }
+
+        public Method getMethod() {
+            return method;
+        }
+
+        public Object getController() {
+            return controller;
+        }
+
+        public Class<?>[] getParamTypes() {
+            return paramTypes;
+        }
+
+        public Handler(Pattern pattern, Object controller, Method method) {
+            this.pattern = pattern;
+            this.method = method;
+            this.controller = controller;
+            paramTypes = method.getParameterTypes();
+            paramIndexMapping = new HashMap<>();
+            putParamIndexMapping(method);
+        }
+
+        private void putParamIndexMapping(Method method) {
+            // 提取方法中加了注解的参数
+            // 把方法上的注解拿到，得到的是一个二维数组
+            // 因为一个参数可以有多个注解，而一个方法又有多个参数
+            Annotation[][] pa = method.getParameterAnnotations();
+            for (int i = 0; i < pa.length; i++) {
+                for (Annotation a : pa[i]) {
+                    if (a instanceof RequestParam) {
+                        String paramName = ((RequestParam) a).value();
+                        if (!"".equals(paramName.trim())) {
+                            paramIndexMapping.put(paramName, i);
+                        }
+                    }
+                }
+            }
+
+            // 提取方法中的request和response参数
+            Class<?>[] paramsTypes = method.getParameterTypes();
+            for (int i = 0; i < paramsTypes.length; i++) {
+                Class<?> type = paramsTypes[i];
+                if (type == HttpServletRequest.class ||
+                        type == HttpServletResponse.class) {
+                    paramIndexMapping.put(type.getName(), i);
+                }
             }
         }
     }
