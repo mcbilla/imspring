@@ -2,9 +2,9 @@ package com.mcb.imspring.core.annotation;
 
 import java.lang.annotation.*;
 
-@Target({ElementType.PARAMETER})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface RequestParam {
+public @interface Repository {
     String value() default "";
 }

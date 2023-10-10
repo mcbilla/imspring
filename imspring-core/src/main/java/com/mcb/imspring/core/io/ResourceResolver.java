@@ -1,18 +1,19 @@
 package com.mcb.imspring.core.io;
 
+import com.mcb.imspring.core.utils.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * 资源解析器
@@ -22,63 +23,52 @@ public class ResourceResolver {
 
     private String basePackage;
 
-    private List<String> classNameList;
-
     public ResourceResolver(String basePackage) {
         this.basePackage = basePackage;
     }
 
-    public List<String> scan() {
+    public <R> List<R> scan(Function<Resource, R> mapper) {
         try {
-            scan0(basePackage);
+            List<R> collector = new ArrayList<>();
+            scan0(basePackage, collector, mapper);
+            return collector;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-        return classNameList;
+
     }
 
-    private void scan0(String basePackage) throws IOException, URISyntaxException {
+    private <R> void scan0(String basePackage, List<R> collector, Function<Resource, R> mapper) throws IOException, URISyntaxException {
         logger.debug("scan path: {}", basePackage);
-//        URL url = null;
-//        if (isWindows()) {
-//            url = this.getContextClassLoader().getResource("\\" + basePackage.replaceAll("\\.", "\\\\"));
-//        } else {
-//            url = this.getContextClassLoader().getResource("/" + basePackage.replaceAll("\\.", "/"));
-//        }
-//        File classDir = new File(url.getFile());
-//        for (File file : classDir.listFiles()) {
-//            if (file.isDirectory()) {
-//                scan0(basePackage + "." + file.getName());
-//            } else {
-//                if (!file.getName().endsWith(".class")) {
-//                    continue;
-//                }
-//                String clazzName = (basePackage + "." + file.getName().replace(".class", ""));
-//                classNameList.add(clazzName);
-//            }
-//        }
-
         Enumeration<URL> en = this.getContextClassLoader().getResources(basePackage.replaceAll("\\.", "/"));
 
         while (en.hasMoreElements()) {
             URL url = en.nextElement();
             URI uri = url.toURI();
-            String uriStr = removeTrailingSlash(uriToString(uri));
-            String uriBaseStr = uriStr.substring(0, uriStr.length() - basePackage.length());
-            if (uriBaseStr.startsWith("file:")) {
-                uriBaseStr = uriBaseStr.substring(5);
+            String uriStr = ResourceUtils.removeTrailingSlash(ResourceUtils.uriToString(uri));
+            if (uriStr.startsWith("file:")) {
+                uriStr = uriStr.substring(5);
             }
-            File classDir = new File(uriBaseStr);
-            if (classDir.isDirectory()) {
-                System.out.println("这是文件夹" + uriBaseStr);
-            } else {
-                System.out.println("这不是文件夹" + uriBaseStr);
-            }
+            // 根路径，test/classes和test/classes
+            String baseStr = uriStr.substring(0, uriStr.length() - basePackage.length());
+
+            Files.walk(Paths.get(uri)).filter(Files::isRegularFile).forEach(file -> {
+                // 类文件绝对路径
+                String path = file.toString();
+                // 全路径类名
+                String name = ResourceUtils.removeLeadingSlash(path.substring(baseStr.length()));
+                Resource resource = new Resource(name, path);
+                logger.debug("found resource=[{}]", resource);
+                R r = mapper.apply(resource);
+                if (r != null) {
+                    collector.add(r);
+                }
+            });
+
         }
     }
-
 
     /**
      * ClassLoader首先从Thread.getContextClassLoader()获取，如果获取不到，再从当前Class获取，
@@ -96,21 +86,4 @@ public class ResourceResolver {
         return cl;
     }
 
-    String uriToString(URI uri) throws UnsupportedEncodingException {
-        return URLDecoder.decode(uri.toString(), StandardCharsets.UTF_8.toString());
-    }
-
-    String removeLeadingSlash(String s) {
-        if (s.startsWith("/") || s.startsWith("\\")) {
-            s = s.substring(1);
-        }
-        return s;
-    }
-
-    String removeTrailingSlash(String s) {
-        if (s.endsWith("/") || s.endsWith("\\")) {
-            s = s.substring(0, s.length() - 1);
-        }
-        return s;
-    }
 }

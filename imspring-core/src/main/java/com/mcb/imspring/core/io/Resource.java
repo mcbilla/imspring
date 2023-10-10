@@ -25,4 +25,13 @@ public class Resource {
     public void setPath(String path) {
         this.path = path;
     }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Resource{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", path='").append(path).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

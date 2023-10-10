@@ -14,8 +14,13 @@ public class ResourceResolverTest {
 
     @Test
     public void testScan() {
-        List<String> scan = new ResourceResolver("com.mcb.imspring").scan();
-        System.out.println(scan);
-
+        List<String> classNames = new ResourceResolver("com.mcb.imspring").scan(resource -> {
+            String name = resource.getName();
+            if (name.endsWith(".class")) {
+                return name.substring(0, name.length() - 6).replace("/", ".").replace("\\", ".");
+            }
+            return null;
+        });
+        System.out.println(classNames);
     }
 }

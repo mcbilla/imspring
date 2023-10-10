@@ -1,8 +1,8 @@
 package com.mcb.imspring.boot.controller;
 
 import com.mcb.imspring.core.annotation.Controller;
-import com.mcb.imspring.core.annotation.RequestMapping;
-import com.mcb.imspring.core.annotation.RequestParam;
+import com.mcb.imspring.web.annotation.RequestMapping;
+import com.mcb.imspring.web.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

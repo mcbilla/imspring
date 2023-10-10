@@ -1,4 +1,4 @@
-package com.mcb.imspring.core.annotation;
+package com.mcb.imspring.web.annotation;
 
 import java.lang.annotation.*;
 
