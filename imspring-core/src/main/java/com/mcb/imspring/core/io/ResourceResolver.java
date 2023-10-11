@@ -52,7 +52,7 @@ public class ResourceResolver {
                 uriStr = uriStr.substring(5);
             }
             // 根路径，test/classes和test/classes
-            String baseStr = uriStr.substring(0, uriStr.length() - basePackage.length());
+            String baseStr = ResourceUtils.removeLeadingSlash(uriStr.substring(0, uriStr.length() - basePackage.length()));
 
             Files.walk(Paths.get(uri)).filter(Files::isRegularFile).forEach(file -> {
                 // 类文件绝对路径
