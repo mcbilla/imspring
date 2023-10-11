@@ -1,12 +1,21 @@
 package com.mcb.imspring.core.test.bean;
 
-import com.mcb.imspring.core.annotation.Component;
+import com.mcb.imspring.core.annotation.Autowired;
+import com.mcb.imspring.core.annotation.Service;
 
-@Component
-public class ComponentBean {
+@Service("myServiceBean")
+public class ServiceBean {
     private String name;
 
     private Integer age;
+
+    @Autowired
+    private ComponentBean componentBean;
+
+    public ServiceBean(String name, Integer age) {
+        this.name = name;
+        this.age = age;
+    }
 
     public String getName() {
         return name;
