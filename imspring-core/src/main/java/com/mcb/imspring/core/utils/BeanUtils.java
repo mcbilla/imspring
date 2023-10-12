@@ -1,6 +1,8 @@
 package com.mcb.imspring.core.utils;
 
 import com.mcb.imspring.core.annotation.Component;
+import com.mcb.imspring.core.context.BeanDefinition;
+import com.mcb.imspring.core.context.BeanPostProcessor;
 import com.mcb.imspring.core.exception.BeanDefinitionException;
 
 import java.lang.annotation.Annotation;
@@ -9,10 +11,6 @@ import java.lang.reflect.Constructor;
 public class BeanUtils {
     /**
      * 查找指定类的指定注解，这里需要递归查找注解的注解
-     * @param clazz
-     * @param targetAnno
-     * @return
-     * @param <A>
      */
     public static <A extends Annotation> A findAnnotation(Class<?> clazz, Class<A> targetAnno) {
         if (clazz.isAnnotationPresent(targetAnno)) {
@@ -29,8 +27,6 @@ public class BeanUtils {
 
     /**
      * 获取bean名称，优先使用注解的值，如果没有设置注解值，默认使用小写开头的类名
-     * @param clazz
-     * @return
      */
     public static String getBeanName(Class<?> clazz) {
         for (Annotation anno : clazz.getAnnotations()) {
@@ -76,5 +72,12 @@ public class BeanUtils {
             throw new BeanDefinitionException("More than one constructor found in class, non-arg constructor must define " + clazz.getName());
         }
         return res;
+    }
+
+    /**
+     * 判断某个类是否BeanPostProcessor接口的子类
+     */
+    boolean isBeanPostProcessorDefinition(BeanDefinition def) {
+        return BeanPostProcessor.class.isAssignableFrom(def.getBeanClass());
     }
 }
