@@ -10,4 +10,11 @@
 
     <artifactId>imspring-aop</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.mcb.imspring</groupId>
+            <artifactId>imspring-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
