@@ -26,14 +26,24 @@ public class DefaultBeanFactory extends AbstractBeanFactory{
         // 1、扫描所有类
         final Set<String> beanClassNames = scanForClassNames(configClass);
 
-        // 2、初始化扫描到的类，并且将它们放入到IOC容器之中
+        // 2、初始化扫描到的类，并且将它们放入到IOC容器之中，此时还没有实例化
         this.ioc = createBeanDefinitions(beanClassNames);
 
         // 3、实例化IOC容器中的bean
         createBeanInstance();
 
-        // 4、完成依赖注入
+        // 4、BeanPostProcessor前置处理
+        beforeBeanPostProcessor();
+
+        // TODO 5、InitializingBean处理
+
+        // TODO 6、init-method
+
+        // 7、依赖注入
         autowireBean();
+
+        // 8、BeanPostProcessor后置处理
+        afterBeanPostProcessor();
 
         logger.debug("BeanFactory init finish [{}]", ioc);
     }
@@ -114,6 +124,24 @@ public class DefaultBeanFactory extends AbstractBeanFactory{
         });
     }
 
+    protected void beforeBeanPostProcessor() {
+        this.ioc.values().stream()
+                .filter(this::isBeanPostProcessorDefinition)
+                .sorted()
+                .forEach(def -> {
+                    BeanPostProcessor processor = (BeanPostProcessor) def.getInstance();
+                    Object processed = processor.postProcessBeforeInitialization(def.getInstance(), def.getName());
+                    if (processed == null) {
+                        throw new BeanCreationException(String.format("PostBeanProcessor returns null when process bean '%s' by %s", def.getName(), processor));
+                    }
+                    // 如果一个BeanPostProcessor替换了原始Bean，则更新Bean的引用
+                    if (def.getInstance() != processed) {
+                        logger.debug("Bean '{}' was replaced by post processor before handler {}.", def.getName(), processor.getClass().getName());
+                        def.setInstance(processed);
+                    }
+                });
+    }
+
     protected void autowireBean() {
         if (this.ioc == null || this.ioc.isEmpty()) {
             return;
@@ -143,5 +171,27 @@ public class DefaultBeanFactory extends AbstractBeanFactory{
                 }
             }
         });
+    }
+
+    protected void afterBeanPostProcessor() {
+        this.ioc.values().stream()
+                .filter(this::isBeanPostProcessorDefinition)
+                .sorted()
+                .forEach(def -> {
+                    BeanPostProcessor processor = (BeanPostProcessor) def.getInstance();
+                    Object processed = processor.postProcessAfterInitialization(def.getInstance(), def.getName());
+                    if (processed == null) {
+                        throw new BeanCreationException(String.format("PostBeanProcessor returns null when process bean '%s' by %s", def.getName(), processor));
+                    }
+                    // 如果一个BeanPostProcessor替换了原始Bean，则更新Bean的引用
+                    if (def.getInstance() != processed) {
+                        logger.debug("Bean '{}' was replaced by post processor after handler {}.", def.getName(), processor.getClass().getName());
+                        def.setInstance(processed);
+                    }
+                });
+    }
+
+    private boolean isBeanPostProcessorDefinition(BeanDefinition definition) {
+        return BeanPostProcessor.class.isAssignableFrom(definition.getBeanClass());
     }
 }
