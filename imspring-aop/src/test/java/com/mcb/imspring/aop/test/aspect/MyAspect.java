@@ -1,21 +1,15 @@
 package com.mcb.imspring.aop.test.aspect;
 
+import com.mcb.imspring.aop.AspectJExpressionPointcutAdvisor;
 import com.mcb.imspring.core.annotation.Component;
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+import org.aopalliance.aop.Advice;
 import org.aspectj.lang.annotation.Pointcut;
 
-@Aspect
 @Component
-public class MyAspect {
+public class MyAspect extends AspectJExpressionPointcutAdvisor {
 
-    @Pointcut("execution(* com.mcb.imspring.aop.test.aspect.*Service.*(..))")
-    public void getPointCut() {
-    }
-
-    @Before("getPointCut()")
-    public void beforeAdvice(JoinPoint joinPoint) {
-        System.out.println("这是一个日志");
+    public MyAspect() {
+        this.setAdvice(new BeforeAdvice());
+        this.setExpression("execution(* com.mcb.imspring.aop.test.aspect.*Service.*(..))");
     }
 }

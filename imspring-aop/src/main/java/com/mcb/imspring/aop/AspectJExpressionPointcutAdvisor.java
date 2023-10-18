@@ -5,9 +5,9 @@ import com.mcb.imspring.aop.matcher.Pointcut;
 import org.aopalliance.aop.Advice;
 
 public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
-    private AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+    protected AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
 
-    private Advice advice;
+    protected Advice advice;
 
     public void setExpression(String expression) {
         this.pointcut.setExpression(expression);

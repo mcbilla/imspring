@@ -1,18 +1,15 @@
 package com.mcb.imspring.aop;
 
 import com.mcb.imspring.aop.advisor.Advisor;
+import com.mcb.imspring.aop.advisor.TargetSource;
 import com.mcb.imspring.aop.proxy.ProxyFactory;
-import com.mcb.imspring.core.annotation.Autowired;
 import com.mcb.imspring.core.annotation.Component;
 import com.mcb.imspring.core.context.BeanFactory;
 import com.mcb.imspring.core.context.BeanFactoryAware;
 import com.mcb.imspring.core.context.BeanPostProcessor;
 import com.mcb.imspring.core.exception.BeansException;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aopalliance.intercept.MethodInterceptor;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,22 +46,22 @@ public class AspectJAwareAdvisorAutoProxyCreator implements BeanPostProcessor, B
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         // 1.  从 BeanFactory 查找 AspectJExpressionPointcutAdvisor 类型的对象
         List<AspectJExpressionPointcutAdvisor> advisors = beanFactory.getBeans(AspectJExpressionPointcutAdvisor.class);
-        for(AspectJExpressionPointcutAdvisor advisor : advisors) {
+        for (AspectJExpressionPointcutAdvisor advisor : advisors) {
             // 2. 使用 Pointcut 对象匹配当前 bean 对象
             if (advisor.getPointcut().getClassFilter().matchers(bean.getClass())) {
                 ProxyFactory proxyFactory = new ProxyFactory();
+                proxyFactory.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
+                proxyFactory.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
 
+                TargetSource targetSource = new TargetSource(bean, bean.getClass(), bean.getClass().getInterfaces());
+                proxyFactory.setTargetSource(targetSource);
+
+                // 3. 生成代理对象，并返回
+                return proxyFactory.getProxy();
             }
         }
-        return BeanPostProcessor.super.postProcessAfterInitialization(bean, beanName);
-    }
-
-    private boolean isAspect(Object bean) {
-        return bean.getClass().isAnnotationPresent(Aspect.class);
-    }
-
-    private boolean isPointcut(Method method) {
-        return method.isAnnotationPresent(Pointcut.class);
+        // 匹配失败，返回 bean
+        return bean;
     }
 
     @Override

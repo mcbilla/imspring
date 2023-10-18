@@ -10,6 +10,7 @@ public class ImspringApplicationTest {
     public static void main(String[] args) {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ImspringApplicationTest.class)) {
             MyService bean = context.getBean("myService", MyService.class);
+            bean.test();
             System.out.println(bean);
         } catch (Exception e) {
             throw e;
