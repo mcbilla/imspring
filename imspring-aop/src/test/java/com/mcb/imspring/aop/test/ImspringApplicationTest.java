@@ -1,15 +1,15 @@
-package com.mcb.imspring.core.test;
+package com.mcb.imspring.aop.test;
 
+import com.mcb.imspring.aop.test.service.MyService;
 import com.mcb.imspring.core.annotation.ComponentScan;
 import com.mcb.imspring.core.context.AnnotationConfigApplicationContext;
-import com.mcb.imspring.core.test.bean.BeanPostProcessorBean;
 
-@ComponentScan("com.mcb.imspring.core.test.bean")
+@ComponentScan("com.mcb.imspring.aop")
 public class ImspringApplicationTest {
 
     public static void main(String[] args) {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ImspringApplicationTest.class)) {
-            BeanPostProcessorBean bean = context.getBean("beanPostProcessorBean", BeanPostProcessorBean.class);
+            MyService bean = context.getBean("myService", MyService.class);
             System.out.println(bean);
         } catch (Exception e) {
             throw e;

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractBeanFactory implements ConfigurableBeanFactory{
     /**
-     * 传说中的ioc容器
+     * 传说中的ioc容器，可以改成ConcurrentHashmap
      */
     protected Map<String, BeanDefinition> ioc;
 

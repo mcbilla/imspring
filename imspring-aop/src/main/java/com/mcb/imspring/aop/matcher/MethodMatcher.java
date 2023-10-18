@@ -2,9 +2,10 @@ package com.mcb.imspring.aop.matcher;
 
 import java.lang.reflect.Method;
 
+/**
+ * 方法级别的匹配
+ */
 public interface MethodMatcher {
-    /**
-     * 静态匹配:可以满足大部分使用场景了，用于条件不严格的时候
-     */
-    boolean matches(Method method, Class<?> targetClass);
+
+    boolean matchers(Method method, Class<?> targetClass);
 }

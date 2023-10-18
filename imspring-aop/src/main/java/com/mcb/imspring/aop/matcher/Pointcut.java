@@ -1,6 +1,10 @@
 package com.mcb.imspring.aop.matcher;
 
+/**
+ * 筛选要拦截的目标类和目标方法
+ */
 public interface Pointcut {
+
     /**
      * Return the ClassFilter for this pointcut.
      * @return the ClassFilter (never {@code null})

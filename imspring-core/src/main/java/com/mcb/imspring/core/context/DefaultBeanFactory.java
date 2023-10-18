@@ -22,6 +22,9 @@ public class DefaultBeanFactory extends AbstractBeanFactory{
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    // TODO 可以改成CopyOnWriteArrayList
+    private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
+
     public DefaultBeanFactory(Class<?> configClass) {
         // 1、扫描所有类
         final Set<String> beanClassNames = scanForClassNames(configClass);
@@ -33,7 +36,7 @@ public class DefaultBeanFactory extends AbstractBeanFactory{
         createBeanInstance();
 
         // 4、BeanPostProcessor前置处理
-        beforeBeanPostProcessor();
+        applyBeanPostProcessorsBeforeInstantiation();
 
         // TODO 5、InitializingBean处理
 
@@ -43,7 +46,7 @@ public class DefaultBeanFactory extends AbstractBeanFactory{
         autowireBean();
 
         // 8、BeanPostProcessor后置处理
-        afterBeanPostProcessor();
+        applyBeanPostProcessorsAfterInitialization();
 
         logger.debug("BeanFactory init finish [{}]", ioc);
     }
@@ -117,14 +120,23 @@ public class DefaultBeanFactory extends AbstractBeanFactory{
                 Constructor cons = def.getConstructor();
                 final Parameter[] parameters = cons.getParameters();
                 Object[] args = new Object[parameters.length];
-                def.setInstance(cons.newInstance(args));
+                Object bean = cons.newInstance(args);
+                def.setInstance(bean);
+
+                if (bean instanceof BeanFactoryAware) {
+                    ((BeanFactoryAware) bean).setBeanFactory(this);
+                }
+
+                if (bean instanceof BeanPostProcessor) {
+                    beanPostProcessors.add((BeanPostProcessor) bean);
+                }
             } catch (Exception e) {
                 throw new BeanCreationException(String.format("Exception when create bean '%s': %s", def.getName(), def.getBeanClass().getName()), e);
             }
         });
     }
 
-    protected void beforeBeanPostProcessor() {
+    protected void applyBeanPostProcessorsBeforeInstantiation() {
         this.ioc.values().stream()
                 .filter(this::isBeanPostProcessorDefinition)
                 .sorted()
@@ -173,7 +185,7 @@ public class DefaultBeanFactory extends AbstractBeanFactory{
         });
     }
 
-    protected void afterBeanPostProcessor() {
+    protected void applyBeanPostProcessorsAfterInitialization() {
         this.ioc.values().stream()
                 .filter(this::isBeanPostProcessorDefinition)
                 .sorted()
@@ -193,5 +205,9 @@ public class DefaultBeanFactory extends AbstractBeanFactory{
 
     private boolean isBeanPostProcessorDefinition(BeanDefinition definition) {
         return BeanPostProcessor.class.isAssignableFrom(definition.getBeanClass());
+    }
+
+    public List<BeanPostProcessor> getBeanPostProcessors() {
+        return beanPostProcessors;
     }
 }
