@@ -3,6 +3,10 @@ package com.mcb.imspring.core.context;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+/**
+ * 保存bean的相关信息，spring中的instance和BeanDefinition是分开保存的（instance存在DefaultSingletonBeanRegistry中）
+ * 这里为了简化，全部放一起保存
+ */
 public class BeanDefinition implements Comparable<BeanDefinition>{
     // 全局唯一的Bean Name:
     private final String name;
@@ -16,26 +20,12 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
     // Bean的实例:
     private Object instance = null;
 
-    // 工厂方法名称
-    private final String factoryName;
-
-    // 工厂方法
-    private final Method factoryMethod;
+    private PropertyValues propertyValues = new PropertyValues();
 
     public BeanDefinition(String name, Class<?> beanClass, Constructor constructor) {
         this.name = name;
         this.beanClass = beanClass;
         this.constructor = constructor;
-        this.factoryName = null;
-        this.factoryMethod = null;
-    }
-
-    public BeanDefinition(String name, Class<?> beanClass, Constructor constructor, String factoryName, Method factoryMethod) {
-        this.name = name;
-        this.beanClass = beanClass;
-        this.constructor = constructor;
-        this.factoryName = factoryName;
-        this.factoryMethod = factoryMethod;
     }
 
     public String getName() {
@@ -58,12 +48,12 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
         this.instance = instance;
     }
 
-    public String getFactoryName() {
-        return factoryName;
+    public PropertyValues getPropertyValues() {
+        return propertyValues;
     }
 
-    public Method getFactoryMethod() {
-        return factoryMethod;
+    public void setPropertyValues(PropertyValues propertyValues) {
+        this.propertyValues = propertyValues;
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.mcb.imspring.aop.advisor.Advisor;
 import com.mcb.imspring.aop.advisor.TargetSource;
 import com.mcb.imspring.aop.proxy.ProxyFactory;
 import com.mcb.imspring.core.annotation.Component;
-import com.mcb.imspring.core.context.BeanFactory;
+import com.mcb.imspring.core.BeanFactory;
 import com.mcb.imspring.core.context.BeanFactoryAware;
 import com.mcb.imspring.core.context.BeanPostProcessor;
 import com.mcb.imspring.core.exception.BeansException;
@@ -65,7 +65,7 @@ public class AspectJAwareAdvisorAutoProxyCreator implements BeanPostProcessor, B
     }
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws Exception {
+    public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 }

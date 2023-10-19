@@ -1,8 +1,14 @@
 package com.mcb.imspring.core.io;
 
 public class Resource {
+    /**
+     * 全路径类名
+     */
     private String name;
 
+    /**
+     * 类文件绝对路径
+     */
     private String path;
 
     public Resource(String name, String path) {

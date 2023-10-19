@@ -2,7 +2,7 @@ package com.mcb.imspring.aop.test;
 
 import com.mcb.imspring.aop.test.service.MyService;
 import com.mcb.imspring.core.annotation.ComponentScan;
-import com.mcb.imspring.core.context.AnnotationConfigApplicationContext;
+import com.mcb.imspring.core.AnnotationConfigApplicationContext;
 
 @ComponentScan("com.mcb.imspring.aop")
 public class ImspringApplicationTest {

@@ -3,7 +3,6 @@ package com.mcb.imspring.core.utils;
 import com.mcb.imspring.core.annotation.Component;
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanPostProcessor;
-import com.mcb.imspring.core.exception.BeanDefinitionException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;

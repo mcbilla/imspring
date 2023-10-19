@@ -1,6 +1,6 @@
 package com.mcb.imspring.core.exception;
 
-public class BeansException extends NestedRuntimeException {
+public class BeansException extends RuntimeException {
 
     public BeansException() {
     }

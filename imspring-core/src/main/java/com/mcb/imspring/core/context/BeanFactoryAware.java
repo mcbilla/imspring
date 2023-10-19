@@ -1,5 +1,7 @@
 package com.mcb.imspring.core.context;
 
+import com.mcb.imspring.core.BeanFactory;
+
 public interface BeanFactoryAware {
-    void setBeanFactory(BeanFactory beanFactory) throws Exception;
+    void setBeanFactory(BeanFactory beanFactory);
 }

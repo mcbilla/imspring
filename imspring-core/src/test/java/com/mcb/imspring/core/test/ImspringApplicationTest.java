@@ -1,7 +1,7 @@
 package com.mcb.imspring.core.test;
 
 import com.mcb.imspring.core.annotation.ComponentScan;
-import com.mcb.imspring.core.context.AnnotationConfigApplicationContext;
+import com.mcb.imspring.core.AnnotationConfigApplicationContext;
 import com.mcb.imspring.core.test.bean.BeanPostProcessorBean;
 
 @ComponentScan("com.mcb.imspring.core.test.bean")

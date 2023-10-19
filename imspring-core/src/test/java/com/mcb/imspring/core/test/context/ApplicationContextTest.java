@@ -1,9 +1,8 @@
 package com.mcb.imspring.core.test.context;
 
-import com.mcb.imspring.core.context.AnnotationConfigApplicationContext;
+import com.mcb.imspring.core.AnnotationConfigApplicationContext;
 import com.mcb.imspring.core.test.ImspringApplicationTest;
 import com.mcb.imspring.core.test.bean.BeanPostProcessorBean;
-import com.mcb.imspring.core.test.bean.ComponentBean;
 import org.junit.Test;
 
 public class ApplicationContextTest {
