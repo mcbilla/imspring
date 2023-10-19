@@ -1,8 +1,7 @@
 package com.mcb.imspring.core.utils;
 
 import com.mcb.imspring.core.annotation.Component;
-import com.mcb.imspring.core.context.BeanDefinition;
-import com.mcb.imspring.core.context.BeanPostProcessor;
+import com.mcb.imspring.core.exception.BeansException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -36,7 +35,7 @@ public class BeanUtils {
                         return name;
                     }
                 } catch (ReflectiveOperationException e) {
-                    throw new BeanDefinitionException("Cannot get annotation value.", e);
+                    throw new BeansException("Cannot get annotation value.", e);
                 }
             }
         }
@@ -55,7 +54,7 @@ public class BeanUtils {
     public static Constructor getBeanConstructor(Class<?> clazz) {
         Constructor<?>[] cons = clazz.getDeclaredConstructors();
         if (cons.length == 0) {
-            throw new BeanDefinitionException("At least one constructor must define in class " + clazz.getName());
+            throw new BeansException("At least one constructor must define in class " + clazz.getName());
         }
         Constructor res = null;
         if (cons.length == 1) {
@@ -68,15 +67,8 @@ public class BeanUtils {
             }
         }
         if (res == null) {
-            throw new BeanDefinitionException("More than one constructor found in class, non-arg constructor must define " + clazz.getName());
+            throw new BeansException("More than one constructor found in class, non-arg constructor must define " + clazz.getName());
         }
         return res;
-    }
-
-    /**
-     * 判断某个类是否BeanPostProcessor接口的子类
-     */
-    boolean isBeanPostProcessorDefinition(BeanDefinition def) {
-        return BeanPostProcessor.class.isAssignableFrom(def.getBeanClass());
     }
 }
