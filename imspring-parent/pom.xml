@@ -19,6 +19,7 @@
         <junit.version>4.13.2</junit.version>
         <aspectj.version>1.9.7</aspectj.version>
         <aopalliance.version>1.0</aopalliance.version>
+        <cglib.version>3.3.0</cglib.version>
     </properties>
 
     <dependencies>
@@ -62,6 +63,12 @@
                 <groupId>aopalliance</groupId>
                 <artifactId>aopalliance</artifactId>
                 <version>${aopalliance.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>${cglib.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
