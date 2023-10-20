@@ -1,7 +1,7 @@
 package com.mcb.imspring.aop.test.matcher;
 
 import com.mcb.imspring.aop.AspectJExpressionPointcut;
-import com.mcb.imspring.aop.test.service.MyService;
+import com.mcb.imspring.aop.test.service.MyServiceImpl;
 import com.mcb.imspring.aop.test.service.MyTest;
 import org.junit.Test;
 
@@ -13,7 +13,7 @@ public class AspectJExpressionPointcutTest {
     public void testClazz() {
         AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
         pointcut.setExpression("execution(* com.mcb.imspring.aop.test.service.MyService.*(..))");
-        System.out.println(pointcut.matchers(MyService.class));
+        System.out.println(pointcut.matchers(MyServiceImpl.class));
         System.out.println(pointcut.matchers(MyTest.class));
     }
 
@@ -21,9 +21,9 @@ public class AspectJExpressionPointcutTest {
     public void testMethod() {
         AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
         pointcut.setExpression("execution(* com.mcb.imspring.aop.test.service.*Service.*(..))");
-        Method[] methods1 = MyService.class.getDeclaredMethods();
+        Method[] methods1 = MyServiceImpl.class.getDeclaredMethods();
         for (Method method : methods1) {
-            System.out.println("1" + pointcut.matchers(method, MyService.class));
+            System.out.println("1" + pointcut.matchers(method, MyServiceImpl.class));
         }
 
         Method[] methods2 = MyTest.class.getDeclaredMethods();

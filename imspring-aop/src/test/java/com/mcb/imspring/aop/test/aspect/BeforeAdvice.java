@@ -6,7 +6,7 @@ import org.aopalliance.intercept.MethodInvocation;
 public class BeforeAdvice implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-        System.out.println("123");
+        System.out.println("这是一个BeforeAdvice");
         Object obj= methodInvocation.proceed();
         return obj;
     }
