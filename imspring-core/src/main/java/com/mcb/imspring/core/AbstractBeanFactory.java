@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,14 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     public <T> T getBean(String name, Class<T> requiredType) {
         BeanDefinition def = getBeanDefinition(name, requiredType);
         if (def == null) {
-            throw new BeansException(String.format("No bean defined with name '%s' and type '%s'.", name, requiredType));
+            StringBuilder errMsg = new StringBuilder("No bean defined with ");
+            if (name != null) {
+                errMsg.append("name ").append(name);
+            }
+            if (requiredType != null) {
+                errMsg.append("type ").append(requiredType);
+            }
+            throw new BeansException(errMsg.toString());
         }
         Object instance = def.getInstance();
         if (instance == null) {
@@ -67,7 +75,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     public  <T> T doGetBean(String name, @Nullable Class<T> requiredType, @Nullable Object[] args) {
         BeanDefinition def = getBeanDefinition(name, requiredType);
         // 初始化bean实例
-        Object bean = createBean(def, args);
+        Object bean = createBean(def);
 
         // 属性填充
         bean = populateBean(bean, name);
@@ -84,9 +92,11 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     /**
      * 初始化bean实例，暂时只支持构造器创建
      */
-    private Object createBean(BeanDefinition def, Object[] args) {
+    private Object createBean(BeanDefinition def) {
         try {
             Constructor cons = def.getConstructor();
+            final Parameter[] parameters = cons.getParameters();
+            Object[] args = new Object[parameters.length];
             Object bean = cons.newInstance(args);
             return bean;
         } catch (Exception e) {

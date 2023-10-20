@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
- * Spring IOC容器的默认实现类，对应Spring的DefaultSingletonBeanRegistry
+ * Spring IOC容器的默认实现类
  */
 public class DefaultListableBeanFactory extends AbstractBeanFactory {
 
@@ -32,6 +31,10 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
 
     protected AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader();
 
+    /**
+     * 只做ioc容器的初始化，并没有实例化bean，在真正调用getBean的时候再进行实例化
+     * @param configClass
+     */
     public DefaultListableBeanFactory(Class<?> configClass) {
         try {
             reader.loadBeanDefinitions(configClass);

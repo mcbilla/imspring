@@ -32,4 +32,8 @@ public class ServiceBean {
     public void setAge(Integer age) {
         this.age = age;
     }
+
+    public void test() {
+        System.out.println("我是一个myServiceBean");
+    }
 }
