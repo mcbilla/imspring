@@ -7,5 +7,6 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
 
     public AnnotationConfigApplicationContext(Class<?> configClass) {
         super(configClass);
+        refresh();
     }
 }

@@ -20,8 +20,6 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
     // Bean的实例:
     private Object instance = null;
 
-    private PropertyValues propertyValues = new PropertyValues();
-
     public BeanDefinition(String name, Class<?> beanClass, Constructor constructor) {
         this.name = name;
         this.beanClass = beanClass;
@@ -46,14 +44,6 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
 
     public void setInstance(Object instance) {
         this.instance = instance;
-    }
-
-    public PropertyValues getPropertyValues() {
-        return propertyValues;
-    }
-
-    public void setPropertyValues(PropertyValues propertyValues) {
-        this.propertyValues = propertyValues;
     }
 
     @Override

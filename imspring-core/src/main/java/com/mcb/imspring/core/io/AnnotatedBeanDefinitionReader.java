@@ -24,7 +24,7 @@ public class AnnotatedBeanDefinitionReader {
     private Map<String, BeanDefinition> registry = new ConcurrentHashMap<>();
 
     public void loadBeanDefinitions(Class<?> configClass) throws IOException, URISyntaxException {
-        Set<String> classNameSet = scanForClassNames(configClass);
+        Set<String> classNameSet = this.scanForClassNames(configClass);
         if (classNameSet.isEmpty()) {
             return;
         }

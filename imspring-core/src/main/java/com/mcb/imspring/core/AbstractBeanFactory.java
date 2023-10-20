@@ -74,11 +74,16 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     public  <T> T doGetBean(String name, @Nullable Class<T> requiredType, @Nullable Object[] args) {
         BeanDefinition def = getBeanDefinition(name, requiredType);
+        name = def.getName();
+
         // 初始化bean实例
         Object bean = createBean(def);
 
         // 属性填充
-        bean = populateBean(bean, name);
+        populateBean(bean, name);
+
+        // 检查Aware相关接口并设置依赖
+        invokeAwareInterfaces(bean, name);
 
         // 初始化bean
         bean = initializeBean(bean, name);
@@ -107,10 +112,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     /**
      * 属性填充，即常说的依赖注入
      */
-    private Object populateBean(Object bean, String name) {
-        if (bean instanceof BeanFactoryAware) {
-            ((BeanFactoryAware) bean).setBeanFactory(this);
-        }
+    private void populateBean(Object bean, String name) {
         Field[] fields = bean.getClass().getDeclaredFields();
         for (Field field : fields) {
             if (!field.isAnnotationPresent(Autowired.class)) {
@@ -130,7 +132,19 @@ public abstract class AbstractBeanFactory implements BeanFactory {
                 throw new BeansException(String.format("Exception when autowired '%s': %s", name, field.getName()), e);
             }
         }
-        return bean;
+    }
+
+    /**
+     * 检查Aware相关接口并设置依赖，Spring中是通过BeanPostProcessor来处理的，比如ApplicationContextAwareProcessor
+     * 这里做了简化处理，仅对 BeanFactoryAware 接口实现类提供了支持
+     * @param bean
+     * @param name
+     * @return
+     */
+    private void invokeAwareInterfaces(Object bean, String name) {
+        if (bean instanceof BeanFactoryAware) {
+            ((BeanFactoryAware) bean).setBeanFactory(this);
+        }
     }
 
     /**
@@ -192,5 +206,18 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     @Nullable
     protected abstract List<BeanDefinition> getBeanDefinitions(Class<?> type);
 
-    protected abstract List<BeanPostProcessor> getBeanPostProcessors();
+    /**
+     * 添加BeanPostProcessor
+     */
+    public abstract void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
+
+    /**
+     * 获取所有BeanPostProcessor
+     */
+    public abstract List<BeanPostProcessor> getBeanPostProcessors();
+
+    /**
+     * 实例化所有非延迟加载的bean
+     */
+    public abstract void preInstantiateSingletons();
 }

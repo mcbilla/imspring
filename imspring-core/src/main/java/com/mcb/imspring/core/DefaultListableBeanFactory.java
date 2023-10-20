@@ -45,6 +45,7 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
         }
         registerBeanDefinition();
         registerBeanPostProcessor();
+        logger.debug("BeanFactory init finish");
     }
 
     /**
@@ -67,15 +68,6 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
                 addBeanPostProcessor(getBean(beanDefinition.getName()));
             }
         }
-    }
-
-    private void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-        beanPostProcessors.add(beanPostProcessor);
-    }
-
-    @Override
-    protected List<BeanPostProcessor> getBeanPostProcessors() {
-        return beanPostProcessors;
     }
 
     @Override
@@ -121,5 +113,23 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
             }
         }
         return def;
+    }
+
+    @Override
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        beanPostProcessors.add(beanPostProcessor);
+    }
+
+    @Override
+    public List<BeanPostProcessor> getBeanPostProcessors() {
+        return beanPostProcessors;
+    }
+
+    @Override
+    public void preInstantiateSingletons() {
+        for (String beanName : beanDefinitionMap.keySet()) {
+            this.getBean(beanName);
+        }
+        logger.debug("pre init instance finish [{}]", beanDefinitionMap.keySet());
     }
 }

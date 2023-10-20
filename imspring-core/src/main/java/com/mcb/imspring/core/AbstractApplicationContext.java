@@ -1,147 +1,84 @@
 package com.mcb.imspring.core;
 
-import com.mcb.imspring.core.context.BeanDefinition;
-import com.mcb.imspring.core.context.BeanPostProcessor;
+import com.mcb.imspring.core.context.ApplicationContextAwareProcessor;
 import com.mcb.imspring.core.exception.BeansException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractApplicationContext implements ApplicationContext, AutoCloseable{
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private BeanFactory beanFactory;
+    private long startupDate;
+
+    /** Flag that indicates whether this context is currently active. */
+    private final AtomicBoolean active = new AtomicBoolean();
+
+    /** Flag that indicates whether this context has been closed already. */
+    private final AtomicBoolean closed = new AtomicBoolean();
+
+    private final Class<?> configClass;
+
+    private DefaultListableBeanFactory beanFactory;
 
     public AbstractApplicationContext(Class<?> configClass) {
-        this.beanFactory = new DefaultListableBeanFactory(configClass);
-        refresh();
+        this.configClass = configClass;
     }
 
+    /**
+     * ApplicationContext的核心方法，实例化beanFactory的所有bean
+     * @throws BeansException
+     * @throws IllegalStateException
+     */
     @Override
     public void refresh() throws BeansException, IllegalStateException {
-        // 1、扫描所有类
-//        final Set<String> beanClassNames = scanForClassNames(configClass);
-//
-//        // 2、初始化扫描到的类，并且将它们放入到IOC容器之中，此时还没有实例化
-//        createBeanDefinitions(beanClassNames);
-//
-//        // 3、实例化IOC容器中的bean
-//        createBeanInstance();
-//
-//        // 4、BeanPostProcessor前置处理
-//        applyBeanPostProcessorsBeforeInstantiation();
-//
-//        // TODO 5、InitializingBean处理
-//
-//        // TODO 6、init-method
-//
-//        // 7、依赖注入
-//        autowireBean();
-//
-//        // 8、BeanPostProcessor后置处理
-//        applyBeanPostProcessorsAfterInitialization();
-//
-//        logger.debug("BeanFactory init finish [{}]", ioc);
+        // 1、初始化 refresh 的上下文环境
+        prepareRefresh();
+
+        // 2、初始化 BeanFactory，加载并解析配置
+        this.beanFactory = this.obtainFreshBeanFactory();
+
+        /*--至此，已经完成了简单容器的所有功能，下面开始对简单容器进行增强--*/
+
+        // 3、对 BeanFactory 进行功能增强
+        prepareBeanFactory(beanFactory);
+
+        // 4、实例化所有非延迟加载的单例
+        finishBeanFactoryInitialization(beanFactory);
     }
 
-    protected void createBeanInstance() {
-//        if (this.ioc == null || this.ioc.isEmpty()) {
-//            return;
-//        }
-//        this.ioc.values().forEach(def -> {
-//            // 创建instance，这里暂时使用构造器创建
-//            try {
-//                Constructor cons = def.getConstructor();
-//                final Parameter[] parameters = cons.getParameters();
-//                Object[] args = new Object[parameters.length];
-//                Object bean = cons.newInstance(args);
-//                def.setInstance(bean);
-//
-//                if (bean instanceof BeanFactoryAware) {
-//                    ((BeanFactoryAware) bean).setBeanFactory(this);
-//                }
-//
-//                if (bean instanceof BeanPostProcessor) {
-//                    beanPostProcessors.add((BeanPostProcessor) bean);
-//                }
-//            } catch (Exception e) {
-//                throw new BeanCreationException(String.format("Exception when create bean '%s': %s", def.getName(), def.getBeanClass().getName()), e);
-//            }
-//        });
+    /**
+     * 初始化 refresh 的上下文环境，就是记录下容器的启动时间、标记已启动状态、处理配置文件中的占位符
+     */
+    private void prepareRefresh() {
+        this.startupDate = System.currentTimeMillis();
+        this.closed.set(false);
+        this.active.set(true);
+        logger.debug("ApplicationContext startup");
     }
 
-    protected void applyBeanPostProcessorsBeforeInstantiation() {
-//        this.ioc.values().stream()
-//                .filter(this::isBeanPostProcessorDefinition)
-//                .sorted()
-//                .forEach(def -> {
-//                    BeanPostProcessor processor = (BeanPostProcessor) def.getInstance();
-//                    Object processed = processor.postProcessBeforeInitialization(def.getInstance(), def.getName());
-//                    if (processed == null) {
-//                        throw new BeanCreationException(String.format("PostBeanProcessor returns null when process bean '%s' by %s", def.getName(), processor));
-//                    }
-//                    // 如果一个BeanPostProcessor替换了原始Bean，则更新Bean的引用
-//                    if (def.getInstance() != processed) {
-//                        logger.debug("Bean '{}' was replaced by post processor before handler {}.", def.getName(), processor.getClass().getName());
-//                        def.setInstance(processed);
-//                    }
-//                });
+    /**
+     * 初始化 BeanFactory，加载并解析配置，这时候 BeanFactory 还没有实例化
+     */
+    private DefaultListableBeanFactory obtainFreshBeanFactory() {
+        return new DefaultListableBeanFactory(configClass);
     }
 
-    protected void autowireBean() {
-//        if (this.ioc == null || this.ioc.isEmpty()) {
-//            return;
-//        }
-//        // 通过字段和set方法注入依赖
-//        this.ioc.values().forEach(def -> {
-//            Object instance = def.getInstance();
-//            Field[] fields = instance.getClass().getDeclaredFields();
-//            for (Field field : fields) {
-//                if (!field.isAnnotationPresent(Autowired.class)) {
-//                    continue;
-//                }
-//                Autowired autowired = field.getAnnotation(Autowired.class);
-//                String beanName = null;
-//                if (autowired.value() != null && autowired.value().length() > 0) {
-//                    beanName = autowired.value();
-//                } else {
-//                    beanName = BeanUtils.getBeanName(field.getType().getSimpleName());
-//                }
-//                if (ioc.containsKey(beanName)) {
-//                    try {
-//                        field.setAccessible(true);
-//                        field.set(instance, ioc.get(beanName).getInstance());
-//                    } catch (IllegalAccessException e) {
-//                        throw new BeanCreationException(String.format("Exception when autowired '%s': %s", def.getName(), field.getName()), e);
-//                    }
-//                }
-//            }
-//        });
+    /**
+     * 对 BeanFactory 进行功能增强，如设置BeanFactory的类加载器，添加几个 BeanPostProcessor，手动注册几个特殊的 bean
+     */
+    private void prepareBeanFactory(DefaultListableBeanFactory beanFactory) {
+        beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
     }
 
-    protected void applyBeanPostProcessorsAfterInitialization() {
-//        this.ioc.values().stream()
-//                .filter(this::isBeanPostProcessorDefinition)
-//                .sorted()
-//                .forEach(def -> {
-//                    BeanPostProcessor processor = (BeanPostProcessor) def.getInstance();
-//                    Object processed = processor.postProcessAfterInitialization(def.getInstance(), def.getName());
-//                    if (processed == null) {
-//                        throw new BeanCreationException(String.format("PostBeanProcessor returns null when process bean '%s' by %s", def.getName(), processor));
-//                    }
-//                    // 如果一个BeanPostProcessor替换了原始Bean，则更新Bean的引用
-//                    if (def.getInstance() != processed) {
-//                        logger.debug("Bean '{}' was replaced by post processor after handler {}.", def.getName(), processor.getClass().getName());
-//                        def.setInstance(processed);
-//                    }
-//                });
-    }
-
-    private boolean isBeanPostProcessorDefinition(BeanDefinition definition) {
-        return BeanPostProcessor.class.isAssignableFrom(definition.getBeanClass());
+    /**
+     * 实例化所有非延迟加载的单例
+     */
+    private void finishBeanFactoryInitialization(DefaultListableBeanFactory beanFactory) {
+        beanFactory.preInstantiateSingletons();
     }
 
     @Override
@@ -176,6 +113,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext, 
 
     @Override
     public void close() {
-        System.out.println("自动关闭");
+        this.closed.set(true);
+        this.active.set(false);
+        logger.debug("ApplicationContext quit, total run [{}] ms", (System.currentTimeMillis() - startupDate));
     }
 }
