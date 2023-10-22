@@ -1,6 +1,6 @@
 package com.mcb.imspring.aop.test.matcher;
 
-import com.mcb.imspring.aop.AspectJExpressionPointcut;
+import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import com.mcb.imspring.aop.test.service.MyServiceImpl;
 import com.mcb.imspring.aop.test.service.MySingleService;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package com.mcb.imspring.aop.matcher;
+package com.mcb.imspring.aop.pointcut;
 
 /**
  * 类级别的匹配

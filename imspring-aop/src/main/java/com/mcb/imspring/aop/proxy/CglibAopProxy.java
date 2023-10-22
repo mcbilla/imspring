@@ -1,6 +1,5 @@
 package com.mcb.imspring.aop.proxy;
 
-import com.mcb.imspring.aop.advisor.AdvisedSupport;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;

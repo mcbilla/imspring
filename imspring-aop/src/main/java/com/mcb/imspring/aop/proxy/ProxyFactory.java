@@ -1,7 +1,5 @@
 package com.mcb.imspring.aop.proxy;
 
-import com.mcb.imspring.aop.advisor.AdvisedSupport;
-
 public class ProxyFactory extends AdvisedSupport {
 
     /**

@@ -1,4 +1,4 @@
-package com.mcb.imspring.aop.matcher;
+package com.mcb.imspring.aop.pointcut;
 
 import java.lang.reflect.Method;
 
