@@ -52,7 +52,11 @@ public abstract class AbstractAspectJAdvice implements Advice, Ordered, MethodIn
 
     protected Object invokeAdviceMethod(JoinPoint jp, Object returnValue, Throwable t) throws InvocationTargetException, IllegalAccessException {
         this.aspectJAdviceMethod.setAccessible(true);
-        return this.aspectJAdviceMethod.invoke(jp.getThis(), jp.getArgs());
+        Object[] actualArgs = jp.getArgs();
+        if (this.aspectJAdviceMethod.getParameterCount() == 0) {
+            actualArgs = null;
+        }
+        return this.aspectJAdviceMethod.invoke(jp.getThis(), actualArgs);
     }
 
     @Override
