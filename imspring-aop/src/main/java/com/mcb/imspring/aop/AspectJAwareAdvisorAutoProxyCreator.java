@@ -52,21 +52,23 @@ public class AspectJAwareAdvisorAutoProxyCreator implements BeanPostProcessor, B
         if (isAspect(bean)) {
             return bean;
         }
-        // 1.  遍历 advisorCache，逐一匹配
+        // 遍历 advisorCache，逐一匹配
         for (List<AspectJExpressionPointcutAdvisor> advisors : advisorsCache.values()) {
+            ProxyFactory proxyFactory = null;
             for (AspectJExpressionPointcutAdvisor advisor : advisors) {
-                // 2. 使用 Pointcut 对象匹配当前 bean 对象
+                // 使用 Pointcut 对象匹配当前 bean 对象
                 if (this.isNotEmptyAdvice(advisor) && advisor.getPointcut().getClassFilter().matchers(bean.getClass())) {
-                    ProxyFactory proxyFactory = new ProxyFactory();
-                    proxyFactory.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
-                    proxyFactory.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
-
-                    TargetSource targetSource = new TargetSource(bean, advisor.getAspectJBean(), bean.getClass(), bean.getClass().getInterfaces());
-                    proxyFactory.setTargetSource(targetSource);
-
-                    // 3. 生成代理对象，并返回
-                    return proxyFactory.getProxy();
+                    if (proxyFactory == null) {
+                        proxyFactory = new ProxyFactory();
+                        proxyFactory.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
+                        TargetSource targetSource = new TargetSource(bean, advisor.getAspectJBean(), bean.getClass(), bean.getClass().getInterfaces());
+                        proxyFactory.setTargetSource(targetSource);
+                    }
+                    proxyFactory.addAdvisors(advisor);
                 }
+            }
+            if (proxyFactory != null) {
+                return proxyFactory.getProxy();
             }
         }
         // 匹配失败，返回 bean

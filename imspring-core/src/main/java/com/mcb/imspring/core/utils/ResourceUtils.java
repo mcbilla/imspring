@@ -5,7 +5,7 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
-public class ResourceUtils {
+public abstract class ResourceUtils {
     public static String uriToString(URI uri) throws UnsupportedEncodingException {
         return URLDecoder.decode(uri.toString(), StandardCharsets.UTF_8.toString());
     }

@@ -6,7 +6,6 @@ import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import com.mcb.imspring.aop.pointcut.Pointcut;
 import org.aopalliance.aop.Advice;
 import org.aspectj.lang.annotation.*;
-import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +14,11 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
+/**
+ * Advice 是通知，Advisor 是增强器，Advisor 和 Advice 是一一对应关系。
+ * Advisor 除了包含 Advice，还包含 pointcut、method 等其他信息，在使用 Proxy 生成代理对象的时候需要用到这些信息。
+ */
+public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor, Ordered {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -38,22 +41,40 @@ public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
         this.aspectJAdviceMethod = aspectJAdviceMethod;
         this.aspectJBean = aspectJBean;
         this.aspectName = aspectName;
-        this.pointcut = instantiatePointcut(this.declaringClass);
+        this.pointcut = instantiatePointcut(this.aspectJAdviceMethod, this.declaringClass);
         this.advice = instantiateAdvice(this.aspectJAdviceMethod, this.pointcut);
     }
 
-    private AspectJExpressionPointcut instantiatePointcut(Class<?> declaringClass) {
-        Method[] declaredMethods = declaringClass.getDeclaredMethods();
+    private AspectJExpressionPointcut instantiatePointcut(Method aspectJAdviceMethod, Class<?> declaringClass) {
         String expresion = null;
-        for (Method method : declaredMethods) {
-            if (method.isAnnotationPresent(org.aspectj.lang.annotation.Pointcut.class)) {
-                org.aspectj.lang.annotation.Pointcut annotation = method.getAnnotation(org.aspectj.lang.annotation.Pointcut.class);
-                expresion = annotation.value();
-                break;
+        if (aspectJAdviceMethod.isAnnotationPresent(org.aspectj.lang.annotation.Pointcut.class)) {
+            // Pointcut注解，直接返回value
+            expresion = aspectJAdviceMethod.getAnnotation(org.aspectj.lang.annotation.Pointcut.class).value();
+        } else {
+            // 非Pointcut注解，先获取注解value，然后查找和注解value同名的方法，返回方法的Pointcut注解的value
+            Annotation[] annotations = aspectJAdviceMethod.getAnnotations();
+            String pointcutValue = null;
+            for (Annotation annotation : annotations) {
+                if (AspectJAnnotation.containsAspectJAnnotation(annotation)) {
+                    AspectJAnnotation aspectJAnnotation = new AspectJAnnotation(annotation);
+                    pointcutValue = aspectJAnnotation.getAnnotationValue();
+                    break;
+                }
+            }
+            if (pointcutValue == null) {
+                throw new AopConfigException(String.format("pointcut can not be null %s", declaringClass.getName()));
+            }
+            Method[] declaredMethods = declaringClass.getDeclaredMethods();
+            for (Method method : declaredMethods) {
+                if (method.isAnnotationPresent(org.aspectj.lang.annotation.Pointcut.class) && (method.getName() + "()").equals(pointcutValue)) {
+                    expresion = method.getAnnotation(org.aspectj.lang.annotation.Pointcut.class).value();
+                    break;
+                }
             }
         }
+
         if (expresion == null) {
-            throw new AopConfigException(String.format("pointcut expression can not be null %s", declaringClass.getName()));
+            throw new AopConfigException(String.format("can not find pointcut or pointcut expression is null %s", declaringClass.getName()));
         }
         AspectJExpressionPointcut aspectJExpressionPointcut = new AspectJExpressionPointcut();
         aspectJExpressionPointcut.setExpression(expresion);
@@ -112,6 +133,11 @@ public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
         return aspectJBean;
     }
 
+    @Override
+    public int getOrder() {
+        return ((Ordered)this.advice).getOrder();
+    }
+
     protected enum AspectJAnnotationType {
         AtPointcut, AtAround, AtBefore, AtAfter, AtAfterReturning, AtAfterThrowing
     }
@@ -153,6 +179,29 @@ public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
 
         public AspectJAnnotationType getAnnotationType() {
             return this.annotationType;
+        }
+
+        public A getAnnotation() {
+            return this.annotation;
+        }
+
+        public String getAnnotationValue() {
+            switch (this.annotationType) {
+                case AtPointcut:
+                    return ((org.aspectj.lang.annotation.Pointcut) annotation).value();
+                case AtAround:
+                    return ((Around) annotation).value();
+                case AtBefore:
+                    return ((Before) annotation).value();
+                case AtAfter:
+                    return ((After) annotation).value();
+                case AtAfterReturning:
+                    return ((AfterReturning) annotation).value();
+                case AtAfterThrowing:
+                    return ((AfterThrowing) annotation).value();
+                default:
+                    return null;
+            }
         }
     }
 }

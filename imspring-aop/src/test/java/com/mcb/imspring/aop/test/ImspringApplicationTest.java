@@ -13,8 +13,8 @@ public class ImspringApplicationTest {
             IMyService bean1 = context.getBean("myService");
             bean1.test();
 
-            MySingleService bean2 = context.getBean("mySingleService");
-            bean2.test();
+//            MySingleService bean2 = context.getBean("mySingleService");
+//            bean2.test();
         } catch (Exception e) {
             throw e;
         }

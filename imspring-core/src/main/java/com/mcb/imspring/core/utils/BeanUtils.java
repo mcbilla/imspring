@@ -6,7 +6,7 @@ import com.mcb.imspring.core.exception.BeansException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 
-public class BeanUtils {
+public abstract class BeanUtils {
     /**
      * 查找指定类的指定注解，这里需要递归查找注解的注解
      */
