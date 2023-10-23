@@ -25,7 +25,7 @@ public abstract class AbstractAopProxy implements AopProxy{
             // 将 bean 的原始 method 封装成 MethodInvocation 实现类对象，
             // 将生成的对象传给 Adivce 实现类对象，执行通知逻辑
             return methodInterceptor.invoke(
-                    new ReflectiveMethodInvocation(advised.getTargetSource().getTarget(), method, args));
+                    new ReflectiveMethodInvocation(advised.getTargetSource().getTarget(), advised.getTargetSource().getProxy(), method, args));
         } else {
             // 当前 method 不符合匹配规则，直接调用 bean 中的原始 method
             return method.invoke(advised.getTargetSource().getTarget(), args);

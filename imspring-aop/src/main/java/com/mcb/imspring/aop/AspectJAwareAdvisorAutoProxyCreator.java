@@ -1,6 +1,5 @@
 package com.mcb.imspring.aop;
 
-import com.mcb.imspring.aop.advisor.Advisor;
 import com.mcb.imspring.aop.advisor.AspectJExpressionPointcutAdvisor;
 import com.mcb.imspring.aop.advisor.TargetSource;
 import com.mcb.imspring.aop.proxy.ProxyFactory;
@@ -36,7 +35,7 @@ public class AspectJAwareAdvisorAutoProxyCreator implements BeanPostProcessor, B
             Method[] declaredMethods = bean.getClass().getDeclaredMethods();
             List<AspectJExpressionPointcutAdvisor> advisors = new ArrayList<>();
             for (Method method : declaredMethods) {
-                advisors.add(new AspectJExpressionPointcutAdvisor(method));
+                advisors.add(new AspectJExpressionPointcutAdvisor(method, bean, beanName));
             }
             advisorsCache.put(beanName, advisors);
         }
@@ -50,13 +49,7 @@ public class AspectJAwareAdvisorAutoProxyCreator implements BeanPostProcessor, B
      */
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        /* 这里两个 if 判断很有必要，如果删除将会使程序进入死循环状态，
-         * 最终导致 StackOverflowError 错误发生
-         */
-        if (bean instanceof AspectJExpressionPointcutAdvisor) {
-            return bean;
-        }
-        if (bean instanceof MethodInterceptor) {
+        if (isAspect(bean)) {
             return bean;
         }
         // 1.  遍历 advisorCache，逐一匹配
@@ -68,7 +61,7 @@ public class AspectJAwareAdvisorAutoProxyCreator implements BeanPostProcessor, B
                     proxyFactory.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
                     proxyFactory.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
 
-                    TargetSource targetSource = new TargetSource(bean, bean.getClass(), bean.getClass().getInterfaces());
+                    TargetSource targetSource = new TargetSource(bean, advisor.getAspectJBean(), bean.getClass(), bean.getClass().getInterfaces());
                     proxyFactory.setTargetSource(targetSource);
 
                     // 3. 生成代理对象，并返回

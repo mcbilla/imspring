@@ -9,12 +9,15 @@ public class ReflectiveMethodInvocation implements MethodInvocation {
 
     protected Object target;
 
+    protected Object proxy;
+
     protected Method method;
 
     protected Object[] arguments;
 
-    public ReflectiveMethodInvocation(Object target, Method method, Object[] arguments) {
+    public ReflectiveMethodInvocation(Object target, Object proxy, Method method, Object[] arguments) {
         this.target = target;
+        this.proxy = proxy;
         this.method = method;
         this.arguments = arguments;
     }
@@ -42,5 +45,13 @@ public class ReflectiveMethodInvocation implements MethodInvocation {
     @Override
     public AccessibleObject getStaticPart() {
         return method;
+    }
+
+    public Object getTarget() {
+        return target;
+    }
+
+    public Object getProxy() {
+        return proxy;
     }
 }

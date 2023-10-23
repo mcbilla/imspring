@@ -1,10 +1,9 @@
 package com.mcb.imspring.aop.test;
 
 import com.mcb.imspring.aop.test.service.IMyService;
-import com.mcb.imspring.aop.test.service.MyServiceImpl;
 import com.mcb.imspring.aop.test.service.MySingleService;
-import com.mcb.imspring.core.annotation.ComponentScan;
 import com.mcb.imspring.core.AnnotationConfigApplicationContext;
+import com.mcb.imspring.core.annotation.ComponentScan;
 
 @ComponentScan("com.mcb.imspring.aop")
 public class ImspringApplicationTest {

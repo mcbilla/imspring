@@ -8,8 +8,11 @@ public class TargetSource {
 
 	private Object target;
 
-	public TargetSource(Object target, Class<?> targetClass, Class<?>... interfaces) {
+	private Object proxy;
+
+	public TargetSource(Object target, Object proxy, Class<?> targetClass, Class<?>... interfaces) {
 		this.target = target;
+		this.proxy = proxy;
 		this.targetClass = targetClass;
         this.interfaces = interfaces;
 	}
@@ -25,4 +28,8 @@ public class TargetSource {
     public Class<?>[] getInterfaces() {
         return interfaces;
     }
+
+	public Object getProxy() {
+		return proxy;
+	}
 }

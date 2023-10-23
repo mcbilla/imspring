@@ -6,6 +6,7 @@ import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import com.mcb.imspring.aop.pointcut.Pointcut;
 import org.aopalliance.aop.Advice;
 import org.aspectj.lang.annotation.*;
+import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +29,15 @@ public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
 
     private final Method aspectJAdviceMethod;
 
-    protected Advice advice;
+    private Advice advice;
 
-    public AspectJExpressionPointcutAdvisor(Method aspectJAdviceMethod) {
+    private Object aspectJBean;
+
+    public AspectJExpressionPointcutAdvisor(Method aspectJAdviceMethod, Object aspectJBean, String aspectName) {
         this.declaringClass = aspectJAdviceMethod.getDeclaringClass();
-        this.aspectName = aspectJAdviceMethod.getName();
         this.aspectJAdviceMethod = aspectJAdviceMethod;
+        this.aspectJBean = aspectJBean;
+        this.aspectName = aspectName;
         this.pointcut = instantiatePointcut(this.declaringClass);
         this.advice = instantiateAdvice(this.aspectJAdviceMethod, this.pointcut);
     }
@@ -60,7 +64,7 @@ public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
         Advice advice = null;
         Annotation[] annotations = method.getAnnotations();
         for (Annotation annotation : annotations) {
-            if (AspectJAnnotation.containsAspectJAnnotation(annotation.getClass())) {
+            if (AspectJAnnotation.containsAspectJAnnotation(annotation)) {
                 AspectJAnnotation aspectJAnnotation = new AspectJAnnotation(annotation);
                 switch (aspectJAnnotation.getAnnotationType()) {
                     case AtPointcut:
@@ -104,6 +108,10 @@ public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
         return this.advice;
     }
 
+    public Object getAspectJBean() {
+        return aspectJBean;
+    }
+
     protected enum AspectJAnnotationType {
         AtPointcut, AtAround, AtBefore, AtAfter, AtAfterReturning, AtAfterThrowing
     }
@@ -131,8 +139,8 @@ public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
             this.annotationType = determineAnnotationType(annotation);
         }
 
-        public static boolean containsAspectJAnnotation(Class<?> annotation) {
-            return annotationTypeMap.containsKey(annotation);
+        public static boolean containsAspectJAnnotation(Annotation annotation) {
+            return annotationTypeMap.containsKey(annotation.annotationType());
         }
 
         private AspectJAnnotationType determineAnnotationType(A annotation) {
