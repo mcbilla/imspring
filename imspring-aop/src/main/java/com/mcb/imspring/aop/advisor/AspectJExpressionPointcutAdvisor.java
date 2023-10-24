@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * Advice 是通知，Advisor 是增强器，Advisor 和 Advice 是一一对应关系。
- * Advisor 除了包含 Advice，还包含 pointcut、method 等其他信息，在使用 Proxy 生成代理对象的时候需要用到这些信息。
+ * Advice 只包含通知本身的内容，Advisor 相当于 Advice 的 plus 版，包含 pointcut、bean 等其他信息，在使用 Proxy 生成代理对象的时候需要用到这些信息。
  */
 public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor, Ordered {
 

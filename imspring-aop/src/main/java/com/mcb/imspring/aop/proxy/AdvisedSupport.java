@@ -12,6 +12,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * 封装需要增强的对象、匹配器、增强器等信息，ProxyFactory需要用到这些信息
+ */
 public class AdvisedSupport {
     private TargetSource targetSource;
 

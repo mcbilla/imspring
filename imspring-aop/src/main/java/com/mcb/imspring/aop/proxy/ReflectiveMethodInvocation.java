@@ -1,4 +1,4 @@
-package com.mcb.imspring.aop.joinpoint;
+package com.mcb.imspring.aop.proxy;
 
 import com.mcb.imspring.aop.advisor.Advisor;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -8,6 +8,10 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.List;
 
+/**
+ * 封装需要增强的原始对象，并包含了advisor等增强的内容
+ * Advisor的增强内容默认都通过反射来实现
+ */
 public class ReflectiveMethodInvocation implements MethodInvocation {
 
     protected Object target;

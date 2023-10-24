@@ -2,7 +2,7 @@ package com.mcb.imspring.aop.advice;
 
 import com.mcb.imspring.aop.joinpoint.MethodInvocationProceedingJoinPoint;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
-import com.mcb.imspring.aop.joinpoint.ReflectiveMethodInvocation;
+import com.mcb.imspring.aop.proxy.ReflectiveMethodInvocation;
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 

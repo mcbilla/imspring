@@ -1,6 +1,5 @@
 package com.mcb.imspring.aop.proxy;
 
-import com.mcb.imspring.aop.joinpoint.ReflectiveMethodInvocation;
 import com.mcb.imspring.aop.pointcut.MethodMatcher;
 
 import java.lang.reflect.Method;
@@ -13,6 +12,10 @@ public abstract class AbstractAopProxy implements AopProxy{
         this.advised = advised;
     }
 
+    /**
+     * 对原始对象创建 jdk 或者 cglib 动态代理后，统一封装 ReflectiveMethodInvocation，内部通过反射调用
+     * 这里为了方便并没有实现 CglibMethodInvocation 来处理 cglib 动态代理的对象
+     */
     protected Object doInvoke(Object o, Method method, Object[] args) throws Throwable {
         MethodMatcher methodMatcher = this.advised.getMethodMatcher();
 

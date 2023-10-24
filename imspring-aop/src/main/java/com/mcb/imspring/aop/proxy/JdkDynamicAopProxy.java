@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * 实现JDK的InvocationHandler接口，自定义代理逻辑
+ * JDK动态代理，实现JDK的InvocationHandler接口，自定义代理逻辑
  */
 final public class JdkDynamicAopProxy extends AbstractAopProxy implements InvocationHandler {
 

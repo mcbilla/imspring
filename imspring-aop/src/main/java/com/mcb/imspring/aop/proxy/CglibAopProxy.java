@@ -7,7 +7,7 @@ import net.sf.cglib.proxy.MethodProxy;
 import java.lang.reflect.Method;
 
 /**
- * 实现cglib的MethodInterceptor接口，类似于JDK中的InvocationHandler接口
+ * Cglib 动态代理，实现cglib的MethodInterceptor接口，类似于JDK中的InvocationHandler接口
  */
 public class CglibAopProxy extends AbstractAopProxy implements MethodInterceptor {
 
