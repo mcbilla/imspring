@@ -19,8 +19,13 @@ import java.util.List;
 
 /**
  * Spring IOC容器的的抽象类，实现ConfigurableBeanFactory的接口
- * Spring的单例IOC容器实际上由SingletonBeanRegistry管理的，默认实现类是DefaultSingletonBeanRegistry
- * 这里为了简化直接把IOC容器放在AbstractBeanFactory中
+ * Spring的单例IOC容器实际上由SingletonBeanRegistry管理的，默认实现类是DefaultSingletonBeanRegistry，这里为了简化直接把IOC容器放在BeanFactory中
+ *
+ * Spring Bean 的生命周期
+ * 1、实例化 Instantiation
+ * 2、属性赋值 Populate
+ * 3、初始化 Initialization
+ * 4、销毁 Destruction
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
     private final Logger logger = LoggerFactory.getLogger(getClass());
