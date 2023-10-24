@@ -1,18 +1,19 @@
 package com.mcb.imspring.core;
 
 import com.mcb.imspring.core.annotation.Autowired;
+import com.mcb.imspring.core.annotation.Value;
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanFactoryAware;
 import com.mcb.imspring.core.context.BeanPostProcessor;
+import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.utils.BeanUtils;
+import com.mcb.imspring.core.utils.StringUtils;
 import com.sun.istack.internal.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +55,13 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         }
         Object instance = def.getInstance();
         if (instance == null) {
-            instance = doGetBean(name, requiredType, null);
+            try {
+                instance = doGetBean(name, requiredType, null);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
         return (T) instance;
     }
@@ -72,7 +79,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         return list;
     }
 
-    public  <T> T doGetBean(String name, @Nullable Class<T> requiredType, @Nullable Object[] args) {
+    public  <T> T doGetBean(String name, @Nullable Class<T> requiredType, @Nullable Object[] args) throws InvocationTargetException, IllegalAccessException {
         BeanDefinition def = getBeanDefinition(name, requiredType);
         name = def.getName();
 
@@ -82,11 +89,8 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         // 属性填充
         populateBean(bean, name);
 
-        // 检查Aware相关接口并设置依赖
-        invokeAwareInterfaces(bean, name);
-
         // 初始化bean
-        bean = initializeBean(bean, name);
+        bean = initializeBean(bean, name, def);
 
         // 完成bean初始化
         def.setInstance(bean);
@@ -115,21 +119,23 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     private void populateBean(Object bean, String name) {
         Field[] fields = bean.getClass().getDeclaredFields();
         for (Field field : fields) {
-            if (!field.isAnnotationPresent(Autowired.class)) {
-                continue;
+            if (field.isAnnotationPresent(Autowired.class)) {
+                String propertyBeanName = BeanUtils.getBeanName(field.getType().getSimpleName());
+                try {
+                    field.setAccessible(true);
+                    field.set(bean, getBean(propertyBeanName));
+                } catch (IllegalAccessException e) {
+                    throw new BeansException(String.format("Exception when autowired '%s': %s", name, field.getName()), e);
+                }
             }
-            Autowired autowired = field.getAnnotation(Autowired.class);
-            String propertyBeanName;
-            if (autowired.value() != null && autowired.value().length() > 0) {
-                propertyBeanName = autowired.value();
-            } else {
-                propertyBeanName = BeanUtils.getBeanName(field.getType().getSimpleName());
-            }
-            try {
-                field.setAccessible(true);
-                field.set(bean, getBean(propertyBeanName));
-            } catch (IllegalAccessException e) {
-                throw new BeansException(String.format("Exception when autowired '%s': %s", name, field.getName()), e);
+            if (field.isAnnotationPresent(Value.class)) {
+                Value annotation = field.getAnnotation(Value.class);
+                try {
+                    field.setAccessible(true);
+                    field.set(bean, annotation.value());
+                } catch (IllegalAccessException e) {
+                    throw new BeansException(String.format("Exception when autowired '%s': %s", name, field.getName()), e);
+                }
             }
         }
     }
@@ -148,33 +154,66 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     }
 
     /**
-     * 初始化bean，包括BeanPostProcessorq前置处理、init方法、BeanPostProcessor后置处理
+     * 初始化bean
+     * 1、检查Aware相关接口并设置依赖
+     * 2、BeanPostProcessorq前置处理
+     * 3、InitializingBean
+     * 4、init-method
+     * 5、BeanPostProcessor后置处理
      */
-    private Object initializeBean(Object bean, String name) {
-        // BeanPostProcessor前置处理
+    private Object initializeBean(Object bean, String beanName, BeanDefinition def) throws InvocationTargetException, IllegalAccessException {
+        // 检查Aware相关接口并设置依赖
+        invokeAwareInterfaces(bean, beanName);
+
+        // 调用BeanPostProcessor的postProcessBeforeInitialization方法
+        bean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
+
+        // 调用初始化方法，先调用bean的InitializingBean接口方法，后调用bean的自定义初始化方法
+        invokeInitMethods(beanName, bean, def);
+
+        // 调用BeanPostProcessor的applyBeanPostProcessorsAfterInitialization方法
+        bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
+
+        return bean;
+    }
+
+    private Object applyBeanPostProcessorsBeforeInitialization(Object bean, String beanName) {
         for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
-            Object processed = beanPostProcessor.postProcessBeforeInitialization(bean, name);
+            Object processed = beanPostProcessor.postProcessBeforeInitialization(bean, beanName);
             if (processed == null) {
-                throw new BeansException(String.format("post processor before handler returns null when process bean '%s' by %s", name, beanPostProcessor.getClass().getName()));
+                throw new BeansException(String.format("post processor before handler returns null when process bean '%s' by %s", beanName, beanPostProcessor.getClass().getName()));
             }
             // 如果一个BeanPostProcessor替换了原始Bean，则更新Bean的引用
             if (bean != processed) {
-                logger.debug("Bean '{}' was replaced by post processor before handler {}.", name, beanPostProcessor.getClass().getName());
+                logger.debug("Bean '{}' was replaced by post processor before handler {}.", beanName, beanPostProcessor.getClass().getName());
                 bean = processed;
             }
         }
+        return bean;
+    }
 
-        // TODO init方法
+    private void invokeInitMethods(String beanName, Object bean, BeanDefinition def) throws InvocationTargetException, IllegalAccessException {
+        if (bean instanceof InitializingBean) {
+            ((InitializingBean) bean).afterPropertiesSet();
+        }
 
-        // BeanPostProcessor后置处理
+        if (!StringUtils.isEmpty(def.getInitMethodName())) {
+            Method initMethod = BeanUtils.findMethod(def.getBeanClass(), def.getInitMethodName());
+            if (initMethod != null) {
+                initMethod.invoke(bean, null);
+            }
+        }
+    }
+
+    private Object applyBeanPostProcessorsAfterInitialization(Object bean, String beanName) {
         for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
-            Object processed = beanPostProcessor.postProcessAfterInitialization(bean, name);
+            Object processed = beanPostProcessor.postProcessAfterInitialization(bean, beanName);
             if (processed == null) {
-                throw new BeansException(String.format("post processor after handler returns null when process bean '%s' by %s", name, beanPostProcessor.getClass().getName()));
+                throw new BeansException(String.format("post processor after handler returns null when process bean '%s' by %s", beanName, beanPostProcessor.getClass().getName()));
             }
             // 如果一个BeanPostProcessor替换了原始Bean，则更新Bean的引用
             if (bean != processed) {
-                logger.debug("Bean '{}' was replaced by post processor after handler {}.", name, beanPostProcessor.getClass().getName());
+                logger.debug("Bean '{}' was replaced by post processor after handler {}.", beanName, beanPostProcessor.getClass().getName());
                 bean = processed;
             }
         }

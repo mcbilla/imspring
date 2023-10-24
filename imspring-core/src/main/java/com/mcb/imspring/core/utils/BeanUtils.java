@@ -2,9 +2,11 @@ package com.mcb.imspring.core.utils;
 
 import com.mcb.imspring.core.annotation.Component;
 import com.mcb.imspring.core.exception.BeansException;
+import com.sun.istack.internal.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 public abstract class BeanUtils {
     /**
@@ -70,5 +72,28 @@ public abstract class BeanUtils {
             throw new BeansException("More than one constructor found in class, non-arg constructor must define " + clazz.getName());
         }
         return res;
+    }
+
+    @Nullable
+    public static Method findMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {
+        try {
+            return clazz.getMethod(methodName, paramTypes);
+        }
+        catch (NoSuchMethodException ex) {
+            return findDeclaredMethod(clazz, methodName, paramTypes);
+        }
+    }
+
+    @Nullable
+    public static Method findDeclaredMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {
+        try {
+            return clazz.getDeclaredMethod(methodName, paramTypes);
+        }
+        catch (NoSuchMethodException ex) {
+            if (clazz.getSuperclass() != null) {
+                return findDeclaredMethod(clazz.getSuperclass(), methodName, paramTypes);
+            }
+            return null;
+        }
     }
 }

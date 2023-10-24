@@ -1,5 +1,8 @@
 package com.mcb.imspring.core.context;
 
+import com.sun.istack.internal.Nullable;
+
+import javax.annotation.PostConstruct;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
@@ -20,10 +23,17 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
     // Bean的实例:
     private Object instance = null;
 
+    @Nullable
+    private String initMethodName;
+
+    @Nullable
+    private String destroyMethodName;
+
     public BeanDefinition(String name, Class<?> beanClass, Constructor constructor) {
         this.name = name;
         this.beanClass = beanClass;
         this.constructor = constructor;
+        setInitAndDestroyMethodName();
     }
 
     public String getName() {
@@ -44,6 +54,26 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
 
     public void setInstance(Object instance) {
         this.instance = instance;
+    }
+
+    public String getInitMethodName() {
+        return initMethodName;
+    }
+
+    public String getDestroyMethodName() {
+        return destroyMethodName;
+    }
+
+    private void setInitAndDestroyMethodName() {
+        Method[] methods = beanClass.getMethods();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(PostConstruct.class)) {
+                this.initMethodName =  method.getName();
+            }
+            if (method.isAnnotationPresent(PostConstruct.class)) {
+                this.destroyMethodName = method.getName();
+            }
+        }
     }
 
     @Override
