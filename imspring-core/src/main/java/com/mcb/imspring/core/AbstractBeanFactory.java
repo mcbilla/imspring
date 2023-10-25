@@ -2,10 +2,7 @@ package com.mcb.imspring.core;
 
 import com.mcb.imspring.core.annotation.Autowired;
 import com.mcb.imspring.core.annotation.Value;
-import com.mcb.imspring.core.context.BeanDefinition;
-import com.mcb.imspring.core.context.BeanFactoryAware;
-import com.mcb.imspring.core.context.BeanPostProcessor;
-import com.mcb.imspring.core.context.InitializingBean;
+import com.mcb.imspring.core.context.*;
 import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.utils.BeanUtils;
 import com.mcb.imspring.core.utils.StringUtils;
@@ -27,7 +24,7 @@ import java.util.List;
  * 3、初始化 Initialization
  * 4、销毁 Destruction
  */
-public abstract class AbstractBeanFactory implements BeanFactory {
+public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinitionRegistry {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
@@ -224,31 +221,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         }
         return bean;
     }
-
-    protected abstract boolean containsBeanDefinition(String beanName);
-
-    /**
-     * 根据Name查找BeanDefinition，如果Name不存在，返回null
-     */
-    @Nullable
-    protected abstract BeanDefinition getBeanDefinition(String beanName) throws BeansException;
-
-    /**
-     * 根据Name和Type查找BeanDefinition，如果Name不存在，返回null，如果Name存在，但Type不匹配，抛出异常。
-     */
-    @Nullable
-    protected abstract BeanDefinition getBeanDefinition(Class<?> type);
-
-    /**
-     * 根据Name和Type查找BeanDefinition，如果Name不存在，返回null，如果Name存在，但Type不匹配，抛出异常。
-     */
-    protected abstract BeanDefinition getBeanDefinition(String name, Class<?> requiredType);
-
-    /**
-     * 根据Type查找若干个BeanDefinition，返回0个或多个。
-     */
-    @Nullable
-    protected abstract List<BeanDefinition> getBeanDefinitions(Class<?> type);
 
     /**
      * 添加BeanPostProcessor

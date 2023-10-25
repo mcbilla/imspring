@@ -38,10 +38,8 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     public DefaultListableBeanFactory(Class<?> configClass) {
         try {
             reader.loadBeanDefinitions(configClass);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new BeansException(e);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
         }
         registerBeanDefinition();
         registerBeanPostProcessor();
@@ -71,7 +69,7 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     }
 
     @Override
-    protected boolean containsBeanDefinition(String beanName) {
+    public boolean containsBeanDefinition(String beanName) {
         return this.beanDefinitionMap.containsKey(beanName);
     }
 
