@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="399ae974-7251-4c5d-92e7-2dec7851d695" name="Changes" comment="增加init-method和initializeBean">
+      <change afterPath="$PROJECT_DIR$/imspring-core/src/main/java/com/mcb/imspring/core/annotation/Bean.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-core/src/main/java/com/mcb/imspring/core/annotation/Configuration.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-core/src/main/java/com/mcb/imspring/core/context/BeanDefinitionRegistry.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-core/src/main/java/com/mcb/imspring/core/context/ConfigurationClassPostProcessor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-core/src/test/java/com/mcb/imspring/core/test/config/BeanConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-core/src/test/java/com/mcb/imspring/core/test/config/ComponentScanConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-web/src/main/java/com/mcb/imspring/web/annotation/GetMapping.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-web/src/main/java/com/mcb/imspring/web/annotation/PathVariable.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-web/src/main/java/com/mcb/imspring/web/annotation/PostMapping.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-web/src/main/java/com/mcb/imspring/web/annotation/RequestBody.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-web/src/main/java/com/mcb/imspring/web/annotation/ResponseBody.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-web/src/main/java/com/mcb/imspring/web/annotation/RestController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/imspring-web/src/main/java/com/mcb/imspring/web/exception/ServerErrorException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imspring-aop/src/test/java/com/mcb/imspring/aop/test/ImspringApplicationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/imspring-aop/src/test/java/com/mcb/imspring/aop/test/aop/AopTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imspring-core/src/main/java/com/mcb/imspring/core/AbstractBeanFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/imspring-core/src/main/java/com/mcb/imspring/core/AbstractBeanFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imspring-core/src/main/java/com/mcb/imspring/core/DefaultListableBeanFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/imspring-core/src/main/java/com/mcb/imspring/core/DefaultListableBeanFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imspring-core/src/main/java/com/mcb/imspring/core/io/AnnotatedBeanDefinitionReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/imspring-core/src/main/java/com/mcb/imspring/core/io/AnnotatedBeanDefinitionReader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imspring-core/src/test/java/com/mcb/imspring/core/test/ImspringApplicationTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/imspring-core/src/test/java/com/mcb/imspring/core/test/context/ApplicationContextTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/imspring-core/src/test/java/com/mcb/imspring/core/test/context/ApplicationContextTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imspring-core/src/test/java/com/mcb/imspring/core/test/context/BeanFactoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/imspring-core/src/test/java/com/mcb/imspring/core/test/context/BeanFactoryTest.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="AnnotationType" />
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="$USER_HOME$/code-tools/apache-maven-3.5.4" />
+        <option name="useMavenConfig" value="true" />
+        <option name="userSettingsFile" value="$USER_HOME$/code-tools/apache-maven-3.5.4/conf/settings.xml" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="2Vy4Wf7ES1bmtMpw4dgL57svlAD" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "jdk.selected.JAVA_MODULE": "1.8",
+    "last_opened_file_path": "/Users/mochuangbiao/IdeaProjects/imspring/imspring-web/src/main/java/com/mcb/imspring/web/annotation",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.575897",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
+  }
+}]]></component>
+  <component name="RebelAgentSelection">
+    <selection>jr</selection>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/imspring-web/src/main/java/com/mcb/imspring/web/annotation" />
+      <recent name="$PROJECT_DIR$/imspring-core/src/main/resources" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/imspring-web/src/main/resources" />
+      <recent name="$PROJECT_DIR$/imspring-core/src/main/resources/WEB-INF" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.mcb.imspring.core" />
+      <recent name="com.mcb.imspring.aop" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.mcb.imspring.core.test.bean" />
+      <recent name="com.mcb.imspring.core.annotation" />
+      <recent name="com.mcb.imspring.web.exception" />
+      <recent name="com.mcb.imspring.web.annotation" />
+      <recent name="com.mcb.imspring.aop.test" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JUnit.ApplicationContextTest.test1">
+    <configuration name="AopTest" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.mcb.imspring.aop.test.aop.AopTest" />
+      <module name="imspring-aop" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ImspringApplicationTest" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.mcb.imspring.core.test.ImspringApplicationTest" />
+      <module name="imspring-core" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ApplicationContextTest.test1" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="imspring-core" />
+      <option name="PACKAGE_NAME" value="com.mcb.imspring.core.test.context" />
+      <option name="MAIN_CLASS_NAME" value="com.mcb.imspring.core.test.context.ApplicationContextTest" />
+      <option name="METHOD_NAME" value="test1" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ApplicationContextTest.testMyApplicationContext" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="imspring-core" />
+      <option name="PACKAGE_NAME" value="com.mcb.imspring.core.test.context" />
+      <option name="MAIN_CLASS_NAME" value="com.mcb.imspring.core.test.context.ApplicationContextTest" />
+      <option name="METHOD_NAME" value="testMyApplicationContext" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BeanFactoryTest.test" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="imspring-core" />
+      <option name="PACKAGE_NAME" value="com.mcb.imspring.core.test.context" />
+      <option name="MAIN_CLASS_NAME" value="com.mcb.imspring.core.test.context.BeanFactoryTest" />
+      <option name="METHOD_NAME" value="test" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ImspringTxApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="imspring-tx" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.mcb.imspring.tx.ImspringTxApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.ApplicationContextTest.test1" />
+        <item itemvalue="Application.AopTest" />
+        <item itemvalue="JUnit.BeanFactoryTest.test" />
+        <item itemvalue="JUnit.ApplicationContextTest.testMyApplicationContext" />
+        <item itemvalue="Application.ImspringApplicationTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="399ae974-7251-4c5d-92e7-2dec7851d695" name="Changes" comment="" />
+      <created>1695795018961</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1695795018961</updated>
+      <workItem from="1695795020369" duration="19755000" />
+      <workItem from="1696773822028" duration="43231000" />
+      <workItem from="1697112715059" duration="373000" />
+      <workItem from="1697113110051" duration="6683000" />
+      <workItem from="1697459751873" duration="579000" />
+      <workItem from="1697464640408" duration="17239000" />
+      <workItem from="1697618116933" duration="113580000" />
+    </task>
+    <task id="LOCAL-00001" summary="init">
+      <created>1695900467967</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1695900467967</updated>
+    </task>
+    <task id="LOCAL-00002" summary="代码优化">
+      <created>1696771889386</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1696771889386</updated>
+    </task>
+    <task id="LOCAL-00003" summary="代码优化">
+      <created>1696775565868</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1696775565868</updated>
+    </task>
+    <task id="LOCAL-00004" summary="ResourceResolver">
+      <created>1696853122797</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1696853122797</updated>
+    </task>
+    <task id="LOCAL-00005" summary="ApplicationContext">
+      <created>1696931900405</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1696931900405</updated>
+    </task>
+    <task id="LOCAL-00006" summary="ApplicationContext">
+      <created>1697024054886</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1697024054886</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Beanfactory">
+      <created>1697116846856</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1697116846856</updated>
+    </task>
+    <task id="LOCAL-00008" summary="BeanPostProcessor">
+      <created>1697468856043</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1697468856044</updated>
+    </task>
+    <task id="LOCAL-00009" summary="AOP">
+      <created>1697471042793</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1697471042793</updated>
+    </task>
+    <task id="LOCAL-00010" summary="AOP">
+      <created>1697561581944</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1697561581944</updated>
+    </task>
+    <task id="LOCAL-00011" summary="AOP">
+      <created>1697636503313</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1697636503313</updated>
+    </task>
+    <task id="LOCAL-00012" summary="BeanFactory 重构">
+      <created>1697721594813</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1697721594813</updated>
+    </task>
+    <task id="LOCAL-00013" summary="BeanFactory 重构">
+      <created>1697721854452</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1697721854452</updated>
+    </task>
+    <task id="LOCAL-00014" summary="BeanFactory 重构">
+      <created>1697769143880</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1697769143880</updated>
+    </task>
+    <task id="LOCAL-00015" summary="ApplicationContext 重构">
+      <created>1697785423528</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1697785423528</updated>
+    </task>
+    <task id="LOCAL-00016" summary="AOP">
+      <created>1697797492869</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1697797492869</updated>
+    </task>
+    <task id="LOCAL-00017" summary="AOP 增强使用cglib">
+      <created>1697806307694</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1697806307694</updated>
+    </task>
+    <task id="LOCAL-00018" summary="AOP完成">
+      <created>1698033863484</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1698033863484</updated>
+    </task>
+    <task id="LOCAL-00019" summary="AOP完成">
+      <created>1698065872143</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1698065872143</updated>
+    </task>
+    <task id="LOCAL-00020" summary="AOP完成">
+      <created>1698066498401</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1698066498401</updated>
+    </task>
+    <task id="LOCAL-00021" summary="AOP完成">
+      <created>1698141571065</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1698141571065</updated>
+    </task>
+    <task id="LOCAL-00022" summary="增加init-method和initializeBean">
+      <created>1698148633755</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1698148633755</updated>
+    </task>
+    <task id="LOCAL-00023" summary="增加init-method和initializeBean">
+      <created>1698149114107</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1698149114108</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/imspring-tx" />
+    </ignored-roots>
+    <MESSAGE value="init" />
+    <MESSAGE value="代码优化" />
+    <MESSAGE value="ResourceResolver" />
+    <MESSAGE value="ApplicationContext" />
+    <MESSAGE value="Beanfactory" />
+    <MESSAGE value="BeanPostProcessor" />
+    <MESSAGE value="BeanFactory 重构" />
+    <MESSAGE value="ApplicationContext 重构" />
+    <MESSAGE value="AOP" />
+    <MESSAGE value="AOP 增强使用cglib" />
+    <MESSAGE value="AOP完成" />
+    <MESSAGE value="增加init-method和initializeBean" />
+    <option name="LAST_COMMIT_MESSAGE" value="增加init-method和initializeBean" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/imspring-core/src/main/java/com/mcb/imspring/core/io/AnnotatedBeanDefinitionReader.java</url>
+          <line>29</line>
+          <option name="timeStamp" value="112" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
