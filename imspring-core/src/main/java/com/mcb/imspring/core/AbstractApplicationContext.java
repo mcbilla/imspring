@@ -1,6 +1,8 @@
 package com.mcb.imspring.core;
 
 import com.mcb.imspring.core.context.ApplicationContextAwareProcessor;
+import com.mcb.imspring.core.context.BeanDefinition;
+import com.mcb.imspring.core.context.BeanDefinitionRegistry;
 import com.mcb.imspring.core.exception.BeansException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class AbstractApplicationContext implements ApplicationContext, AutoCloseable{
+public abstract class AbstractApplicationContext implements ApplicationContext, BeanDefinitionRegistry, AutoCloseable{
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -104,6 +106,36 @@ public abstract class AbstractApplicationContext implements ApplicationContext, 
     @Override
     public <T> List<T> getBeans(Class<T> requiredType) {
         return getBeans(requiredType);
+    }
+
+    @Override
+    public String[] getBeanNamesForType(Class<?> type) {
+        return ((DefaultListableBeanFactory)getBeanFactory()).getBeanNamesForType(type);
+    }
+
+    @Override
+    public boolean containsBeanDefinition(String beanName) {
+        return ((DefaultListableBeanFactory)getBeanFactory()).containsBeanDefinition(beanName);
+    }
+
+    @Override
+    public BeanDefinition getBeanDefinition(String beanName) throws BeansException {
+        return ((DefaultListableBeanFactory)getBeanFactory()).getBeanDefinition(beanName);
+    }
+
+    @Override
+    public BeanDefinition getBeanDefinition(Class<?> type) {
+        return ((DefaultListableBeanFactory)getBeanFactory()).getBeanDefinition(type);
+    }
+
+    @Override
+    public BeanDefinition getBeanDefinition(String name, Class<?> requiredType) {
+        return ((DefaultListableBeanFactory)getBeanFactory()).getBeanDefinition(name, requiredType);
+    }
+
+    @Override
+    public List<BeanDefinition> getBeanDefinitions(Class<?> type) {
+        return ((DefaultListableBeanFactory)getBeanFactory()).getBeanDefinitions(type);
     }
 
     @Override

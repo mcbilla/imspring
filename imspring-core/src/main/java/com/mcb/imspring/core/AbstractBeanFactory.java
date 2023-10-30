@@ -5,6 +5,7 @@ import com.mcb.imspring.core.annotation.Value;
 import com.mcb.imspring.core.context.*;
 import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.utils.BeanUtils;
+import com.mcb.imspring.core.utils.CollectionUtils;
 import com.mcb.imspring.core.utils.StringUtils;
 import com.sun.istack.internal.Nullable;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Spring IOC容器的的抽象类，实现ConfigurableBeanFactory的接口
@@ -24,7 +26,7 @@ import java.util.List;
  * 3、初始化 Initialization
  * 4、销毁 Destruction
  */
-public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinitionRegistry {
+public abstract class AbstractBeanFactory implements ListableBeanFactory, BeanDefinitionRegistry {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
@@ -79,6 +81,16 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
             list.add(getBean(def.getName()));
         }
         return list;
+    }
+
+    @Override
+    public String[] getBeanNamesForType(Class<?> type) {
+        List<BeanDefinition> beanDefinitions = this.getBeanDefinitions(type);
+        if (!CollectionUtils.isEmpty(beanDefinitions)) {
+            List<String> beanNames = beanDefinitions.stream().map(BeanDefinition::getName).collect(Collectors.toList());
+            return beanNames.toArray(new String[0]);
+        }
+        return null;
     }
 
     public  <T> T doGetBean(String name, @Nullable Class<T> requiredType, @Nullable Object[] args) throws InvocationTargetException, IllegalAccessException {
