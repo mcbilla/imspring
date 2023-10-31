@@ -15,4 +15,6 @@ public interface BeanFactory {
     <T> T getBean(Class<T> requiredType);
 
     <T> List<T> getBeans(Class<T> requiredType);
+
+    Class<?> getType(String name);
 }

@@ -5,6 +5,7 @@ import com.mcb.imspring.core.exception.BeansException;
 import com.sun.istack.internal.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
@@ -12,14 +13,14 @@ public abstract class BeanUtils {
     /**
      * 查找指定类的指定注解，这里需要递归查找注解的注解
      */
-    public static <A extends Annotation> A findAnnotation(Class<?> clazz, Class<A> targetAnno) {
-        if (clazz.isAnnotationPresent(targetAnno)) {
-            return clazz.getAnnotation(targetAnno);
+    public static <A extends Annotation> A findAnnotation(AnnotatedElement element, Class<A> targetAnno) {
+        if (element.isAnnotationPresent(targetAnno)) {
+            return element.getAnnotation(targetAnno);
         }
-        for (Annotation anno : clazz.getAnnotations()) {
+        for (Annotation anno : element.getAnnotations()) {
             Class<? extends Annotation> annoType = anno.annotationType();
             if (!annoType.getPackage().getName().equals("java.lang.annotation")) {
-                return findAnnotation(annoType, targetAnno);
+                return findAnnotation(element, targetAnno);
             }
         }
         return null;
@@ -96,4 +97,10 @@ public abstract class BeanUtils {
             return null;
         }
     }
+
+    public static boolean hasAnnotation(AnnotatedElement element, Class<? extends Annotation> annotationType) {
+        return element.isAnnotationPresent(annotationType);
+    }
+
+
 }

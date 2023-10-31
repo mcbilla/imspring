@@ -5,24 +5,17 @@ package com.mcb.imspring.web.exception;
  */
 public class ServerErrorException extends RuntimeException {
 
-    public int statusCode;
+    public ServerErrorException(){}
 
-    public ServerErrorException(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
-    public ServerErrorException(int statusCode, String message) {
+    public ServerErrorException(String message) {
         super(message);
-        this.statusCode = statusCode;
     }
 
-    public ServerErrorException(int statusCode, Throwable cause) {
-        super(cause);
-        this.statusCode = statusCode;
-    }
-
-    public ServerErrorException(int statusCode, String message, Throwable cause) {
+    public ServerErrorException(String message, Throwable cause) {
         super(message, cause);
-        this.statusCode = statusCode;
+    }
+
+    public ServerErrorException(Throwable cause) {
+        super(cause);
     }
 }

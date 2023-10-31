@@ -25,7 +25,6 @@ public class DispatchServlet extends FrameworkServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-
         logger.info("Spring framework is init.");
     }
 

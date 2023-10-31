@@ -105,7 +105,12 @@ public abstract class AbstractApplicationContext implements ApplicationContext, 
 
     @Override
     public <T> List<T> getBeans(Class<T> requiredType) {
-        return getBeans(requiredType);
+        return getBeanFactory().getBeans(requiredType);
+    }
+
+    @Override
+    public Class<?> getType(String name) {
+        return getBeanFactory().getType(name);
     }
 
     @Override

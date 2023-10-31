@@ -84,6 +84,15 @@ public abstract class AbstractBeanFactory implements ListableBeanFactory, BeanDe
     }
 
     @Override
+    public Class<?> getType(String name) {
+        Object bean = getBean(name);
+        if (bean != null) {
+            return bean.getClass();
+        }
+        return null;
+    }
+
+    @Override
     public String[] getBeanNamesForType(Class<?> type) {
         List<BeanDefinition> beanDefinitions = this.getBeanDefinitions(type);
         if (!CollectionUtils.isEmpty(beanDefinitions)) {

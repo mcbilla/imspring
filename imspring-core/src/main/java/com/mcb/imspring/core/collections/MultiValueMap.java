@@ -1,4 +1,4 @@
-package com.mcb.imspring.core.utils;
+package com.mcb.imspring.core.collections;
 
 import com.sun.istack.internal.Nullable;
 
