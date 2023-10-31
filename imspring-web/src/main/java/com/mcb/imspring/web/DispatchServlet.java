@@ -29,7 +29,7 @@ public class DispatchServlet extends FrameworkServlet {
     }
 
     @Override
-    protected void doService(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void doService(HttpServletRequest request, HttpServletResponse response) {
 
     }
 }

@@ -41,5 +41,5 @@ public abstract class FrameworkServlet extends HttpServlet {
         doService(request, response);
     }
 
-    protected abstract void doService(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    protected abstract void doService(HttpServletRequest request, HttpServletResponse response);
 }

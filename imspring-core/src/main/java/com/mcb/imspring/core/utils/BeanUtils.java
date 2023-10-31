@@ -20,7 +20,7 @@ public abstract class BeanUtils {
         for (Annotation anno : element.getAnnotations()) {
             Class<? extends Annotation> annoType = anno.annotationType();
             if (!annoType.getPackage().getName().equals("java.lang.annotation")) {
-                return findAnnotation(element, targetAnno);
+                return findAnnotation(annoType, targetAnno);
             }
         }
         return null;
