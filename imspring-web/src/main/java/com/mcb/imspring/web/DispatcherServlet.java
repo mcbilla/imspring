@@ -1,7 +1,6 @@
 package com.mcb.imspring.web;
 
 import com.mcb.imspring.core.ApplicationContext;
-import com.mcb.imspring.core.annotation.Component;
 import com.mcb.imspring.web.handler.HandlerMapping;
 import com.mcb.imspring.web.servlet.FrameworkServlet;
 import org.slf4j.Logger;
@@ -9,9 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.List;
 
-@Component
 public class DispatcherServlet extends FrameworkServlet {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 

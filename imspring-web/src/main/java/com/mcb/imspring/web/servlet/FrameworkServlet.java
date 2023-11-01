@@ -2,16 +2,18 @@ package com.mcb.imspring.web.servlet;
 
 import com.mcb.imspring.core.ApplicationContext;
 import com.mcb.imspring.core.context.ApplicationContextAware;
+import com.mcb.imspring.web.context.WebApplicationContext;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public abstract class FrameworkServlet extends HttpServlet implements ApplicationContextAware {
+public abstract class FrameworkServlet extends HttpServlet {
 
-    private ApplicationContext webApplicationContext;
+    private ApplicationContext applicationContext;
 
     @Override
     public void init() throws ServletException {
@@ -19,16 +21,14 @@ public abstract class FrameworkServlet extends HttpServlet implements Applicatio
     }
 
     private void initServletBean() {
-        onRefresh(this.webApplicationContext);
+        // 1. 从 application 域对象中得到 IOC 容器的引用
+        ServletContext servletContext = getServletContext();
+        this.applicationContext  = (ApplicationContext) servletContext.getAttribute("ApplicationContext");
+        onRefresh(this.applicationContext);
     }
 
     protected void onRefresh(ApplicationContext context) {
         // For subclasses: do nothing by default.
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.webApplicationContext = applicationContext;
     }
 
     @Override

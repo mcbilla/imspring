@@ -4,6 +4,18 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
          version="2.4">
     <display-name>Web Application</display-name>
+
+    <!--配置文件的位置-->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>application.properties</param-value>
+    </context-param>
+
+    <!--监听器类，用于监听ServletContext的生命周期-->
+    <listener>
+        <listener-class>com.mcb.imspring.web.listener.SpringServletContextListener</listener-class>
+    </listener>
+
     <!--配置第一个servlet-->
     <servlet>
         <!-- servlet自定义命名 -->
