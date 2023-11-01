@@ -1,5 +1,7 @@
 package com.mcb.imspring.web;
 
+import com.mcb.imspring.core.ApplicationContext;
+import com.mcb.imspring.core.annotation.Component;
 import com.mcb.imspring.core.annotation.Controller;
 import com.mcb.imspring.web.annotation.RequestMapping;
 import com.mcb.imspring.web.handler.HandlerMapping;
@@ -17,15 +19,20 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class DispatchServlet extends FrameworkServlet {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
 
     private List<HandlerMapping> handlerMappings;
 
     @Override
-    public void init(ServletConfig config) throws ServletException {
+    protected void onRefresh(ApplicationContext context) {
+        initHandlerMappings(context);
         logger.info("DispatchServlet is init.");
+    }
+
+    private void initHandlerMappings(ApplicationContext context) {
+
     }
 
     @Override
