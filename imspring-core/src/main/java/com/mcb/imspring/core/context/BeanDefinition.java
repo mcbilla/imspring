@@ -21,7 +21,7 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
     private final Constructor constructor;
 
     // Bean的实例:
-    private Object instance = null;
+    private Object bean = null;
 
     @Nullable
     private String initMethodName;
@@ -48,12 +48,12 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
         return constructor;
     }
 
-    public Object getInstance() {
-        return instance;
+    public Object getBean() {
+        return bean;
     }
 
-    public void setInstance(Object instance) {
-        this.instance = instance;
+    public void setBean(Object bean) {
+        this.bean = bean;
     }
 
     public String getInitMethodName() {

@@ -25,8 +25,8 @@ public abstract class ResourceUtils {
     }
 
     public static String removeBothSlash(String s) {
-        if (s.endsWith("/") || s.endsWith("\\")) {
-            s = s.substring(0, s.length() - 1);
+        if (s.startsWith("/") || s.startsWith("\\")) {
+            s = s.substring(1);
         }
         if (s.endsWith("/") || s.endsWith("\\")) {
             s = s.substring(0, s.length() - 1);

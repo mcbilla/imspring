@@ -57,17 +57,17 @@ public abstract class AbstractBeanFactory implements ListableBeanFactory, BeanDe
             }
             throw new BeansException(errMsg.toString());
         }
-        Object instance = def.getInstance();
-        if (instance == null) {
+        Object bean = def.getBean();
+        if (bean == null) {
             try {
-                instance = doGetBean(name, requiredType, null);
+                bean = doGetBean(name, requiredType, null);
             } catch (InvocationTargetException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
-        return (T) instance;
+        return (T) bean;
     }
 
     @Override
@@ -108,15 +108,13 @@ public abstract class AbstractBeanFactory implements ListableBeanFactory, BeanDe
 
         // 初始化bean实例
         Object bean = createBean(def);
+        def.setBean(bean);
 
         // 属性填充
         populateBean(bean, name);
 
         // 初始化bean
         bean = initializeBean(bean, name, def);
-
-        // 完成bean初始化
-        def.setInstance(bean);
 
         return (T) bean;
     }
