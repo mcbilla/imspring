@@ -1,19 +1,18 @@
-package com.mcb.imspring.boot;
+package com.mcb.imspring.web.test;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 
 import java.io.File;
 
-public class ImspringApplication {
+public class ImspringWebTest {
 
     private static int port = 8080;
 
     private static String contextPath = "/";
 
     private static String baseDir = new File("imspring-web/src/main/resources").getAbsolutePath();
-
-
+    
 
     public static void main(String[] args) throws LifecycleException {
         // 创建tomcat并绑定端口

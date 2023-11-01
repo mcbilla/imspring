@@ -4,6 +4,7 @@ import com.mcb.imspring.aop.advice.*;
 import com.mcb.imspring.aop.exception.AopConfigException;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import com.mcb.imspring.aop.pointcut.Pointcut;
+import com.mcb.imspring.core.collections.Ordered;
 import org.aopalliance.aop.Advice;
 import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;

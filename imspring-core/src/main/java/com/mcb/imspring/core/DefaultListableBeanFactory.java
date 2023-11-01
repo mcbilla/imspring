@@ -1,5 +1,6 @@
 package com.mcb.imspring.core;
 
+import com.mcb.imspring.core.collections.Ordered;
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanPostProcessor;
 import com.mcb.imspring.core.exception.BeansException;
@@ -7,8 +8,8 @@ import com.mcb.imspring.core.io.AnnotatedBeanDefinitionReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -123,9 +124,26 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
 
     @Override
     public void preInstantiateSingletons() {
-        for (String beanName : beanDefinitionMap.keySet()) {
-            this.getBean(beanName);
+        // 按照order升序排序
+        Comparator<BeanDefinition> c = (o1, o2) -> getBeanOrder(o1) - getBeanOrder(o2);
+        Queue<BeanDefinition> queue = new PriorityQueue<>(c);
+        queue.addAll(beanDefinitionMap.values());
+        for (BeanDefinition def : queue) {
+            this.getBean(def.getName());
         }
         logger.debug("pre init finish, all beans: {}", beanDefinitionMap.keySet());
+    }
+
+    private int getBeanOrder(BeanDefinition def) {
+        int order = Ordered.DEFAULT_PRECEDENCE;
+        if (Ordered.class.isAssignableFrom(def.getBeanClass())) {
+            try {
+                Method method = def.getBeanClass().getMethod("getOrder", null);
+                order = (int) method.invoke(def.getBeanClass().newInstance(), null);
+            } catch (Exception e) {
+                throw new BeansException(e);
+            }
+        }
+        return order;
     }
 }

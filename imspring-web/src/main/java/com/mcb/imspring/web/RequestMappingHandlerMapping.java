@@ -3,6 +3,7 @@ package com.mcb.imspring.web;
 import com.mcb.imspring.core.AnnotationConfigApplicationContext;
 import com.mcb.imspring.core.ApplicationContext;
 import com.mcb.imspring.core.annotation.Component;
+import com.mcb.imspring.core.collections.Ordered;
 import com.mcb.imspring.core.context.ApplicationContextAware;
 import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.web.handler.HandlerExecutionChain;
@@ -18,7 +19,7 @@ import java.util.*;
 import java.util.function.Function;
 
 @Component
-public class RequestMappingHandlerMapping<T> implements HandlerMapping, InitializingBean, ApplicationContextAware {
+public class RequestMappingHandlerMapping<T> implements HandlerMapping, InitializingBean, ApplicationContextAware, Ordered {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private AnnotationConfigApplicationContext applicationContext;
@@ -101,5 +102,10 @@ public class RequestMappingHandlerMapping<T> implements HandlerMapping, Initiali
 
     public List<T> getMappingsByBeanName(String beanName) {
         return this.nameLookup.get(beanName);
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 }

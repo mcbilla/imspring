@@ -8,11 +8,7 @@
     <servlet>
         <!-- servlet自定义命名 -->
         <servlet-name>immvc</servlet-name>
-        <servlet-class>com.mcb.imspring.web.DispatchServlet</servlet-class>
-        <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value>application.properties</param-value>
-        </init-param>
+        <servlet-class>com.mcb.imspring.web.DispatcherServlet</servlet-class>
         <!--tomcat容器启动后自动初始化该servlet类-->
         <load-on-startup>1</load-on-startup>
     </servlet>

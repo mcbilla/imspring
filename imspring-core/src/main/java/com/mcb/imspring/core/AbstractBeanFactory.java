@@ -116,6 +116,8 @@ public abstract class AbstractBeanFactory implements ListableBeanFactory, BeanDe
         // 初始化bean
         bean = initializeBean(bean, name, def);
 
+        logger.info("init bean finish: {}", name);
+
         return (T) bean;
     }
 

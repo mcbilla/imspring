@@ -1,6 +1,6 @@
 package com.mcb.imspring.aop.advice;
 
-import com.mcb.imspring.aop.advisor.Ordered;
+import com.mcb.imspring.core.collections.Ordered;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
