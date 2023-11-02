@@ -61,10 +61,8 @@ public abstract class AbstractBeanFactory implements ListableBeanFactory, BeanDe
         if (bean == null) {
             try {
                 bean = doGetBean(name, requiredType, null);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new BeansException(e);
             }
         }
         return (T) bean;

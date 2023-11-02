@@ -1,8 +1,6 @@
 package com.mcb.imspring.web.servlet;
 
 import com.mcb.imspring.core.ApplicationContext;
-import com.mcb.imspring.core.context.ApplicationContextAware;
-import com.mcb.imspring.web.context.WebApplicationContext;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -21,7 +19,7 @@ public abstract class FrameworkServlet extends HttpServlet {
     }
 
     private void initServletBean() {
-        // 1. 从 application 域对象中得到 IOC 容器的引用
+        // 从 application 域对象中得到 IOC 容器的引用
         ServletContext servletContext = getServletContext();
         this.applicationContext  = (ApplicationContext) servletContext.getAttribute("ApplicationContext");
         onRefresh(this.applicationContext);

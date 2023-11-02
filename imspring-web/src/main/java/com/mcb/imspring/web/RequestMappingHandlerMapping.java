@@ -7,6 +7,7 @@ import com.mcb.imspring.core.collections.Ordered;
 import com.mcb.imspring.core.context.ApplicationContextAware;
 import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.web.handler.HandlerExecutionChain;
+import com.mcb.imspring.web.interceptor.HandlerInterceptor;
 import com.mcb.imspring.web.handler.HandlerMapping;
 import com.mcb.imspring.web.handler.HandlerMethod;
 import com.mcb.imspring.web.utils.WebUtils;
@@ -19,20 +20,20 @@ import java.util.*;
 import java.util.function.Function;
 
 @Component
-public class RequestMappingHandlerMapping<T> implements HandlerMapping, InitializingBean, ApplicationContextAware, Ordered {
+public class RequestMappingHandlerMapping implements HandlerMapping, InitializingBean, ApplicationContextAware, Ordered {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private AnnotationConfigApplicationContext applicationContext;
 
     /**
-     * url和method的对应关系
+     * url和handlerMethod的对应关系
      */
-    private Map<String, T> pathLookup = new HashMap<>();
+    private Map<String, Object> handlerMap = new LinkedHashMap<>();
 
     /**
-     * beanName和method的对应关系
+     * 所有拦截器
      */
-    private Map<String, List<T>> nameLookup = new HashMap<>();
+    private List<HandlerInterceptor> interceptors = new ArrayList<>();
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -41,33 +42,38 @@ public class RequestMappingHandlerMapping<T> implements HandlerMapping, Initiali
 
     @Override
     public void afterPropertiesSet() {
-        initHandlerMethods();
+        initHandlers();
     }
 
-    private void initHandlerMethods() {
+    private void initHandlers() {
         String[] beanNames = applicationContext.getBeanNamesForType(Object.class);
         for (String beanName : beanNames) {
-            detectHandlerMethods(beanName);
+            detectHandlers(beanName);
         }
     }
 
-    private void detectHandlerMethods(String beanName) {
+    private void detectHandlers(String beanName) {
         Object bean = applicationContext.getBeanDefinition(beanName).getBean();
+        // 注册HandlerMethod
         if (WebUtils.isHandler(bean.getClass())) {
-            Map<Method, T> methodMap = selectMethods(bean.getClass(),
-                    (method -> (T) createHandlerMethod(beanName, method, bean)));
+            Map<Method, Object> methodMap = selectMethods(bean.getClass(),
+                    (method -> createHandlerMethod(beanName, method, bean)));
             methodMap.forEach((method, mapping) -> {
                 registerHandlerMethod(beanName, method, mapping);
             });
         }
+        // 注册HandlerInterceptor
+        if (WebUtils.isHandlerInterceptor(bean.getClass())) {
+            registerHandlerInterceptor(beanName, bean);
+        }
     }
 
-    private Map<Method, T> selectMethods(Class<?> targetType, final Function<Method, T> function) {
-        final Map<Method, T> methodMap = new LinkedHashMap<>();
+    private Map<Method, Object> selectMethods(Class<?> targetType, final Function<Method, Object> function) {
+        final Map<Method, Object> methodMap = new LinkedHashMap<>();
         Method[] methods = targetType.getDeclaredMethods();
         for (Method method : methods) {
             if (WebUtils.isRequestMapping(method)) {
-                T result = function.apply(method);
+                Object result = function.apply(method);
                 methodMap.put(method, result);
             }
         }
@@ -78,17 +84,15 @@ public class RequestMappingHandlerMapping<T> implements HandlerMapping, Initiali
         return new HandlerMethod(beanName, method, handler);
     }
 
-    private void registerHandlerMethod(String beanName, Method method, T mapping) {
+    private void registerHandlerMethod(String beanName, Method method, Object mapping) {
         String pattern = ((HandlerMethod) mapping).getPattern().pattern();
-        logger.debug("register url: {}，beanName: {}, method: {}", pattern, beanName, method.getName());
-        this.pathLookup.put(pattern, mapping);
-        this.nameLookup.compute(beanName, (k, v) -> {
-            if (v == null) {
-                v = new ArrayList<>();
-            }
-            v.add(mapping);
-            return v;
-        });
+        logger.debug("register handler method url: {}，beanName: {}, method: {}", pattern, beanName, method.getName());
+        this.handlerMap.put(pattern, mapping);
+    }
+
+    private void registerHandlerInterceptor(String beanName, Object bean) {
+        logger.debug("register handler interceptor beanName: {}", beanName);
+        this.interceptors.add((HandlerInterceptor) bean);
     }
 
     @Override
@@ -96,16 +100,12 @@ public class RequestMappingHandlerMapping<T> implements HandlerMapping, Initiali
         return null;
     }
 
-    public T getMappingByPath(String urlPath) {
-        return this.pathLookup.get(urlPath);
-    }
-
-    public List<T> getMappingsByBeanName(String beanName) {
-        return this.nameLookup.get(beanName);
+    public Object getMappingByPath(String urlPath) {
+        return this.handlerMap.get(urlPath);
     }
 
     @Override
     public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
+        return Ordered.LOWEST_PRECEDENCE;
     }
 }

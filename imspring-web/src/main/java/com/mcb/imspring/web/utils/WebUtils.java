@@ -6,13 +6,21 @@ import com.mcb.imspring.web.annotation.GetMapping;
 import com.mcb.imspring.web.annotation.PostMapping;
 import com.mcb.imspring.web.annotation.RequestMapping;
 import com.mcb.imspring.web.exception.ServerErrorException;
+import com.mcb.imspring.web.interceptor.HandlerInterceptor;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 
 public abstract class WebUtils {
+    public static final String INCLUDE_REQUEST_URI_ATTRIBUTE = "javax.servlet.include.request_uri";
+
     public static boolean isHandler(Class<?> beanType) {
         return (BeanUtils.hasAnnotation(beanType, Controller.class) ||
                 BeanUtils.hasAnnotation(beanType, RequestMapping.class));
+    }
+
+    public static boolean isHandlerInterceptor(Class<?> beanType) {
+        return HandlerInterceptor.class.isAssignableFrom(beanType);
     }
 
     public static boolean isRequestMapping(Method method) {
@@ -31,5 +39,13 @@ public abstract class WebUtils {
         } else  {
             throw new ServerErrorException(String.format("requestmapping url can not be null %s", method));
         }
+    }
+
+    public static String getRequestUri(HttpServletRequest request) {
+        String uri = (String) request.getAttribute(INCLUDE_REQUEST_URI_ATTRIBUTE);
+        if (uri == null) {
+            uri = request.getRequestURI();
+        }
+        return uri;
     }
 }
