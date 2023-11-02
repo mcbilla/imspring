@@ -6,11 +6,13 @@ import com.mcb.imspring.core.annotation.Component;
 import com.mcb.imspring.core.collections.Ordered;
 import com.mcb.imspring.core.context.ApplicationContextAware;
 import com.mcb.imspring.core.context.InitializingBean;
+import com.mcb.imspring.core.utils.CollectionUtils;
 import com.mcb.imspring.web.handler.HandlerExecutionChain;
-import com.mcb.imspring.web.interceptor.HandlerInterceptor;
+import com.mcb.imspring.web.handler.HandlerInterceptor;
 import com.mcb.imspring.web.handler.HandlerMapping;
 import com.mcb.imspring.web.handler.HandlerMethod;
 import com.mcb.imspring.web.utils.WebUtils;
+import com.sun.istack.internal.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,8 +98,28 @@ public class RequestMappingHandlerMapping implements HandlerMapping, Initializin
     }
 
     @Override
+    @Nullable
     public HandlerExecutionChain getHandler(HttpServletRequest request) {
-        return null;
+        Object handler = getHandlerInternal(request);
+        if (handler == null) {
+            return null;
+        }
+        HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
+        return executionChain;
+    }
+
+    private Object getHandlerInternal(HttpServletRequest request) {
+        return this.getMappingByPath(request.getRequestURI());
+    }
+
+    private HandlerExecutionChain getHandlerExecutionChain(Object handler, HttpServletRequest request) {
+        HandlerExecutionChain chain = new HandlerExecutionChain(handler);
+        if (!CollectionUtils.isEmpty(this.interceptors)) {
+            for (HandlerInterceptor interceptor : this.interceptors) {
+                chain.addInterceptor(interceptor);
+            }
+        }
+        return chain;
     }
 
     public Object getMappingByPath(String urlPath) {

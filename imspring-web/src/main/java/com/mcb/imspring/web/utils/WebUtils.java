@@ -6,7 +6,7 @@ import com.mcb.imspring.web.annotation.GetMapping;
 import com.mcb.imspring.web.annotation.PostMapping;
 import com.mcb.imspring.web.annotation.RequestMapping;
 import com.mcb.imspring.web.exception.ServerErrorException;
-import com.mcb.imspring.web.interceptor.HandlerInterceptor;
+import com.mcb.imspring.web.handler.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 /**
  * 保存 url 和 method 的关系，当一个请求到达时，DispatcherServlet 匹配一个 HandlerMethod 并最终调用它处理该请求。
- * Spring 把请求条件保存在 RequestMappingInfo，把控制器方法 保存在 HandlerMethod，这里统一保存在 HandlerMethod。
+ * Spring 把请求条件保存在 RequestMappingInfo，把 controller 内容保存在 HandlerMethod，这里统一保存在 HandlerMethod。
  */
 public class HandlerMethod {
     private final Pattern pattern;
