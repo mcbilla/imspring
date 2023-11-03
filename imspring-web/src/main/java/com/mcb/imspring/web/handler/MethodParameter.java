@@ -18,4 +18,20 @@ public class MethodParameter {
         this.parameterType = parameter.getType();
         this.parameterName = parameter.getName();
     }
+
+    public Parameter getParameter() {
+        return parameter;
+    }
+
+    public int getParameterIndex() {
+        return parameterIndex;
+    }
+
+    public Class<?> getParameterType() {
+        return parameterType;
+    }
+
+    public String getParameterName() {
+        return parameterName;
+    }
 }

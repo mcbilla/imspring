@@ -10,6 +10,7 @@ import com.mcb.imspring.web.view.ModelAndView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -23,14 +24,21 @@ public class DispatcherServlet extends FrameworkServlet {
 
     private List<HandlerMapping> handlerMappings;
 
+    private List<HandlerAdapter> handlerAdapters;
+
     @Override
     protected void onRefresh(ApplicationContext context) {
         initHandlerMappings(context);
+        initHandlerAdapters(context);
         logger.info("DispatchServlet is init.");
     }
 
     private void initHandlerMappings(ApplicationContext context) {
         this.handlerMappings = context.getBeans(HandlerMapping.class);
+    }
+
+    private void initHandlerAdapters(ApplicationContext context) {
+        this.handlerAdapters = context.getBeans(HandlerAdapter.class);
     }
 
     @Override
@@ -94,8 +102,16 @@ public class DispatcherServlet extends FrameworkServlet {
         return null;
     }
 
-    private HandlerAdapter getHandlerAdapter(Object handler) {
-        return null;
+    private HandlerAdapter getHandlerAdapter(Object handler) throws ServletException {
+        if (this.handlerAdapters != null) {
+            for (HandlerAdapter adapter : this.handlerAdapters) {
+                if (adapter.supports(handler)) {
+                    return adapter;
+                }
+            }
+        }
+        throw new ServletException("No adapter for handler [" + handler +
+                "]: The DispatcherServlet configuration needs to include a HandlerAdapter that supports this handler");
     }
 
     private void processDispatchResult(HttpServletRequest request, HttpServletResponse response, HandlerExecutionChain chain, ModelAndView mv, Exception dispatchException) {
