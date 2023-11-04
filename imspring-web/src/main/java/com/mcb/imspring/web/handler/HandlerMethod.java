@@ -52,7 +52,7 @@ public class HandlerMethod {
         MethodParameter[] result = new MethodParameter[params.length];
         if (params.length > 0) {
             for (int i = 0; i < params.length; i++) {
-                result[i] = new MethodParameter(params[i], i);
+                result[i] = new MethodParameter(method, params[i], i);
             }
         }
         return result;

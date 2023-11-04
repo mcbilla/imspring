@@ -1,20 +1,32 @@
 package com.mcb.imspring.web;
 
+import com.mcb.imspring.core.annotation.Component;
 import com.mcb.imspring.core.collections.Ordered;
+import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.web.exception.ServerErrorException;
 import com.mcb.imspring.web.handler.HandlerAdapter;
 import com.mcb.imspring.web.handler.HandlerMethod;
+import com.mcb.imspring.web.handler.HandlerMethodReturnValueHandler;
 import com.mcb.imspring.web.handler.MethodParameter;
+import com.mcb.imspring.web.request.ServletWebRequest;
 import com.mcb.imspring.web.view.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class RequestMappingHandlerAdapter implements HandlerAdapter, Ordered {
+/**
+ * 真正处理 Controller 逻辑，获取请求参数，通过反射调用 HandlerMethod 处理逻辑，然后再封装返回结果进行返回
+ */
+@Component
+public class RequestMappingHandlerAdapter implements HandlerAdapter, InitializingBean, Ordered {
+
+    private List<HandlerMethodReturnValueHandler> returnValueHandlers = new ArrayList<>();
 
     @Override
     public boolean supports(Object handler) {
@@ -27,9 +39,20 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter, Ordered {
     }
 
     private ModelAndView handleInternal(HttpServletRequest request, HttpServletResponse response, HandlerMethod handler) throws Exception {
+        // 1、获取参数
         Object[] args = getMethodArgumentValues(request, response, handler);
+        // 2、调用 controller 执行获取返回值
         Object returnValue = handler.getMethod().invoke(handler.getBean(), args);
-        return null;
+        // 3、处理返回值
+        ModelAndView mav = new ModelAndView();
+        MethodParameter returntype = new MethodParameter(handler.getMethod(), returnValue.getClass());
+        HandlerMethodReturnValueHandler returnValueHandler = getReturnValueHandler(returntype);
+        if (returnValueHandler != null) {
+            ServletWebRequest webRequest = new ServletWebRequest(request, response);
+            returnValueHandler.handleReturnValue(returnValue, returntype, mav, webRequest);
+            return mav;
+        }
+        throw new ServerErrorException(String.format("No return value handlers for %s", returnValue.getClass()));
     }
 
     private Object[] getMethodArgumentValues(HttpServletRequest request, HttpServletResponse response, HandlerMethod handler) throws Exception {
@@ -73,6 +96,23 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter, Ordered {
             return type.cast(value);
         }
         throw new ServerErrorException(String.format("can not cast %s to %s", value.getClass(), type));
+    }
+
+    private HandlerMethodReturnValueHandler getReturnValueHandler(MethodParameter returnType) {
+        for (HandlerMethodReturnValueHandler handler : this.returnValueHandlers) {
+            if (handler.supportsReturnType(returnType)) {
+                return handler;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        if (this.returnValueHandlers == null) {
+            this.returnValueHandlers = new ArrayList<>();
+            returnValueHandlers.add(new RequestResponseBodyMethodProcessor());
+        }
     }
 
     @Override

@@ -21,6 +21,10 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 
+/**
+ * 保存 url 和 HandlerMethod 的关系，并保存所有的 HandlerInterceptor
+ * 当请求进来的时候，根据 url 匹配一个 HandlerMethod，加上所有的 HandlerInterceptor 封装成一个 HandlerExecutionChain 返回
+ */
 @Component
 public class RequestMappingHandlerMapping implements HandlerMapping, InitializingBean, ApplicationContextAware, Ordered {
     private final Logger logger = LoggerFactory.getLogger(getClass());

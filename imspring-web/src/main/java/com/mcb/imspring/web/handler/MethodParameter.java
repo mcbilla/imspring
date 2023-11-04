@@ -1,22 +1,46 @@
 package com.mcb.imspring.web.handler;
 
+import com.sun.istack.internal.Nullable;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 public class MethodParameter {
+
+    private final Executable executable;
 
     private final Parameter parameter;
 
     private final int parameterIndex;
 
-    private final Class<?> parameterType;
+    private Class<?> parameterType;
 
-    private final String parameterName;
+    private String parameterName;
 
-    public MethodParameter(Parameter parameter, int parameterIndex) {
+    private volatile Class<?> containingClass;
+
+    private Class<?> returnValueType;
+
+    public MethodParameter(Method method, @Nullable Parameter parameter, int parameterIndex) {
+        this.executable = method;
         this.parameter = parameter;
         this.parameterIndex = parameterIndex;
-        this.parameterType = parameter.getType();
-        this.parameterName = parameter.getName();
+        if (parameter != null) {
+            this.parameterType = parameter.getType();
+            this.parameterName = parameter.getName();
+            this.containingClass = method.getDeclaringClass();
+        }
+    }
+
+    public MethodParameter(Method method, Class<?> returnValueType) {
+        this(method, null, -1);
+        this.returnValueType = returnValueType;
+    }
+
+    public Executable getExecutable() {
+        return executable;
     }
 
     public Parameter getParameter() {
@@ -33,5 +57,13 @@ public class MethodParameter {
 
     public String getParameterName() {
         return parameterName;
+    }
+
+    public Class<?> getContainingClass() {
+        return containingClass;
+    }
+
+    public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
+        return this.executable.isAnnotationPresent(annotationType);
     }
 }
