@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.function.Function;
 
 /**
- * 保存 url 和 HandlerMethod 的关系，并保存所有的 HandlerInterceptor
+ * RequestMappingHandlerMapping 主要负责在自身初始化阶段搜寻出当前容器内所有可用 Controller 实现，建立 url 和 HandlerMethod 的映射关系，并保存所有的 HandlerInterceptor
  * 当请求进来的时候，根据 url 匹配一个 HandlerMethod，加上所有的 HandlerInterceptor 封装成一个 HandlerExecutionChain 返回
  */
 @Component

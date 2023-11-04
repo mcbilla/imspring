@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * 处理方法上带@RequestBody注解或者类上带@RestController的返回值
+ * RequestResponseBodyMethodProcessor 只能处理带 @RequestBody 的方法或者带 @RestController 的类的返回值
  */
 public class RequestResponseBodyMethodProcessor implements HandlerMethodReturnValueHandler {
     @Override

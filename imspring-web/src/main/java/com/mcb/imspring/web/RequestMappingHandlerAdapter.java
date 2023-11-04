@@ -21,7 +21,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 真正处理 Controller 逻辑，获取请求参数，通过反射调用 HandlerMethod 处理逻辑，然后再封装返回结果进行返回
+ * RequestMappingHandlerAdapter 拿到 RequestMappingHandlerMapping 返回的 HandlerMthod 后
+ * 1、进行一系列处理后，包括数据绑定和数据校验，返回值处理等等。
+ * 2、调用目标方法处理请求
+ * 3、封装返回结果进行返回
  */
 @Component
 public class RequestMappingHandlerAdapter implements HandlerAdapter, InitializingBean, Ordered {

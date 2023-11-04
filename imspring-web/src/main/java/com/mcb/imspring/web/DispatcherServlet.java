@@ -9,6 +9,9 @@ import com.mcb.imspring.web.servlet.FrameworkServlet;
 import com.mcb.imspring.web.view.ModelAndView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.mcb.imspring.web.listener.SpringServletContextListener;
+import com.mcb.imspring.web.handler.HandlerMethod;
+import com.mcb.imspring.web.handler.HandlerInterceptor;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +20,13 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- *
+ * Dispatcher 是 Spring MVC 的核心类，主要流程：
+ * 1、在 WEB-INF/web.xml 中配置好 {@link DispatcherServlet} 和 {@link SpringServletContextListener}
+ * 2、tomcat 启动，{@link SpringServletContextListener} 优先于所有 servlet 运行，获取 ApplicationContext，并加载到 ServletContext。
+ * 3、tomcat 加载 {@link DispatcherServlet}，从 ServletContext 获取 ApplicationContext，然后从 ApplicationContext 中获取 {@link HandlerMapping} 和 {@link HandlerAdapter} 的 bean 实例封装到自身。
+ * 4、请求进来，从 {@link HandlerMapping} 中获取和 url 适配的 {@link HandlerExecutionChain}，里面包含了一个 {@link HandlerMethod} 和一系列的 {@link HandlerInterceptor}
+ * 5、处理 {@link HandlerExecutionChain} ，包括执行 {@link HandlerMethod} 的业务逻辑（Conteroller的业务逻辑）和依次调用所有 {@link HandlerInterceptor} 的 preHandler、postHandler 和 afterCompletion 方法。
+ * 6、在执行 {@link HandlerMethod} 的时候，封装 {@link HandlerAdapter} 真正去处理业务逻辑，并返回处理结果。
  */
 public class DispatcherServlet extends FrameworkServlet {
     private final Logger logger = LoggerFactory.getLogger(getClass());
