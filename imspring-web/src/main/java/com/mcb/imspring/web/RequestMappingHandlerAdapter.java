@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Component
 public class RequestMappingHandlerAdapter implements HandlerAdapter, InitializingBean, Ordered {
 
-    private List<HandlerMethodReturnValueHandler> returnValueHandlers = new ArrayList<>();
+    private List<HandlerMethodReturnValueHandler> returnValueHandlers;
 
     @Override
     public boolean supports(Object handler) {
@@ -36,6 +36,14 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter, Initializin
     @Override
     public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         return handleInternal(request, response, (HandlerMethod) handler);
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        if (this.returnValueHandlers == null) {
+            this.returnValueHandlers = new ArrayList<>();
+            returnValueHandlers.add(new RequestResponseBodyMethodProcessor());
+        }
     }
 
     private ModelAndView handleInternal(HttpServletRequest request, HttpServletResponse response, HandlerMethod handler) throws Exception {
@@ -105,14 +113,6 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter, Initializin
             }
         }
         return null;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        if (this.returnValueHandlers == null) {
-            this.returnValueHandlers = new ArrayList<>();
-            returnValueHandlers.add(new RequestResponseBodyMethodProcessor());
-        }
     }
 
     @Override

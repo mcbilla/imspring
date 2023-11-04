@@ -38,6 +38,7 @@ public class HandlerMethod {
         StringBuilder sb = new StringBuilder();
         String methodUrl = WebUtils.getRequestMappingPattern(method);
         methodUrl = ResourceUtils.removeBothSlash(methodUrl);
+        sb.append("/");
         if (beanType.isAnnotationPresent(RequestMapping.class)) {
             String classUrl = beanType.getAnnotation(RequestMapping.class).value();
             classUrl = ResourceUtils.removeBothSlash(classUrl);

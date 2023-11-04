@@ -25,12 +25,12 @@ public class MethodParameter {
 
     public MethodParameter(Method method, @Nullable Parameter parameter, int parameterIndex) {
         this.executable = method;
+        this.containingClass = method.getDeclaringClass();
         this.parameter = parameter;
         this.parameterIndex = parameterIndex;
         if (parameter != null) {
             this.parameterType = parameter.getType();
             this.parameterName = parameter.getName();
-            this.containingClass = method.getDeclaringClass();
         }
     }
 

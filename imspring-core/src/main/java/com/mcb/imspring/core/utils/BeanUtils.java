@@ -99,7 +99,7 @@ public abstract class BeanUtils {
     }
 
     public static boolean hasAnnotation(AnnotatedElement element, Class<? extends Annotation> annotationType) {
-        return element.isAnnotationPresent(annotationType);
+        return findAnnotation(element, annotationType) != null;
     }
 
 

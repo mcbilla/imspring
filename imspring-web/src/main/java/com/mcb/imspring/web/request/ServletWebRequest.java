@@ -23,11 +23,11 @@ public class ServletWebRequest implements NativeWebRequest{
 
     @Override
     public Object getNativeRequest() {
-        return null;
+        return this.request;
     }
 
     @Override
     public Object getNativeResponse() {
-        return null;
+        return this.response;
     }
 }

@@ -60,6 +60,9 @@ public class RequestMappingHandlerMapping implements HandlerMapping, Initializin
 
     private void detectHandlers(String beanName) {
         Object bean = applicationContext.getBeanDefinition(beanName).getBean();
+        if (bean == null) {
+            return;
+        }
         // 注册HandlerMethod
         if (WebUtils.isHandler(bean.getClass())) {
             Map<Method, Object> methodMap = selectMethods(bean.getClass(),

@@ -43,7 +43,6 @@ public class DispatcherServlet extends FrameworkServlet {
 
     @Override
     protected void doService(HttpServletRequest request, HttpServletResponse response) {
-        System.out.println("请求进来了");
         try {
             doDispatch(request, response);
         } catch (Exception e) {
@@ -56,36 +55,35 @@ public class DispatcherServlet extends FrameworkServlet {
         ModelAndView mv = null;
         Exception dispatchException = null;
         try {
-            try {
-                // 1、获取 HandlerExecutionChain
-                chain = this.getHandler(request);
-                if (chain == null) {
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                    return;
-                }
-                // 2、把 Handler（此时是 HandlerMethod） 封装成 HandlerAdapter
-                HandlerAdapter ha = getHandlerAdapter(chain.getHandler());
-
-                // 3、HandlerInterceptor preHandle 处理
-                if (!chain.applyPreHandle(request, response)) {
-                    return;
-                }
-
-                // 4、HandlerAdapter 真正执行 Controller 逻辑
-                mv = ha.handle(request, response, chain.getHandler());
-
-                // 5、HandlerInterceptor postHandle 处理
-                chain.applyPostHandle(request, response, mv);
-
-            } catch (Exception ex) {
-                dispatchException = ex;
+            // 1、获取 HandlerExecutionChain
+            chain = this.getHandler(request);
+            if (chain == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
             }
-            // 6、页面渲染，包括 HandlerInterceptor afterCompletion 处理
-            processDispatchResult(request, response, chain, mv, dispatchException);
+            // 2、把 Handler（此时是 HandlerMethod） 封装成 HandlerAdapter
+            HandlerAdapter ha = getHandlerAdapter(chain.getHandler());
+
+            // 3、HandlerInterceptor preHandle 处理
+            if (!chain.applyPreHandle(request, response)) {
+                return;
+            }
+
+            // 4、HandlerAdapter 执行 Controller 业务逻辑
+            mv = ha.handle(request, response, chain.getHandler());
+
+            // 5、HandlerInterceptor postHandle 处理
+            chain.applyPostHandle(request, response, mv);
+
+            // 6、页面渲染
+            processDispatchResult(request, response, chain, mv);
         } catch (Exception ex) {
+            logger.error("server error", ex);
+            dispatchException = ex;
+        } finally {
             // 7、HandlerInterceptor afterCompletion 处理
             if (chain != null) {
-                chain.triggerAfterCompletion(request, response, ex);
+                chain.triggerAfterCompletion(request, response, dispatchException);
             }
         }
     }
@@ -114,9 +112,9 @@ public class DispatcherServlet extends FrameworkServlet {
                 "]: The DispatcherServlet configuration needs to include a HandlerAdapter that supports this handler");
     }
 
-    private void processDispatchResult(HttpServletRequest request, HttpServletResponse response, HandlerExecutionChain chain, ModelAndView mv, Exception dispatchException) {
-        if (chain != null) {
-            chain.triggerAfterCompletion(request, response, null);
+    private void processDispatchResult(HttpServletRequest request, HttpServletResponse response, HandlerExecutionChain chain, ModelAndView mv) throws Exception {
+        if (!mv.isRequestHandled()) {
+            // mv没有被进行处理，进行页面渲染
         }
     }
 }
