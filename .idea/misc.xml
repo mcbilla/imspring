@@ -4,9 +4,9 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/imspring-core/pom.xml" />
-        <option value="$PROJECT_DIR$/imspring-parent/pom.xml" />
         <option value="$PROJECT_DIR$/imspring-web/pom.xml" />
+        <option value="$PROJECT_DIR$/imspring-parent/pom.xml" />
+        <option value="$PROJECT_DIR$/imspring-core/pom.xml" />
         <option value="$PROJECT_DIR$/imspring-boot/pom.xml" />
         <option value="$PROJECT_DIR$/imspring-aop/pom.xml" />
         <option value="$PROJECT_DIR$/imspring-tx/pom.xml" />

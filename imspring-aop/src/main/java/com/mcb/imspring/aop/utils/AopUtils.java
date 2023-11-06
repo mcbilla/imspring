@@ -1,4 +1,4 @@
-package com.mcb.imspring.aop;
+package com.mcb.imspring.aop.utils;
 
 import com.mcb.imspring.core.utils.Assert;
 

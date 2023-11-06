@@ -1,4 +1,4 @@
 package com.mcb.imspring.tx.transaction;
 
-public interface TransactionManager {
+public interface TransactionExecution {
 }

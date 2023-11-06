@@ -1,6 +1,6 @@
 package com.mcb.imspring.tx.interceptor;
 
-import com.mcb.imspring.aop.AopUtils;
+import com.mcb.imspring.aop.utils.AopUtils;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
