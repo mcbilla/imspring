@@ -1,16 +1,22 @@
 package com.mcb.imspring.core;
 
-import com.mcb.imspring.core.context.ApplicationContextAwareProcessor;
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanDefinitionRegistry;
+import com.mcb.imspring.core.context.BeanDefinitionRegistryPostProcessor;
+import com.mcb.imspring.core.context.BeanFactoryPostProcessor;
 import com.mcb.imspring.core.exception.BeansException;
+import com.mcb.imspring.core.support.ApplicationContextAwareProcessor;
+import com.mcb.imspring.core.utils.Assert;
+import com.mcb.imspring.core.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class AbstractApplicationContext implements ApplicationContext, BeanDefinitionRegistry, AutoCloseable{
+public abstract class AbstractApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry{
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -25,6 +31,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext, 
     private final Class<?> configClass;
 
     private DefaultListableBeanFactory beanFactory;
+
+    /**
+     * 这个队列默认是空的，用户可以向队列添加自定义 BeanFactoryPostProcessor
+     */
+    private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
 
     public AbstractApplicationContext(Class<?> configClass) {
         this.configClass = configClass;
@@ -48,7 +59,10 @@ public abstract class AbstractApplicationContext implements ApplicationContext, 
         // 3、对 BeanFactory 进行功能增强
         prepareBeanFactory(beanFactory);
 
-        // 4、实例化所有非延迟加载的单例
+        // 4、执行 BeanFactory 的后处理器
+        invokeBeanFactoryPostProcessors(beanFactory);
+
+        // 5、实例化所有非延迟加载的单例
         finishBeanFactoryInitialization(beanFactory);
     }
 
@@ -77,10 +91,61 @@ public abstract class AbstractApplicationContext implements ApplicationContext, 
     }
 
     /**
+     * 处理 BeanFactoryPostProcessor 接口
+     * 默认只有 ConfigurationClassPostProcessor 实现了 eanFactoryPostProcessor 接口
+     */
+    private void invokeBeanFactoryPostProcessors(DefaultListableBeanFactory beanFactory) {
+        String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class);
+        for (String ppName : postProcessorNames) {
+            this.beanFactoryPostProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
+        }
+        if (!CollectionUtils.isEmpty(this.beanFactoryPostProcessors)) {
+            // 分成两种Processor：BeanFactoryPostProcessor 和 BeanDefinitionRegistryPostProcessor
+            // 先执行 BeanDefinitionRegistryPostProcessor 的 postProcessBeanDefinitionRegistry
+            // 再执行 BeanFactoryPostProcessor + BeanDefinitionRegistryPostProcessor 的 postProcessBeanFactory
+            List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
+            List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
+
+            for (BeanFactoryPostProcessor postProcessor : this.beanFactoryPostProcessors) {
+                if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
+                    BeanDefinitionRegistryPostProcessor registryProcessor =
+                            (BeanDefinitionRegistryPostProcessor) postProcessor;
+                    registryProcessors.add(registryProcessor);
+                } else {
+                    regularPostProcessors.add(postProcessor);
+                }
+            }
+
+            invokeBeanDefinitionRegistryPostProcessors(registryProcessors, beanFactory);
+
+            invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
+            invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
+        }
+    }
+
+    private void invokeBeanDefinitionRegistryPostProcessors(Collection<? extends BeanDefinitionRegistryPostProcessor> postProcessors, DefaultListableBeanFactory beanFactory) {
+        for (BeanDefinitionRegistryPostProcessor postProcessor : postProcessors) {
+            postProcessor.postProcessBeanDefinitionRegistry(beanFactory);
+        }
+    }
+
+    private void invokeBeanFactoryPostProcessors(Collection<? extends BeanFactoryPostProcessor> postProcessors, DefaultListableBeanFactory beanFactory) {
+        for (BeanFactoryPostProcessor postProcessor : postProcessors) {
+            postProcessor.postProcessBeanFactory(beanFactory);
+        }
+    }
+
+    /**
      * 实例化所有非延迟加载的单例
      */
     private void finishBeanFactoryInitialization(DefaultListableBeanFactory beanFactory) {
         beanFactory.preInstantiateSingletons();
+    }
+
+    @Override
+    public void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor) {
+        Assert.notNull(postProcessor, "BeanFactoryPostProcessor must not be null");
+        this.beanFactoryPostProcessors.add(postProcessor);
     }
 
     @Override

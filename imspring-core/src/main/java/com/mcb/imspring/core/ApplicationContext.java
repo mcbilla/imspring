@@ -2,7 +2,7 @@ package com.mcb.imspring.core;
 
 import com.mcb.imspring.core.exception.BeansException;
 
-public interface ApplicationContext extends ListableBeanFactory {
+public interface ApplicationContext extends ConfigurableListableBeanFactory {
     BeanFactory getBeanFactory() throws IllegalStateException;
 
     /**

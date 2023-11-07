@@ -4,7 +4,8 @@ import com.mcb.imspring.core.exception.BeansException;
 import com.sun.istack.internal.Nullable;
 
 /**
- * BeanPostProcessor默认是会对整个Spring容器中所有的bean进行处理
+ * BeanPostProcessor 在 Bean 实例化完成，属性注入完成后执行，用于对 Bean 实例进行后处理。
+ * 例如对 Bean 进行增强、添加额外的功能等。默认是会对整个 Spring 容器中所有的 bean 进行处理
  */
 public interface BeanPostProcessor {
     /**

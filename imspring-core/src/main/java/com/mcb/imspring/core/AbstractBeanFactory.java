@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * 3、初始化 Initialization
  * 4、销毁 Destruction
  */
-public abstract class AbstractBeanFactory implements ListableBeanFactory, BeanDefinitionRegistry {
+public abstract class AbstractBeanFactory implements ConfigurableListableBeanFactory, BeanDefinitionRegistry {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override

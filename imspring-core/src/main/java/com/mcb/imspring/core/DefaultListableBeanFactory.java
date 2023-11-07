@@ -2,6 +2,7 @@ package com.mcb.imspring.core;
 
 import com.mcb.imspring.core.collections.Ordered;
 import com.mcb.imspring.core.context.BeanDefinition;
+import com.mcb.imspring.core.context.BeanFactoryPostProcessor;
 import com.mcb.imspring.core.context.BeanPostProcessor;
 import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.io.AnnotatedBeanDefinitionReader;
@@ -27,6 +28,8 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     protected Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
     protected List<BeanPostProcessor> beanPostProcessors = new CopyOnWriteArrayList<>();
+
+    private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
 
     protected AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader();
 

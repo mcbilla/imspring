@@ -1,9 +1,14 @@
-package com.mcb.imspring.core.context;
+package com.mcb.imspring.core.support;
 
 import com.mcb.imspring.core.ApplicationContext;
+import com.mcb.imspring.core.context.ApplicationContextAware;
+import com.mcb.imspring.core.context.BeanPostProcessor;
 import com.mcb.imspring.core.exception.BeansException;
 
-public class ApplicationContextAwareProcessor implements BeanPostProcessor{
+/**
+ * 处理ApplicationContextAware接口
+ */
+public class ApplicationContextAwareProcessor implements BeanPostProcessor {
 
     private final ApplicationContext applicationContext;
 

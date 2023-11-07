@@ -8,6 +8,14 @@ import com.mcb.imspring.tx.transaction.TransactionOperations;
 
 public class TransactionTemplate extends DefaultTransactionDefinition
         implements TransactionOperations, InitializingBean {
+    public TransactionTemplate() {
+        super();
+    }
+
+    public TransactionTemplate(int propagationBehavior) {
+        super(propagationBehavior);
+    }
+
     @Override
     public void afterPropertiesSet() {
 
