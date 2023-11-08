@@ -2,10 +2,10 @@ package com.mcb.imspring.core;
 
 import com.mcb.imspring.core.collections.Ordered;
 import com.mcb.imspring.core.context.BeanDefinition;
-import com.mcb.imspring.core.context.BeanFactoryPostProcessor;
 import com.mcb.imspring.core.context.BeanPostProcessor;
 import com.mcb.imspring.core.exception.BeansException;
-import com.mcb.imspring.core.io.AnnotatedBeanDefinitionReader;
+import com.mcb.imspring.core.io.DefaultBeanDefinitionReader;
+import com.mcb.imspring.core.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,11 +27,11 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
      */
     protected Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
+    private volatile List<String> beanDefinitionNames = new ArrayList<>(256);
+
     protected List<BeanPostProcessor> beanPostProcessors = new CopyOnWriteArrayList<>();
 
-    private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
-
-    protected AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader();
+    protected DefaultBeanDefinitionReader reader = new DefaultBeanDefinitionReader(this);
 
     /**
      * 只做ioc容器的初始化，并没有实例化bean，在真正调用getBean的时候再进行实例化
@@ -49,13 +49,12 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     }
 
     /**
-     * 注册BeanDefinition，这时候BeanDefinition还没有实例化
+     * 注册BeanDefinition
      */
     private void registerBeanDefinition() {
-        for (Map.Entry<String, BeanDefinition> entry : reader.getRegistry().entrySet()) {
+        for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
             String name = entry.getKey();
-            BeanDefinition beanDefinition = entry.getValue();
-            beanDefinitionMap.put(name, beanDefinition);
+            beanDefinitionNames.add(name);
         }
     }
 
@@ -73,6 +72,16 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     @Override
     public boolean containsBeanDefinition(String beanName) {
         return this.beanDefinitionMap.containsKey(beanName);
+    }
+
+    @Override
+    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
+        this.beanDefinitionMap.put(beanName, beanDefinition);
+    }
+
+    @Override
+    public void removeBeanDefinition(String beanName) throws BeansException {
+        this.beanDefinitionMap.remove(beanName);
     }
 
     @Override
@@ -148,5 +157,10 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
             }
         }
         return order;
+    }
+
+    @Override
+    public String[] getBeanDefinitionNames() {
+        return StringUtils.toStringArray(this.beanDefinitionNames);
     }
 }

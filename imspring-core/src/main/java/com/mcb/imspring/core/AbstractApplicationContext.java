@@ -30,7 +30,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     private final Class<?> configClass;
 
-    private DefaultListableBeanFactory beanFactory;
+    protected DefaultListableBeanFactory beanFactory;
 
     /**
      * 这个队列默认是空的，用户可以向队列添加自定义 BeanFactoryPostProcessor
@@ -211,6 +211,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     @Override
     public BeanFactory getBeanFactory() throws IllegalStateException {
         return this.beanFactory;
+    }
+
+    @Override
+    public String[] getBeanDefinitionNames() {
+        return this.beanFactory.getBeanDefinitionNames();
+    }
+
+    @Override
+    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
+        this.beanFactory.registerBeanDefinition(beanName, beanDefinition);
+    }
+
+    @Override
+    public void removeBeanDefinition(String beanName) throws BeansException {
+        this.beanFactory.removeBeanDefinition(beanName);
     }
 
     @Override

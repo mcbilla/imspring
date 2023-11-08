@@ -9,6 +9,16 @@ public interface BeanDefinitionRegistry {
     boolean containsBeanDefinition(String beanName);
 
     /**
+     * 注册BeanDefinition
+     */
+    void registerBeanDefinition(String beanName, BeanDefinition beanDefinition);
+
+    /**
+     * 删除BeanDefinition
+     */
+    void removeBeanDefinition(String beanName) throws BeansException;
+
+    /**
      * 根据Name查找BeanDefinition，如果Name不存在，返回null
      */
     @Nullable

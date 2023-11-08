@@ -1,5 +1,6 @@
 package com.mcb.imspring.core.utils;
 
+import com.mcb.imspring.core.annotation.Bean;
 import com.mcb.imspring.core.annotation.Component;
 import com.mcb.imspring.core.exception.BeansException;
 import com.sun.istack.internal.Nullable;
@@ -47,6 +48,17 @@ public abstract class BeanUtils {
 
     public static String getBeanName(String className) {
         return Character.toLowerCase(className.charAt(0)) + className.substring(1);
+    }
+
+    public static String getBeanName(Method method) {
+        String beanName = method.getName();
+        if (method.isAnnotationPresent(Bean.class)) {
+            Bean anno = method.getAnnotation(Bean.class);
+            if (!StringUtils.isEmpty(anno)) {
+                beanName = anno.value();
+            }
+        }
+        return beanName;
     }
 
     /**

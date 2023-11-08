@@ -1,10 +1,14 @@
 package com.mcb.imspring.core.context;
 
+import com.mcb.imspring.core.utils.Assert;
+import com.mcb.imspring.core.utils.BeanUtils;
 import com.sun.istack.internal.Nullable;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * 保存bean的相关信息，spring中的instance和BeanDefinition是分开保存的（instance存在DefaultSingletonBeanRegistry中）
@@ -18,7 +22,7 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
     private final Class<?> beanClass;
 
     // 构造器
-    private final Constructor constructor;
+    private Constructor constructor;
 
     // Bean的实例:
     private Object bean = null;
@@ -28,6 +32,17 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
 
     @Nullable
     private String destroyMethodName;
+
+    // bean的其他属性，比如排序、包含某些注解等
+    private final Map<String, Object> attributes = new LinkedHashMap<>();
+
+    public BeanDefinition(@Nullable Class<?> beanClass) {
+        this(beanClass.getName(), beanClass, BeanUtils.getBeanConstructor(beanClass));
+    }
+
+    public BeanDefinition(String name, @Nullable Class<?> beanClass) {
+        this(name, beanClass, BeanUtils.getBeanConstructor(beanClass));
+    }
 
     public BeanDefinition(String name, Class<?> beanClass, Constructor constructor) {
         this.name = name;
@@ -74,6 +89,28 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
                 this.destroyMethodName = method.getName();
             }
         }
+    }
+
+    public void setAttribute(String name, @Nullable Object value) {
+        Assert.notNull(name, "Name must not be null");
+        if (value != null) {
+            this.attributes.put(name, value);
+        }
+        else {
+            removeAttribute(name);
+        }
+    }
+
+    @Nullable
+    public Object removeAttribute(String name) {
+        Assert.notNull(name, "Name must not be null");
+        return this.attributes.remove(name);
+    }
+
+    @Nullable
+    public Object getAttribute(String name) {
+        Assert.notNull(name, "Name must not be null");
+        return this.attributes.get(name);
     }
 
     @Override
