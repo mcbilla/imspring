@@ -1,6 +1,6 @@
 package com.mcb.imspring.core.test.io;
 
-import com.mcb.imspring.core.io.ResourceLoader;
+import com.mcb.imspring.core.io.DefaultResourceLoader;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ public class ResourceLoaderTest {
 
     @Test
     public void testScan() throws IOException, URISyntaxException {
-        List<String> classNames = new ResourceLoader("com.mcb.imspring").scan();
+        List<String> classNames = new DefaultResourceLoader().scan("com.mcb.imspring");
         System.out.println(classNames);
     }
 }

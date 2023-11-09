@@ -28,18 +28,17 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     /** Flag that indicates whether this context has been closed already. */
     private final AtomicBoolean closed = new AtomicBoolean();
 
-    private final Class<?> configClass;
+    private DefaultListableBeanFactory beanFactory;
 
-    protected DefaultListableBeanFactory beanFactory;
+    public AbstractApplicationContext() {
+        this.beanFactory = new DefaultListableBeanFactory();
+    }
+
 
     /**
      * 这个队列默认是空的，用户可以向队列添加自定义 BeanFactoryPostProcessor
      */
     private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
-
-    public AbstractApplicationContext(Class<?> configClass) {
-        this.configClass = configClass;
-    }
 
     /**
      * ApplicationContext的核心方法，实例化beanFactory的所有bean
@@ -79,8 +78,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     /**
      * 初始化 BeanFactory，加载并解析配置，这时候 BeanFactory 还没有实例化
      */
-    private DefaultListableBeanFactory obtainFreshBeanFactory() {
-        return new DefaultListableBeanFactory(configClass);
+    protected DefaultListableBeanFactory obtainFreshBeanFactory() {
+        return this.beanFactory;
     }
 
     /**
@@ -96,6 +95,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      */
     private void invokeBeanFactoryPostProcessors(DefaultListableBeanFactory beanFactory) {
         String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class);
+        if (postProcessorNames == null || postProcessorNames.length == 0) {
+            return;
+        }
         for (String ppName : postProcessorNames) {
             this.beanFactoryPostProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
         }

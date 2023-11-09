@@ -4,7 +4,6 @@ import com.mcb.imspring.core.collections.Ordered;
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanPostProcessor;
 import com.mcb.imspring.core.exception.BeansException;
-import com.mcb.imspring.core.io.DefaultBeanDefinitionReader;
 import com.mcb.imspring.core.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,7 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
-     * 传说中的ioc容器
+     * 传说中的IOC容器
      */
     protected Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
@@ -31,42 +30,7 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
 
     protected List<BeanPostProcessor> beanPostProcessors = new CopyOnWriteArrayList<>();
 
-    protected DefaultBeanDefinitionReader reader = new DefaultBeanDefinitionReader(this);
-
-    /**
-     * 只做ioc容器的初始化，并没有实例化bean，在真正调用getBean的时候再进行实例化
-     * @param configClass
-     */
-    public DefaultListableBeanFactory(Class<?> configClass) {
-        try {
-            reader.loadBeanDefinitions(configClass);
-        } catch (Exception e) {
-            throw new BeansException(e);
-        }
-        registerBeanDefinition();
-        registerBeanPostProcessor();
-        logger.debug("BeanFactory init finish");
-    }
-
-    /**
-     * 注册BeanDefinition
-     */
-    private void registerBeanDefinition() {
-        for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
-            String name = entry.getKey();
-            beanDefinitionNames.add(name);
-        }
-    }
-
-    /**
-     * 注册BeanPostProcessor，这时候BeanPostProcessor已经被实例化
-     */
-    private void registerBeanPostProcessor() {
-        for (BeanDefinition beanDefinition : beanDefinitionMap.values()) {
-            if (BeanPostProcessor.class.isAssignableFrom(beanDefinition.getBeanClass())) {
-                addBeanPostProcessor(getBean(beanDefinition.getName()));
-            }
-        }
+    public DefaultListableBeanFactory() {
     }
 
     @Override
