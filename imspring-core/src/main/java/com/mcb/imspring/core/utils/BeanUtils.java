@@ -54,7 +54,7 @@ public abstract class BeanUtils {
         String beanName = method.getName();
         if (method.isAnnotationPresent(Bean.class)) {
             Bean anno = method.getAnnotation(Bean.class);
-            if (!StringUtils.isEmpty(anno)) {
+            if (!StringUtils.isEmpty(anno.value())) {
                 beanName = anno.value();
             }
         }

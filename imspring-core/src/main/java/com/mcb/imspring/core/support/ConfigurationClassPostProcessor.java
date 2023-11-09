@@ -54,7 +54,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         if (configCandidates.isEmpty()) {
             return;
         }
-        // 处理配置类
+        // 加载配置类和带@Bean的方法
         Set<Class<?>> configClasses = configCandidates.stream().map(BeanDefinition::getBeanClass).collect(Collectors.toSet());
         this.reader.loadBeanDefinitions(configClasses);
     }

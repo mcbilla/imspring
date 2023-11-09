@@ -3,7 +3,7 @@ package com.mcb.imspring.core.test.bean;
 import com.mcb.imspring.core.annotation.Autowired;
 import com.mcb.imspring.core.annotation.Service;
 
-@Service("myServiceBean")
+@Service
 public class ServiceBean {
     private String name;
 

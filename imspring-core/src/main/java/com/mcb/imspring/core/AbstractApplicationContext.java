@@ -1,9 +1,6 @@
 package com.mcb.imspring.core;
 
-import com.mcb.imspring.core.context.BeanDefinition;
-import com.mcb.imspring.core.context.BeanDefinitionRegistry;
-import com.mcb.imspring.core.context.BeanDefinitionRegistryPostProcessor;
-import com.mcb.imspring.core.context.BeanFactoryPostProcessor;
+import com.mcb.imspring.core.context.*;
 import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.support.ApplicationContextAwareProcessor;
 import com.mcb.imspring.core.utils.Assert;
@@ -34,7 +31,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         this.beanFactory = new DefaultListableBeanFactory();
     }
 
-
     /**
      * 这个队列默认是空的，用户可以向队列添加自定义 BeanFactoryPostProcessor
      */
@@ -58,8 +54,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         // 3、对 BeanFactory 进行功能增强
         prepareBeanFactory(beanFactory);
 
-        // 4、执行 BeanFactory 的后处理器
+        // 4、执行 BeanFactoryPostProcessor
         invokeBeanFactoryPostProcessors(beanFactory);
+
+        // 5、注册 BeanPostProcessor
+        registerBeanPostProcessors(beanFactory);
 
         // 5、实例化所有非延迟加载的单例
         finishBeanFactoryInitialization(beanFactory);
@@ -75,9 +74,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         logger.debug("ApplicationContext startup");
     }
 
-    /**
-     * 初始化 BeanFactory，加载并解析配置，这时候 BeanFactory 还没有实例化
-     */
     protected DefaultListableBeanFactory obtainFreshBeanFactory() {
         return this.beanFactory;
     }
@@ -134,6 +130,18 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     private void invokeBeanFactoryPostProcessors(Collection<? extends BeanFactoryPostProcessor> postProcessors, DefaultListableBeanFactory beanFactory) {
         for (BeanFactoryPostProcessor postProcessor : postProcessors) {
             postProcessor.postProcessBeanFactory(beanFactory);
+        }
+    }
+
+    /**
+     * 把 BeanPostProcessor 类型的 BeanDefinition 注册到 registry
+     */
+    private void registerBeanPostProcessors(DefaultListableBeanFactory beanFactory) {
+        List<BeanDefinition> beanDefinitions = beanFactory.getBeanDefinitions(BeanPostProcessor.class);
+        for (BeanDefinition beanDefinition : beanDefinitions) {
+            if (BeanPostProcessor.class.isAssignableFrom(beanDefinition.getBeanClass())) {
+                beanFactory.addBeanPostProcessor(getBean(beanDefinition.getName()));
+            }
         }
     }
 

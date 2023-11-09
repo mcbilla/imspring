@@ -41,11 +41,13 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
         this.beanDefinitionMap.put(beanName, beanDefinition);
+        this.beanDefinitionNames.add(beanName);
     }
 
     @Override
     public void removeBeanDefinition(String beanName) throws BeansException {
         this.beanDefinitionMap.remove(beanName);
+        this.beanDefinitionNames.remove(beanName);
     }
 
     @Override
