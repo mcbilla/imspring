@@ -40,4 +40,7 @@ public interface BeanDefinitionRegistry {
      */
     @Nullable
     List<BeanDefinition> getBeanDefinitions(Class<?> type);
+
+    @Nullable
+    String[] getBeanDefinitionNames();
 }

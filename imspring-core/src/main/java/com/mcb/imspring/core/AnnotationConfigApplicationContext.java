@@ -46,7 +46,8 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
      */
     @Override
     public void register(Class<?>... componentClasses) {
-        // TODO
+        Assert.notEmpty(componentClasses, "At least one component class must be specified");
+        this.reader.register(componentClasses);
     }
 
     /**

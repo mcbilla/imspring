@@ -10,11 +10,8 @@ import com.mcb.imspring.core.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.URISyntaxException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ClassPathBeanDefinitionScanner extends AbstractBeanDefinitionReader{
     private final Logger logger = LoggerFactory.getLogger(getClass());

@@ -60,7 +60,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         // 5、注册 BeanPostProcessor
         registerBeanPostProcessors(beanFactory);
 
-        // 5、实例化所有非延迟加载的单例
+        // 6、实例化所有非延迟加载的单例
         finishBeanFactoryInitialization(beanFactory);
     }
 

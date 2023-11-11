@@ -113,6 +113,11 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
         return this.attributes.get(name);
     }
 
+    public boolean hasAttribute(String name) {
+        Assert.notNull(name, "Name must not be null");
+        return this.attributes.containsKey(name);
+    }
+
     @Override
     public int compareTo(BeanDefinition o) {
         return 0;
