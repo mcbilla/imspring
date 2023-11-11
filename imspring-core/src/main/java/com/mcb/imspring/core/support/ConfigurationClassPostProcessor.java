@@ -14,9 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -90,6 +88,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         for (String beanName : registry.getBeanDefinitionNames()) {
             BeanDefinition beanDef = registry.getBeanDefinition(beanName);
             if (beanDef.getAttribute(CONFIGURATION_CLASS_ATTRIBUTE) != null) {
+                // 如果有该标记说明已经处理过了，就不用重复处理
                 logger.debug("Bean definition has already been processed as a configuration class: " + beanDef.getName());
             } else if (checkConfigurationClassCandidate(beanDef, registry)) {
                 configCandidates.add(beanDef);

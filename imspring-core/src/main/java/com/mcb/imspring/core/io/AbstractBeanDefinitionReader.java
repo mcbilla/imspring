@@ -20,10 +20,12 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
     }
 
     protected BeanDefinition createBeanDefinition(Class<?> clazz, String beanName) {
+        // 允许后创建的BeanDefinition
         if (this.registry.containsBeanDefinition(beanName)) {
-            throw new BeansException("Duplicate bean name: " + beanName);
+            logger.debug("overwrite duplicate BeanDefinition，beanName: [{}]，class: [{}]" + beanName, clazz.getName());
+        } else  {
+            logger.debug("create BeanDefinition beanName: [{}]，class: [{}]", beanName, clazz.getName());
         }
-        logger.debug("create BeanDefinition beanName: [{}]，class: [{}]", beanName, clazz.getName());
         Constructor constructor = BeanUtils.getBeanConstructor(clazz);
         return new BeanDefinition(beanName, clazz, constructor);
     }
