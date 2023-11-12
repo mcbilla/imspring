@@ -3,12 +3,8 @@ package com.mcb.imspring.aop;
 import com.mcb.imspring.aop.advisor.AspectJExpressionPointcutAdvisor;
 import com.mcb.imspring.aop.advisor.TargetSource;
 import com.mcb.imspring.aop.proxy.ProxyFactory;
-import com.mcb.imspring.core.BeanFactory;
-import com.mcb.imspring.core.annotation.Component;
-import com.mcb.imspring.core.context.BeanFactoryAware;
-import com.mcb.imspring.core.context.BeanPostProcessor;
+import com.mcb.imspring.aop.support.AbstractAutoProxyCreator;
 import com.mcb.imspring.core.exception.BeansException;
-import org.aopalliance.intercept.MethodInterceptor;
 import org.aspectj.lang.annotation.Aspect;
 
 import java.lang.reflect.Method;
@@ -19,13 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.mcb.imspring.aop.advisor.AspectJExpressionPointcutAdvisor.EMPTY_ADVICE;
 
-@Component
-public class AspectJAwareAdvisorAutoProxyCreator implements BeanPostProcessor, BeanFactoryAware {
-
-    /**
-     * beanFactory 通过 Aware 接口注入
-     */
-    private BeanFactory beanFactory;
+public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAutoProxyCreator {
 
     /**
      * 在容器加载的过程中获取所有切面和其对应的增强通知
@@ -80,11 +70,6 @@ public class AspectJAwareAdvisorAutoProxyCreator implements BeanPostProcessor, B
         }
         // 匹配失败，返回 bean
         return bean;
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
     }
 
     private boolean isAspect(Object bean) {

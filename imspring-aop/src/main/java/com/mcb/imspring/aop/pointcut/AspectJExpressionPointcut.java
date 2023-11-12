@@ -46,7 +46,7 @@ public class AspectJExpressionPointcut implements MethodMatcher, Pointcut, Class
     }
 
     /**
-     * 使用 AspectJ Expression 匹配类
+     * 使用 AspectJ Expression 匹配类，这里只是可能会匹配成功
      * @param targetClass
      * @return
      */

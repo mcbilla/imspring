@@ -192,4 +192,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
         @Nullable
         public Throwable throwable;
     }
+
+    public void setTransactionAttributeSource(TransactionAttributeSource transactionAttributeSource) {
+        this.transactionAttributeSource = transactionAttributeSource;
+    }
 }
