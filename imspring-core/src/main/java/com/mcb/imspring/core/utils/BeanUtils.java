@@ -3,29 +3,14 @@ package com.mcb.imspring.core.utils;
 import com.mcb.imspring.core.annotation.Bean;
 import com.mcb.imspring.core.annotation.Component;
 import com.mcb.imspring.core.exception.BeansException;
-import com.sun.istack.internal.Nullable;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import static com.mcb.imspring.core.utils.ReflectionUtils.findAnnotation;
+
 public abstract class BeanUtils {
-    /**
-     * 查找指定类的指定注解，这里需要递归查找注解的注解
-     */
-    public static <A extends Annotation> A findAnnotation(AnnotatedElement element, Class<A> targetAnno) {
-        if (element.isAnnotationPresent(targetAnno)) {
-            return element.getAnnotation(targetAnno);
-        }
-        for (Annotation anno : element.getAnnotations()) {
-            Class<? extends Annotation> annoType = anno.annotationType();
-            if (!annoType.getPackage().getName().equals("java.lang.annotation")) {
-                return findAnnotation(annoType, targetAnno);
-            }
-        }
-        return null;
-    }
 
     /**
      * 获取bean名称，优先使用注解的值，如果没有设置注解值，默认使用小写开头的类名
@@ -86,33 +71,5 @@ public abstract class BeanUtils {
         }
         return res;
     }
-
-    @Nullable
-    public static Method findMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {
-        try {
-            return clazz.getMethod(methodName, paramTypes);
-        }
-        catch (NoSuchMethodException ex) {
-            return findDeclaredMethod(clazz, methodName, paramTypes);
-        }
-    }
-
-    @Nullable
-    public static Method findDeclaredMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {
-        try {
-            return clazz.getDeclaredMethod(methodName, paramTypes);
-        }
-        catch (NoSuchMethodException ex) {
-            if (clazz.getSuperclass() != null) {
-                return findDeclaredMethod(clazz.getSuperclass(), methodName, paramTypes);
-            }
-            return null;
-        }
-    }
-
-    public static boolean hasAnnotation(AnnotatedElement element, Class<? extends Annotation> annotationType) {
-        return findAnnotation(element, annotationType) != null;
-    }
-
 
 }

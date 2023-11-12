@@ -9,6 +9,7 @@ import com.mcb.imspring.core.io.ClassPathBeanDefinitionScanner;
 import com.mcb.imspring.core.io.ConfigurationClassBeanDefinitionReader;
 import com.mcb.imspring.core.utils.BeanUtils;
 import com.mcb.imspring.core.utils.Conventions;
+import com.mcb.imspring.core.utils.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +133,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
      * 目前暂时处理 @Configuration、@ComponentScan 这两种配置类
      */
     private void processConfigurationClass(BeanDefinition beanDef, ConfigurationClass configClass) {
-        if (BeanUtils.hasAnnotation(configClass.getBeanClass(), Configuration.class)) {
+        if (ReflectionUtils.hasAnnotation(configClass.getBeanClass(), Configuration.class)) {
             Set<Method> beanMethods = retrieveBeanMethodMetadata(configClass.getBeanClass());
             for (Method method : beanMethods) {
                 configClass.addBeanMethod(method);
@@ -140,7 +141,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         }
 
         // 这里处理 @ComponentScan，因为新扫描到的类有可能也包含 @Configuration，所以扫描完之后需要再处理一遍配置类
-        if (BeanUtils.hasAnnotation(configClass.getBeanClass(), ComponentScan.class)) {
+        if (ReflectionUtils.hasAnnotation(configClass.getBeanClass(), ComponentScan.class)) {
             ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry);
             String basePackages = configClass.getBeanClass().getAnnotation(ComponentScan.class).value();
             scanner.scan(basePackages);

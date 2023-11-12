@@ -1,6 +1,6 @@
 package com.mcb.imspring.core;
 
-import com.mcb.imspring.core.collections.Ordered;
+import com.mcb.imspring.core.common.Ordered;
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanPostProcessor;
 import com.mcb.imspring.core.exception.BeansException;

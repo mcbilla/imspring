@@ -1,6 +1,6 @@
 package com.mcb.imspring.web;
 
-import com.mcb.imspring.core.utils.BeanUtils;
+import com.mcb.imspring.core.utils.ReflectionUtils;
 import com.mcb.imspring.web.annotation.ResponseBody;
 import com.mcb.imspring.web.annotation.RestController;
 import com.mcb.imspring.web.exception.ServerErrorException;
@@ -19,7 +19,7 @@ import java.io.IOException;
 public class RequestResponseBodyMethodProcessor implements HandlerMethodReturnValueHandler {
     @Override
     public boolean supportsReturnType(MethodParameter returnType) {
-        return BeanUtils.hasAnnotation(returnType.getContainingClass(), RestController.class) ||
+        return ReflectionUtils.hasAnnotation(returnType.getContainingClass(), RestController.class) ||
                 returnType.getExecutable().isAnnotationPresent(ResponseBody.class);
     }
 

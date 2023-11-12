@@ -1,6 +1,6 @@
 package com.mcb.imspring.core.annotation;
 
-import com.mcb.imspring.core.collections.Ordered;
+import com.mcb.imspring.core.common.Ordered;
 
 import java.lang.annotation.*;
 

@@ -3,7 +3,7 @@ package com.mcb.imspring.web;
 import com.mcb.imspring.core.AnnotationConfigApplicationContext;
 import com.mcb.imspring.core.ApplicationContext;
 import com.mcb.imspring.core.annotation.Component;
-import com.mcb.imspring.core.collections.Ordered;
+import com.mcb.imspring.core.common.Ordered;
 import com.mcb.imspring.core.context.ApplicationContextAware;
 import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.core.utils.CollectionUtils;

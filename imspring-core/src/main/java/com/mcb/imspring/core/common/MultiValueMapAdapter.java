@@ -1,6 +1,5 @@
-package com.mcb.imspring.core.collections;
+package com.mcb.imspring.core.common;
 
-import com.mcb.imspring.core.collections.MultiValueMap;
 import com.mcb.imspring.core.utils.Assert;
 import com.mcb.imspring.core.utils.CollectionUtils;
 import com.sun.istack.internal.Nullable;

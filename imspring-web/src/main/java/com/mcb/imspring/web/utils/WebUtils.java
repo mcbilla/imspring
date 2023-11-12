@@ -1,7 +1,7 @@
 package com.mcb.imspring.web.utils;
 
 import com.mcb.imspring.core.annotation.Controller;
-import com.mcb.imspring.core.utils.BeanUtils;
+import com.mcb.imspring.core.utils.ReflectionUtils;
 import com.mcb.imspring.web.annotation.GetMapping;
 import com.mcb.imspring.web.annotation.PostMapping;
 import com.mcb.imspring.web.annotation.RequestMapping;
@@ -15,8 +15,8 @@ public abstract class WebUtils {
     public static final String INCLUDE_REQUEST_URI_ATTRIBUTE = "javax.servlet.include.request_uri";
 
     public static boolean isHandler(Class<?> beanType) {
-        return (BeanUtils.hasAnnotation(beanType, Controller.class) ||
-                BeanUtils.hasAnnotation(beanType, RequestMapping.class));
+        return (ReflectionUtils.hasAnnotation(beanType, Controller.class) ||
+                ReflectionUtils.hasAnnotation(beanType, RequestMapping.class));
     }
 
     public static boolean isHandlerInterceptor(Class<?> beanType) {
@@ -24,17 +24,17 @@ public abstract class WebUtils {
     }
 
     public static boolean isRequestMapping(Method method) {
-        return (BeanUtils.hasAnnotation(method, RequestMapping.class) ||
-                BeanUtils.hasAnnotation(method, GetMapping.class) ||
-                BeanUtils.hasAnnotation(method, PostMapping.class));
+        return (ReflectionUtils.hasAnnotation(method, RequestMapping.class) ||
+                ReflectionUtils.hasAnnotation(method, GetMapping.class) ||
+                ReflectionUtils.hasAnnotation(method, PostMapping.class));
     }
 
     public static String getRequestMappingPattern(Method method) {
-        if (BeanUtils.hasAnnotation(method, RequestMapping.class)) {
+        if (ReflectionUtils.hasAnnotation(method, RequestMapping.class)) {
             return method.getAnnotation(RequestMapping.class).value();
-        } else if (BeanUtils.hasAnnotation(method, GetMapping.class)) {
+        } else if (ReflectionUtils.hasAnnotation(method, GetMapping.class)) {
             return method.getAnnotation(GetMapping.class).value();
-        } else if (BeanUtils.hasAnnotation(method, PostMapping.class)) {
+        } else if (ReflectionUtils.hasAnnotation(method, PostMapping.class)) {
             return method.getAnnotation(PostMapping.class).value();
         } else  {
             throw new ServerErrorException(String.format("requestmapping url can not be null %s", method));

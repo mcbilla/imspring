@@ -6,6 +6,7 @@ import com.mcb.imspring.core.context.*;
 import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.utils.BeanUtils;
 import com.mcb.imspring.core.utils.CollectionUtils;
+import com.mcb.imspring.core.utils.ReflectionUtils;
 import com.mcb.imspring.core.utils.StringUtils;
 import com.sun.istack.internal.Nullable;
 import org.slf4j.Logger;
@@ -219,7 +220,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
         }
 
         if (!StringUtils.isEmpty(def.getInitMethodName())) {
-            Method initMethod = BeanUtils.findMethod(def.getBeanClass(), def.getInitMethodName());
+            Method initMethod = ReflectionUtils.findMethod(def.getBeanClass(), def.getInitMethodName());
             if (initMethod != null) {
                 initMethod.invoke(bean, null);
             }

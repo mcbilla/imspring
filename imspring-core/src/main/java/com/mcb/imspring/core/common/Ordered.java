@@ -1,4 +1,4 @@
-package com.mcb.imspring.core.collections;
+package com.mcb.imspring.core.common;
 
 public interface Ordered {
     int HIGHEST_PRECEDENCE = Integer.MIN_VALUE;

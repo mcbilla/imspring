@@ -7,6 +7,7 @@ import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.utils.Assert;
 import com.mcb.imspring.core.utils.BeanUtils;
 import com.mcb.imspring.core.utils.CollectionUtils;
+import com.mcb.imspring.core.utils.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +76,7 @@ public class ClassPathBeanDefinitionScanner extends AbstractBeanDefinitionReader
         for (Map.Entry<String, Class<?>> entry : candidateClasses.entrySet()) {
             Class<?> clazz = entry.getValue();
             // 扫描带有@Component注解的类，包括@Controller、@Service、@Repository
-            Component component = BeanUtils.findAnnotation(clazz, Component.class);
+            Component component = ReflectionUtils.findAnnotation(clazz, Component.class);
             if (component != null) {
                 String beanName = BeanUtils.getBeanName(clazz);
                 BeanDefinition def = createBeanDefinition(clazz, beanName);

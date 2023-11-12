@@ -1,7 +1,7 @@
 package com.mcb.imspring.web;
 
 import com.mcb.imspring.core.annotation.Component;
-import com.mcb.imspring.core.collections.Ordered;
+import com.mcb.imspring.core.common.Ordered;
 import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.web.exception.ServerErrorException;
 import com.mcb.imspring.web.handler.HandlerAdapter;
