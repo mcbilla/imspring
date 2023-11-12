@@ -109,7 +109,7 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
         for (BeanDefinition def : queue) {
             this.getBean(def.getName());
         }
-        logger.debug("pre init finish, all beans: {}", beanDefinitionMap.keySet());
+        logger.debug("beanFactory pre init finish, all beans: {}", beanDefinitionMap.keySet());
     }
 
     private int getBeanOrder(BeanDefinition def) {

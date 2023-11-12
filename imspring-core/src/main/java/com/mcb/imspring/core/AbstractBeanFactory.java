@@ -114,7 +114,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
         // 初始化bean
         bean = initializeBean(bean, name, def);
 
-        logger.info("init bean finish: {}", name);
+        logger.debug("finish init Bean: [{}]", name);
 
         return (T) bean;
     }

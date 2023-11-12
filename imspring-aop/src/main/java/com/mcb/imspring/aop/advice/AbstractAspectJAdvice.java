@@ -13,6 +13,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * 所有的增强通知都是 MethodInterceptor 的子类，MethodInterceptor 是 aspectJ 提供的拦截器接口
+ *
  * 五种通知的执行顺序
  * public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
  *    Object result;

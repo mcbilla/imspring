@@ -2,9 +2,9 @@ package com.mcb.imspring.tx;
 
 import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.tx.exception.TransactionException;
-import com.mcb.imspring.tx.transaction.DefaultTransactionDefinition;
-import com.mcb.imspring.tx.transaction.TransactionCallback;
-import com.mcb.imspring.tx.transaction.TransactionOperations;
+import com.mcb.imspring.tx.transaction.td.DefaultTransactionDefinition;
+import com.mcb.imspring.tx.transaction.ts.TransactionCallback;
+import com.mcb.imspring.tx.transaction.ts.TransactionOperations;
 
 public class TransactionTemplate extends DefaultTransactionDefinition
         implements TransactionOperations, InitializingBean {

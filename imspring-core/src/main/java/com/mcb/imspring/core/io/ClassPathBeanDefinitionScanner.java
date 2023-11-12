@@ -34,7 +34,7 @@ public class ClassPathBeanDefinitionScanner extends AbstractBeanDefinitionReader
             beanDefinitions.addAll(candidates);
         }
         beanDefinitions.forEach(def -> {
-            logger.debug("register BeanDefinition {}", def.getName());
+            logger.debug("register BeanDefinition: [{}]", def.getName());
             this.registry.registerBeanDefinition(def.getName(), def);
         });
     }

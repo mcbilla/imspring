@@ -1,9 +1,9 @@
 package com.mcb.imspring.tx;
 
 import com.mcb.imspring.tx.exception.TransactionException;
-import com.mcb.imspring.tx.transaction.PlatformTransactionManager;
-import com.mcb.imspring.tx.transaction.TransactionDefinition;
-import com.mcb.imspring.tx.transaction.TransactionStatus;
+import com.mcb.imspring.tx.transaction.tm.PlatformTransactionManager;
+import com.mcb.imspring.tx.transaction.td.TransactionDefinition;
+import com.mcb.imspring.tx.transaction.ts.TransactionStatus;
 
 import javax.sql.DataSource;
 

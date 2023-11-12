@@ -22,8 +22,15 @@ import static com.mcb.imspring.aop.advisor.AspectJExpressionPointcutAdvisor.EMPT
 @Component
 public class AspectJAwareAdvisorAutoProxyCreator implements BeanPostProcessor, BeanFactoryAware {
 
+    /**
+     * beanFactory 通过 Aware 接口注入
+     */
     private BeanFactory beanFactory;
 
+    /**
+     * 在容器加载的过程中获取所有切面和其对应的增强通知
+     * key 是切面的 beanName，value 是该切面的所有通知增强器
+     */
     private Map<String, List<AspectJExpressionPointcutAdvisor>> advisorsCache = new ConcurrentHashMap<>();
 
     /**

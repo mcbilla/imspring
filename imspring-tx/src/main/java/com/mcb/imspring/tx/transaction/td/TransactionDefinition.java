@@ -1,4 +1,4 @@
-package com.mcb.imspring.tx.transaction;
+package com.mcb.imspring.tx.transaction.td;
 
 public interface TransactionDefinition {
     int PROPAGATION_REQUIRED = 0;

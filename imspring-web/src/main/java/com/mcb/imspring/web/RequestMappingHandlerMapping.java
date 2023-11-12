@@ -95,12 +95,12 @@ public class RequestMappingHandlerMapping implements HandlerMapping, Initializin
 
     private void registerHandlerMethod(String beanName, Method method, Object mapping) {
         String pattern = ((HandlerMethod) mapping).getPattern().pattern();
-        logger.debug("register handler method url: {}，beanName: {}, method: {}", pattern, beanName, method.getName());
+        logger.debug("register handler method url: [{}]，beanName: [{}], method: [{}]", pattern, beanName, method.getName());
         this.handlerMap.put(pattern, mapping);
     }
 
     private void registerHandlerInterceptor(String beanName, Object bean) {
-        logger.debug("register handler interceptor beanName: {}", beanName);
+        logger.debug("register handler interceptor beanName: [{}]", beanName);
         this.interceptors.add((HandlerInterceptor) bean);
     }
 

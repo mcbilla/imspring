@@ -1,5 +1,6 @@
-package com.mcb.imspring.tx.transaction;
+package com.mcb.imspring.tx.transaction.ts;
 
+import com.mcb.imspring.tx.transaction.ts.TransactionStatus;
 import com.sun.istack.internal.Nullable;
 
 @FunctionalInterface

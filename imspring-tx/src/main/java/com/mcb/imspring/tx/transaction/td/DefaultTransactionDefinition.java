@@ -1,6 +1,6 @@
-package com.mcb.imspring.tx.transaction;
+package com.mcb.imspring.tx.transaction.td;
 
-public class DefaultTransactionDefinition implements TransactionDefinition{
+public class DefaultTransactionDefinition implements TransactionDefinition {
     private int propagationBehavior = PROPAGATION_REQUIRED;
 
     private int isolationLevel = ISOLATION_DEFAULT;
