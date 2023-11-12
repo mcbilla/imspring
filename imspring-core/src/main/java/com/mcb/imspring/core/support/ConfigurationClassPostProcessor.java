@@ -161,6 +161,10 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         return beanMethods;
     }
 
+    /**
+     * 在 Spring 中这里会把带有 @Configuration 注解的配置类用 cglib 进行增强，然后用增强后的类替换 BeanDefinition 原来的 beanClass
+     * 例如 MyBeanConfig 增强后变成 WebMvcConfig$$EnhancerBySpringCGLIB$$8bef3235293
+     */
     private void enhanceConfigurationClasses(ConfigurableListableBeanFactory beanFactory) {
 
     }

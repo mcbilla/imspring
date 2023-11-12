@@ -20,7 +20,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
     }
 
     protected BeanDefinition createBeanDefinition(Class<?> clazz, String beanName) {
-        // 允许后创建的BeanDefinition
+        // 允许BeanDefinition同名覆盖
         if (this.registry.containsBeanDefinition(beanName)) {
             logger.debug("overwrite duplicate BeanDefinition，beanName: [{}]，class: [{}]" + beanName, clazz.getName());
         } else  {
