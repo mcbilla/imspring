@@ -22,8 +22,6 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public static final Advice EMPTY_ADVICE = new Advice() {};
-
     private final AspectJExpressionPointcut pointcut;
 
     private final Class<?> declaringClass;

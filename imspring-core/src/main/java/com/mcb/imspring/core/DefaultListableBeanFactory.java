@@ -1,5 +1,6 @@
 package com.mcb.imspring.core;
 
+import com.mcb.imspring.core.common.OrderComparator;
 import com.mcb.imspring.core.common.Ordered;
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanPostProcessor;
@@ -103,26 +104,16 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     @Override
     public void preInstantiateSingletons() {
         // 按照order升序排序
-        Comparator<BeanDefinition> c = (o1, o2) -> getBeanOrder(o1) - getBeanOrder(o2);
-        Queue<BeanDefinition> queue = new PriorityQueue<>(c);
-        queue.addAll(beanDefinitionMap.values());
-        for (BeanDefinition def : queue) {
+        List<BeanDefinition> candidateDefs = new ArrayList<>(beanDefinitionMap.values());
+        candidateDefs.sort((bd1, bd2) -> {
+            int i1 = OrderComparator.getOrder(bd1.getBeanClass());
+            int i2 = OrderComparator.getOrder(bd2.getBean());
+            return Integer.compare(i1, i2);
+        });
+        for (BeanDefinition def : candidateDefs) {
             this.getBean(def.getName());
         }
         logger.debug("beanFactory pre init finish, all beans: {}", beanDefinitionMap.keySet());
-    }
-
-    private int getBeanOrder(BeanDefinition def) {
-        int order = Ordered.DEFAULT_PRECEDENCE;
-        if (Ordered.class.isAssignableFrom(def.getBeanClass())) {
-            try {
-                Method method = def.getBeanClass().getMethod("getOrder", null);
-                order = (int) method.invoke(def.getBeanClass().newInstance(), null);
-            } catch (Exception e) {
-                throw new BeansException(e);
-            }
-        }
-        return order;
     }
 
     @Override
