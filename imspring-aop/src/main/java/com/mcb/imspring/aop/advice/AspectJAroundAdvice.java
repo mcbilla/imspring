@@ -9,8 +9,8 @@ import org.aspectj.lang.JoinPoint;
 import java.lang.reflect.Method;
 
 public class AspectJAroundAdvice extends AbstractAspectJAdvice{
-    public AspectJAroundAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut) {
-        super(aspectJAdviceMethod, pointcut);
+    public AspectJAroundAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName) {
+        super(aspectJAdviceMethod, pointcut, aspectName);
     }
 
     @Override

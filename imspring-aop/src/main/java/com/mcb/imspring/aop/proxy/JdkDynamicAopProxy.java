@@ -1,5 +1,8 @@
 package com.mcb.imspring.aop.proxy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -8,6 +11,8 @@ import java.lang.reflect.Proxy;
  * JDK动态代理，实现JDK的InvocationHandler接口，自定义代理逻辑
  */
 final public class JdkDynamicAopProxy extends AbstractAopProxy implements InvocationHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public JdkDynamicAopProxy(AdvisedSupport advised) {
         super(advised);
@@ -21,7 +26,9 @@ final public class JdkDynamicAopProxy extends AbstractAopProxy implements Invoca
      */
     @Override
     public Object getProxy() {
-        return Proxy.newProxyInstance(getClass().getClassLoader(), advised.getTargetSource().getInterfaces(), this);
+        Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), advised.getTargetSource().getInterfaces(), this);
+        logger.debug("create jdk proxy target: [{}]，proxy: [{}]", advised.getTargetSource().getTarget().getClass(), proxy.getClass());
+        return proxy;
     }
 
     /**

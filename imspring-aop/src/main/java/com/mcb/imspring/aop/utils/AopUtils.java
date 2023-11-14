@@ -13,13 +13,24 @@ public abstract class AopUtils {
 
     public static final String CGLIB_CLASS_SEPARATOR = "$$";
 
+    public static final String JDK_CLASS_SEPARATOR = "$Proxy";
+
     public static Class<?> getTargetClass(Object candidate) {
         Assert.notNull(candidate, "Candidate object must not be null");
         return (isCglibProxy(candidate) ? candidate.getClass().getSuperclass() : candidate.getClass());
     }
 
+    public static boolean isJdkProxy(Object object) {
+        return object != null && object.getClass().getName().contains(JDK_CLASS_SEPARATOR);
+
+    }
+
     public static boolean isCglibProxy(Object object) {
-        return object.getClass().getName().contains(CGLIB_CLASS_SEPARATOR);
+        return object != null && object.getClass().getName().contains(CGLIB_CLASS_SEPARATOR);
+    }
+
+    public static boolean isProxy(Object object) {
+        return isJdkProxy(object) || isCglibProxy(object);
     }
 
     public static boolean isAspect(Class<?> beanClass) {

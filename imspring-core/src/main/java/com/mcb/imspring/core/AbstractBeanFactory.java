@@ -107,13 +107,13 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
 
         // 初始化bean实例
         Object bean = createBean(def);
-        def.setBean(bean);
 
         // 属性填充
         populateBean(bean, name);
 
         // 初始化bean
         bean = initializeBean(bean, name, def);
+        def.setBean(bean);
 
         logger.debug("finish init Bean: [{}]", name);
 
@@ -235,7 +235,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
             }
             // 如果一个BeanPostProcessor替换了原始Bean，则更新Bean的引用
             if (bean != processed) {
-                logger.debug("Bean '{}' was replaced by post processor after handler {}.", beanName, beanPostProcessor.getClass().getName());
+                logger.debug("Bean [{}] was replaced by post processor after handler [{}]", beanName, beanPostProcessor.getClass().getName());
                 bean = processed;
             }
         }

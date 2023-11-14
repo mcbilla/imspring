@@ -40,7 +40,7 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
         this.aspectJBean = aspectJBean;
         this.aspectName = aspectName;
         this.pointcut = instantiatePointcut(this.aspectJAdviceMethod, this.declaringClass);
-        this.advice = instantiateAdvice(this.aspectJAdviceMethod, this.pointcut);
+        this.advice = instantiateAdvice(this.aspectJAdviceMethod, this.pointcut, this.aspectName);
     }
 
     private AspectJExpressionPointcut instantiatePointcut(Method aspectJAdviceMethod, Class<?> declaringClass) {
@@ -79,7 +79,7 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
         return aspectJExpressionPointcut;
     }
 
-    private Advice instantiateAdvice(Method method, AspectJExpressionPointcut pointcut) {
+    private Advice instantiateAdvice(Method method, AspectJExpressionPointcut pointcut, String aspectName) {
         Advice advice = null;
         Annotation[] annotations = method.getAnnotations();
         for (Annotation annotation : annotations) {
@@ -90,19 +90,19 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
                         logger.debug("Processing pointcut name: [{}]，value: [{}]", method.getName(), ((org.aspectj.lang.annotation.Pointcut)annotation).value());
                         break;
                     case AtAround:
-                        advice = new AspectJAroundAdvice(method, pointcut);
+                        advice = new AspectJAroundAdvice(method, pointcut, aspectName);
                         break;
                     case AtBefore:
-                        advice = new AspectJMethodBeforeAdvice(method, pointcut);
+                        advice = new AspectJMethodBeforeAdvice(method, pointcut, aspectName);
                         break;
                     case AtAfter:
-                        advice = new AspectJAfterAdvice(method, pointcut);
+                        advice = new AspectJAfterAdvice(method, pointcut, aspectName);
                         break;
                     case AtAfterReturning:
-                        advice = new AspectJAfterReturningAdvice(method, pointcut);
+                        advice = new AspectJAfterReturningAdvice(method, pointcut, aspectName);
                         break;
                     case AtAfterThrowing:
-                        advice = new AspectJAfterThrowingAdvice(method, pointcut);
+                        advice = new AspectJAfterThrowingAdvice(method, pointcut, aspectName);
                         break;
                     default:
                         throw new UnsupportedOperationException(

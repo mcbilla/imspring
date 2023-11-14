@@ -8,7 +8,7 @@ import org.aspectj.lang.annotation.*;
 @Aspect
 public class MyAspect {
 
-    @Pointcut("execution(* com.mcb.imspring.aop..*.*Service*.*(..))")
+    @Pointcut("execution(* com.mcb.imspring.aop..*.*Service*.test(..))")
     public void getPointcut() {
     }
 

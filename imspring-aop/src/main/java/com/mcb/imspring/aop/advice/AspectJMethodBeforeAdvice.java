@@ -11,8 +11,8 @@ import java.lang.reflect.Method;
 
 public class AspectJMethodBeforeAdvice extends AbstractAspectJAdvice{
 
-    public AspectJMethodBeforeAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut) {
-        super(aspectJAdviceMethod, pointcut);
+    public AspectJMethodBeforeAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName) {
+        super(aspectJAdviceMethod, pointcut, aspectName);
     }
 
     @Override

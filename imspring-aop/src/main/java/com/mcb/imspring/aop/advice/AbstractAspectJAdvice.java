@@ -1,7 +1,7 @@
 package com.mcb.imspring.aop.advice;
 
-import com.mcb.imspring.core.common.Ordered;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
+import com.mcb.imspring.core.common.Ordered;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aspectj.lang.JoinPoint;
@@ -13,7 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * 所有的增强通知都是 MethodInterceptor 的子类，MethodInterceptor 是 aspectJ 提供的拦截器接口
+ * 所有的增强通知都是 MethodInterceptor 的子类，MethodInterceptor 是 AspectJ 提供的拦截器接口
  *
  * 五种通知的执行顺序
  * public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -34,20 +34,24 @@ import java.lang.reflect.Method;
  *    }
  * }
  */
-public abstract class AbstractAspectJAdvice implements Advice, Ordered, MethodInterceptor, Comparable<Advice> {
+public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, MethodInterceptor, Comparable<Advice> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Class<?> aspectJClass;
+    private final String aspectName;
 
     private final String aspectJMethodName;
+
+    private final Class<?> aspectJClass;
+
 
     private final Class<?>[] aspectJParameterTypes;
 
     protected final Method aspectJAdviceMethod;
     private final AspectJExpressionPointcut pointcut;
 
-    public AbstractAspectJAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut) {
+    public AbstractAspectJAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName) {
+        this.aspectName = aspectName;
         this.aspectJClass = aspectJAdviceMethod.getDeclaringClass();
         this.aspectJMethodName = aspectJAdviceMethod.getName();
         this.aspectJParameterTypes = aspectJAdviceMethod.getParameterTypes();
@@ -81,5 +85,15 @@ public abstract class AbstractAspectJAdvice implements Advice, Ordered, MethodIn
 
     public AspectJExpressionPointcut getPointcut() {
         return pointcut;
+    }
+
+    @Override
+    public String getAspectName() {
+        return this.aspectName;
+    }
+
+    @Override
+    public String getAspectMethodName() {
+        return this.aspectJMethodName;
     }
 }

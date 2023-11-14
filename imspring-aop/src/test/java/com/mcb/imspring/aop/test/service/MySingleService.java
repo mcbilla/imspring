@@ -9,6 +9,10 @@ import com.mcb.imspring.core.annotation.Service;
 @Service
 public class MySingleService {
     public void test() {
-        System.out.println("这是一个mySingleService");
+        System.out.println("这是mySingleService的test方法");
+    }
+
+    public void hello() {
+        System.out.println("这是mySingleService的hello方法");
     }
 }

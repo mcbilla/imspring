@@ -10,8 +10,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class AspectJAfterThrowingAdvice extends AbstractAspectJAdvice{
-    public AspectJAfterThrowingAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut) {
-        super(aspectJAdviceMethod, pointcut);
+    public AspectJAfterThrowingAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName) {
+        super(aspectJAdviceMethod, pointcut, aspectName);
     }
 
     @Override

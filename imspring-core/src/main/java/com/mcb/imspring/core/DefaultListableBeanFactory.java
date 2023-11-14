@@ -113,7 +113,7 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
         for (BeanDefinition def : candidateDefs) {
             this.getBean(def.getName());
         }
-        logger.debug("beanFactory pre init finish, all beans: {}", beanDefinitionMap.keySet());
+        logger.debug("beanFactory pre init finish，all beans: {}", beanDefinitionMap.keySet());
     }
 
     @Override

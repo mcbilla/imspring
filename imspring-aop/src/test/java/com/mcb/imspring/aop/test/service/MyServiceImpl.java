@@ -10,6 +10,6 @@ public class MyServiceImpl implements IMyService {
 
     @Override
     public void test() {
-        System.out.println("这是一个myService");
+        System.out.println("这是myService的test方法");
     }
 }

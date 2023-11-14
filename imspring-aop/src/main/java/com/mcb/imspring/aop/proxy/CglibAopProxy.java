@@ -3,6 +3,8 @@ package com.mcb.imspring.aop.proxy;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
@@ -10,6 +12,8 @@ import java.lang.reflect.Method;
  * Cglib 动态代理，实现cglib的MethodInterceptor接口，类似于JDK中的InvocationHandler接口
  */
 public class CglibAopProxy extends AbstractAopProxy implements MethodInterceptor {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public CglibAopProxy(AdvisedSupport advised) {
         super(advised);
@@ -20,7 +24,9 @@ public class CglibAopProxy extends AbstractAopProxy implements MethodInterceptor
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(advised.getTargetSource().getTargetClass());
         enhancer.setCallback(this);
-        return enhancer.create();
+        Object proxy = enhancer.create();
+        logger.debug("create cglib proxy target: [{}]，proxy: [{}]", advised.getTargetSource().getTarget().getClass(), proxy.getClass());
+        return proxy;
     }
 
     /**

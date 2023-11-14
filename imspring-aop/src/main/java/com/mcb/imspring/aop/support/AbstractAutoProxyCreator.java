@@ -62,7 +62,7 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
 
     /**
      * 后置处理
-     * 1、获取切面方法：首先会从缓存中拿到所有的切面信息，和该 bean 的所有方法进行匹配，然后找到所有需要进行 AOP 的方法。
+     * 1、获取切面方法：首先会从缓存中拿到所有的通知，和该 bean 的所有方法进行匹配，找到和该 bean 适配的通知。
      * 2、创建 AOP 代理对象：结合需要进行 AOP 的方法，选择 Cglib 或 JDK，创建 AOP 代理对象。
      */
     @Override
@@ -117,8 +117,7 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
     }
 
     protected Advisor[] getAdvicesAndAdvisorsForBean(Class<?> beanClass, String beanName) {
-        // 通过findEligibleAdvisors方法返回对应的通知
-        // 这个方法回返回所有能应用在指定的 Bean 上的通知
+        // 返回所有能应用在指定的 Bean 上的通知
         List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);
         if (advisors.isEmpty()) {
             return DO_NOT_PROXY;
@@ -169,7 +168,6 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
      * 创建代理，ProxyFactory 里面自动判断使用 jdk 代理或者 cglib 代理
      */
     protected Object createProxy(Object bean, String beanName, Advisor[] advisors) {
-        logger.debug("create proxy beanName: [{}]", beanName);
         ProxyFactory proxyFactory = null;
         for (Advisor advisor : advisors) {
             if (proxyFactory == null) {
