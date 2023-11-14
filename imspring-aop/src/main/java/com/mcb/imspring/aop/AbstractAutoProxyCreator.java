@@ -1,4 +1,4 @@
-package com.mcb.imspring.aop.support;
+package com.mcb.imspring.aop;
 
 import com.mcb.imspring.aop.advisor.Advisor;
 import com.mcb.imspring.aop.advisor.PointcutAdvisor;
