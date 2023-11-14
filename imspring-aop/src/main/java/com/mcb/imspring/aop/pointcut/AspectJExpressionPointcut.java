@@ -66,10 +66,6 @@ public class AspectJExpressionPointcut implements MethodMatcher, Pointcut, Class
     public boolean matchers(Method method, Class<?> targetClass) {
         obtainPointcutExpression();
         ShadowMatch shadowMatch = pointcutExpression.matchesMethodExecution(method);
-        // Special handling for this, target, @this, @target, @annotation
-        // in Spring - we can optimize since we know we have exactly this class,
-        // and there will never be matching subclass at runtime.
-        // https://github.com/spring-projects/spring-framework/blob/master/spring-aop/src/main/java/org/springframework/aop/aspectj/AspectJExpressionPointcut.java
         if (shadowMatch.alwaysMatches()) {
             return true;
         }

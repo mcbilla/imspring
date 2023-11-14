@@ -68,7 +68,6 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint 
         return this.args;
     }
 
-
     @Override
     public String toShortString() {
         return null;

@@ -51,6 +51,7 @@ public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, M
     protected final Method aspectJAdviceMethod;
 
     private final Object aspectJBean;
+
     private final AspectJExpressionPointcut pointcut;
 
     public AbstractAspectJAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName, Object aspectJBean) {
@@ -64,8 +65,9 @@ public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, M
     }
 
     protected MethodInvocationProceedingJoinPoint getJoinPoint() {
+        Object[] args = new Object[this.aspectJParameterTypes.length];
         ReflectiveMethodInvocation mi = new ReflectiveMethodInvocation(this.aspectJBean, null,
-                this.aspectJAdviceMethod, null, null);
+                this.aspectJAdviceMethod, args, null);
         return new MethodInvocationProceedingJoinPoint(mi);
     }
 
