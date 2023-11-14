@@ -116,21 +116,6 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
         return retVal;
     }
 
-    /**
-     * 创建代理，ProxyFactory 里面自动判断使用 jdk 代理或者 cglib 代理
-     */
-    protected Object createProxy(Object bean, String beanName, Advisor[] advisors) {
-        ProxyFactory proxyFactory = null;
-        for (Advisor advisor : advisors) {
-            if (proxyFactory == null) {
-                proxyFactory = new ProxyFactory();
-                proxyFactory.setTargetSource(getCustomTargetSource(bean, advisor));
-            }
-            proxyFactory.addAdvisors(advisor);
-        }
-        return proxyFactory.getProxy();
-    }
-
     protected Advisor[] getAdvicesAndAdvisorsForBean(Class<?> beanClass, String beanName) {
         // 通过findEligibleAdvisors方法返回对应的通知
         // 这个方法回返回所有能应用在指定的 Bean 上的通知
@@ -151,10 +136,6 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
             eligibleAdvisors = sortAdvisors(eligibleAdvisors);
         }
         return eligibleAdvisors;
-    }
-
-    protected List<Advisor> findCandidateAdvisors() {
-        return this.beanFactory.getBeans(Advisor.class);
     }
 
     /**
@@ -184,10 +165,28 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
         return eligibleAdvisors;
     }
 
+    /**
+     * 创建代理，ProxyFactory 里面自动判断使用 jdk 代理或者 cglib 代理
+     */
+    protected Object createProxy(Object bean, String beanName, Advisor[] advisors) {
+        logger.debug("create proxy beanName: [{}]", beanName);
+        ProxyFactory proxyFactory = null;
+        for (Advisor advisor : advisors) {
+            if (proxyFactory == null) {
+                proxyFactory = new ProxyFactory();
+                proxyFactory.setTargetSource(getCustomTargetSource(bean, advisor));
+            }
+            proxyFactory.addAdvisors(advisor);
+        }
+        return proxyFactory.getProxy();
+    }
+
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
+
+    protected abstract List<Advisor> findCandidateAdvisors();
 
     protected abstract TargetSource getCustomTargetSource(Object bean, Advisor advisor);
 }

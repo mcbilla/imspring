@@ -4,9 +4,10 @@ import com.mcb.imspring.aop.advisor.Advisor;
 import com.mcb.imspring.aop.advisor.AspectJExpressionPointcutAdvisor;
 import com.mcb.imspring.aop.advisor.TargetSource;
 import com.mcb.imspring.aop.support.AbstractAutoProxyCreator;
-import com.mcb.imspring.core.utils.ReflectionUtils;
-import org.aspectj.lang.annotation.Aspect;
+import com.mcb.imspring.aop.utils.AopUtils;
+import com.mcb.imspring.core.ConfigurableListableBeanFactory;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,11 +31,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCre
      */
     @Override
     protected boolean isInfrastructureClass(Class<?> beanClass) {
-        return super.isInfrastructureClass(beanClass) || this.isAspect(beanClass);
-    }
-
-    private boolean isAspect(Class<?> beanClass) {
-        return ReflectionUtils.hasAnnotation(beanClass, Aspect.class);
+        return super.isInfrastructureClass(beanClass) || AopUtils.isAspect(beanClass);
     }
 
     /**
@@ -42,9 +39,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCre
      */
     @Override
     protected List<Advisor> findCandidateAdvisors() {
-        List<Advisor> advisors = super.findCandidateAdvisors();
-        advisors.addAll(this.buildAspectJAdvisors());
-        return advisors;
+        return this.buildAspectJAdvisors();
     }
 
     @Override
@@ -53,18 +48,45 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCre
     }
 
     /**
-     * 创建通知并缓存起来
+     * 第一次调用创建通知并缓存起来
+     * 后续调用，从缓存中取出所有通知返回
      */
     private List<Advisor> buildAspectJAdvisors() {
-        // 第一次扫描需要初始化
+        // 第一次调用需要进行初始化
         if (this.aspectBeanNames == null) {
-
+            List<Advisor> advisors = new ArrayList<>();
+            this.aspectBeanNames = new ArrayList<>();
+            String[] beanNames = ((ConfigurableListableBeanFactory) this.beanFactory).getBeanNamesForType(Object.class);
+            for (String beanName : beanNames) {
+                Object bean = this.beanFactory.getBean(beanName);
+                // 如果 bean 是切面类型就进行解析
+                if (AopUtils.isAspect(bean.getClass())) {
+                    aspectBeanNames.add(beanName);
+                    Method[] methods = bean.getClass().getDeclaredMethods();
+                    List<Advisor> classAdvisors = new ArrayList<>();
+                    for (Method method : methods) {
+                        // 如果方法是通知类型就进行解析
+                        if (AopUtils.isAdvice(method)) {
+                            classAdvisors.add(new AspectJExpressionPointcutAdvisor(method, bean, beanName));
+                        }
+                    }
+                    advisorsCache.put(beanName, classAdvisors);
+                    advisors.addAll(classAdvisors);
+                }
+            }
+            return advisors;
         }
         if (this.aspectBeanNames.isEmpty()) {
             return Collections.emptyList();
         }
+        // 后续调用从缓存中取出通知返回
         List<Advisor> advisors = new ArrayList<>();
-
+        for (String aspectName : this.aspectBeanNames) {
+            List<Advisor> cachedAdvisors = this.advisorsCache.get(aspectName);
+            if (cachedAdvisors != null) {
+                advisors.addAll(cachedAdvisors);
+            }
+        }
         return advisors;
     }
 }

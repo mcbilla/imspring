@@ -87,7 +87,7 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
                 AspectJAnnotation aspectJAnnotation = new AspectJAnnotation(annotation);
                 switch (aspectJAnnotation.getAnnotationType()) {
                     case AtPointcut:
-                        logger.debug("Processing pointcut '" + method.getName() + "'");
+                        logger.debug("Processing pointcut name: [{}]，value: [{}]", method.getName(), ((org.aspectj.lang.annotation.Pointcut)annotation).value());
                         break;
                     case AtAround:
                         advice = new AspectJAroundAdvice(method, pointcut);
@@ -135,10 +135,10 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
         AtPointcut, AtAround, AtBefore, AtAfter, AtAfterReturning, AtAfterThrowing
     }
 
-    protected static class AspectJAnnotation<A extends Annotation> {
+    public static class AspectJAnnotation<A extends Annotation> {
         private static final String[] EXPRESSION_ATTRIBUTES = new String[] {"pointcut", "value"};
 
-        private static Map<Class<?>, AspectJAnnotationType> annotationTypeMap = new HashMap<>(8);
+        public static Map<Class<? extends Annotation>, AspectJAnnotationType> annotationTypeMap = new HashMap<>(8);
 
         static {
             annotationTypeMap.put(org.aspectj.lang.annotation.Pointcut.class, AspectJAnnotationType.AtPointcut);
