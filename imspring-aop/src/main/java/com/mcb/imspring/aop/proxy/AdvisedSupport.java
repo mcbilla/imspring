@@ -16,7 +16,7 @@ import java.util.List;
 public class AdvisedSupport {
     private TargetSource targetSource;
 
-    private List<Advisor> advisors = new ArrayList<>();
+    private final List<Advisor> advisors = new ArrayList<>();
 
     public TargetSource getTargetSource() {
         return targetSource;

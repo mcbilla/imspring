@@ -44,7 +44,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCre
 
     @Override
     protected TargetSource getCustomTargetSource(Object bean, Advisor advisor) {
-        return new TargetSource(bean, ((AspectJExpressionPointcutAdvisor) advisor).getAspectJBean(), bean.getClass(), bean.getClass().getInterfaces());
+        return new TargetSource(bean, bean.getClass(), bean.getClass().getInterfaces());
     }
 
     /**

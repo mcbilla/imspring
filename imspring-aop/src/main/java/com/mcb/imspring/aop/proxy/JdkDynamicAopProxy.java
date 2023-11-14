@@ -32,8 +32,10 @@ final public class JdkDynamicAopProxy extends AbstractAopProxy implements Invoca
     }
 
     /**
-     * InvocationHandler 接口中的 invoke 方法具体实现，封装了具体的代理逻辑
      *
+     * @param proxy 被调用的代理对象
+     * @param method 拦截的方法
+     * @param args 方法参数
      * @return
      * @throws Throwable
      */

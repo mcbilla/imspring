@@ -14,14 +14,19 @@ import java.util.List;
  */
 public class ReflectiveMethodInvocation implements MethodInvocation {
 
+    // 原始目标对象
     protected Object target;
 
-    protected Object proxy;
-
+    // 原始目标方法
     protected Method method;
 
+    // 原始目标参数
     protected Object[] arguments;
 
+    // 代理目标对象
+    protected Object proxy;
+
+    // 消息增强器
     protected final List<Advisor> advisors;
 
     private int currentInterceptorIndex = -1;
@@ -80,5 +85,9 @@ public class ReflectiveMethodInvocation implements MethodInvocation {
 
     public Object getProxy() {
         return proxy;
+    }
+
+    public void setProxy(Object proxy) {
+        this.proxy = proxy;
     }
 }

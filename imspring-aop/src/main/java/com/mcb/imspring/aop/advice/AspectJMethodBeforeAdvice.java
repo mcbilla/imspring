@@ -1,18 +1,15 @@
 package com.mcb.imspring.aop.advice;
 
-import com.mcb.imspring.aop.joinpoint.MethodInvocationProceedingJoinPoint;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
-import com.mcb.imspring.aop.proxy.ReflectiveMethodInvocation;
 import org.aopalliance.intercept.MethodInvocation;
-import org.aspectj.lang.JoinPoint;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class AspectJMethodBeforeAdvice extends AbstractAspectJAdvice{
 
-    public AspectJMethodBeforeAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName) {
-        super(aspectJAdviceMethod, pointcut, aspectName);
+    public AspectJMethodBeforeAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName, Object aspectBean) {
+        super(aspectJAdviceMethod, pointcut, aspectName, aspectBean);
     }
 
     @Override
@@ -20,14 +17,13 @@ public class AspectJMethodBeforeAdvice extends AbstractAspectJAdvice{
         return 1;
     }
 
-    public void before(MethodInvocation methodInvocation) throws InvocationTargetException, IllegalAccessException {
-        JoinPoint jp = new MethodInvocationProceedingJoinPoint((ReflectiveMethodInvocation)methodInvocation);
-        invokeAdviceMethod(jp, null, null);
+    public void before(Method method, Object[] args, Object target) throws InvocationTargetException, IllegalAccessException {
+        invokeAdviceMethod(getJoinPoint(), null, null);
     }
 
     @Override
-    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-        this.before(methodInvocation);
-        return methodInvocation.proceed();
+    public Object invoke(MethodInvocation mi) throws Throwable {
+        this.before(mi.getMethod(), mi.getArguments(), mi.getThis());
+        return mi.proceed();
     }
 }

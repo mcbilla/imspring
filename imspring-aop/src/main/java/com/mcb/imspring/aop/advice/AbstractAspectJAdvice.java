@@ -1,6 +1,8 @@
 package com.mcb.imspring.aop.advice;
 
+import com.mcb.imspring.aop.joinpoint.MethodInvocationProceedingJoinPoint;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
+import com.mcb.imspring.aop.proxy.ReflectiveMethodInvocation;
 import com.mcb.imspring.core.common.Ordered;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -44,19 +46,27 @@ public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, M
 
     private final Class<?> aspectJClass;
 
-
     private final Class<?>[] aspectJParameterTypes;
 
     protected final Method aspectJAdviceMethod;
+
+    private final Object aspectJBean;
     private final AspectJExpressionPointcut pointcut;
 
-    public AbstractAspectJAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName) {
+    public AbstractAspectJAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName, Object aspectJBean) {
         this.aspectName = aspectName;
+        this.aspectJBean = aspectJBean;
         this.aspectJClass = aspectJAdviceMethod.getDeclaringClass();
         this.aspectJMethodName = aspectJAdviceMethod.getName();
         this.aspectJParameterTypes = aspectJAdviceMethod.getParameterTypes();
         this.aspectJAdviceMethod = aspectJAdviceMethod;
         this.pointcut = pointcut;
+    }
+
+    protected MethodInvocationProceedingJoinPoint getJoinPoint() {
+        ReflectiveMethodInvocation mi = new ReflectiveMethodInvocation(this.aspectJBean, null,
+                this.aspectJAdviceMethod, null, null);
+        return new MethodInvocationProceedingJoinPoint(mi);
     }
 
     protected Object invokeAdviceMethod(JoinPoint jp, Object returnValue, Throwable t) throws InvocationTargetException, IllegalAccessException {
@@ -95,5 +105,9 @@ public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, M
     @Override
     public String getAspectMethodName() {
         return this.aspectJMethodName;
+    }
+
+    public Method getAspectJMethod() {
+        return aspectJAdviceMethod;
     }
 }

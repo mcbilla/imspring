@@ -1,17 +1,15 @@
 package com.mcb.imspring.aop.advice;
 
-import com.mcb.imspring.aop.joinpoint.MethodInvocationProceedingJoinPoint;
-import com.mcb.imspring.aop.proxy.ReflectiveMethodInvocation;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import org.aopalliance.intercept.MethodInvocation;
-import org.aspectj.lang.JoinPoint;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class AspectJAfterReturningAdvice extends AbstractAspectJAdvice{
-    public AspectJAfterReturningAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName) {
-        super(aspectJAdviceMethod, pointcut, aspectName);
+
+    public AspectJAfterReturningAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName, Object aspectBean) {
+        super(aspectJAdviceMethod, pointcut, aspectName, aspectBean);
     }
 
     @Override
@@ -20,8 +18,7 @@ public class AspectJAfterReturningAdvice extends AbstractAspectJAdvice{
     }
 
     public void afterReturning(MethodInvocation methodInvocation, Object retVal) throws InvocationTargetException, IllegalAccessException {
-        JoinPoint jp = new MethodInvocationProceedingJoinPoint((ReflectiveMethodInvocation)methodInvocation);
-        invokeAdviceMethod(jp, retVal, null);
+        invokeAdviceMethod(getJoinPoint(), retVal, null);
     }
 
     @Override

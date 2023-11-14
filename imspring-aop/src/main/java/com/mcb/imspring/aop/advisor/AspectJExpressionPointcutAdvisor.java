@@ -24,23 +24,11 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
 
     private final AspectJExpressionPointcut pointcut;
 
-    private final Class<?> declaringClass;
-
-    private final String aspectName;
-
-    private final Method aspectJAdviceMethod;
-
-    private Advice advice;
-
-    private Object aspectJBean;
+    private final Advice advice;
 
     public AspectJExpressionPointcutAdvisor(Method aspectJAdviceMethod, Object aspectJBean, String aspectName) {
-        this.declaringClass = aspectJAdviceMethod.getDeclaringClass();
-        this.aspectJAdviceMethod = aspectJAdviceMethod;
-        this.aspectJBean = aspectJBean;
-        this.aspectName = aspectName;
-        this.pointcut = instantiatePointcut(this.aspectJAdviceMethod, this.declaringClass);
-        this.advice = instantiateAdvice(this.aspectJAdviceMethod, this.pointcut, this.aspectName);
+        this.pointcut = instantiatePointcut(aspectJAdviceMethod, aspectJAdviceMethod.getDeclaringClass());
+        this.advice = instantiateAdvice(aspectJAdviceMethod, this.pointcut, aspectName, aspectJBean);
     }
 
     private AspectJExpressionPointcut instantiatePointcut(Method aspectJAdviceMethod, Class<?> declaringClass) {
@@ -79,7 +67,7 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
         return aspectJExpressionPointcut;
     }
 
-    private Advice instantiateAdvice(Method method, AspectJExpressionPointcut pointcut, String aspectName) {
+    private Advice instantiateAdvice(Method method, AspectJExpressionPointcut pointcut, String aspectName, Object aspectJBean) {
         Advice advice = null;
         Annotation[] annotations = method.getAnnotations();
         for (Annotation annotation : annotations) {
@@ -90,19 +78,19 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
                         logger.debug("Processing pointcut name: [{}]，value: [{}]", method.getName(), ((org.aspectj.lang.annotation.Pointcut)annotation).value());
                         break;
                     case AtAround:
-                        advice = new AspectJAroundAdvice(method, pointcut, aspectName);
+                        advice = new AspectJAroundAdvice(method, pointcut, aspectName, aspectJBean);
                         break;
                     case AtBefore:
-                        advice = new AspectJMethodBeforeAdvice(method, pointcut, aspectName);
+                        advice = new AspectJMethodBeforeAdvice(method, pointcut, aspectName, aspectJBean);
                         break;
                     case AtAfter:
-                        advice = new AspectJAfterAdvice(method, pointcut, aspectName);
+                        advice = new AspectJAfterAdvice(method, pointcut, aspectName, aspectJBean);
                         break;
                     case AtAfterReturning:
-                        advice = new AspectJAfterReturningAdvice(method, pointcut, aspectName);
+                        advice = new AspectJAfterReturningAdvice(method, pointcut, aspectName, aspectJBean);
                         break;
                     case AtAfterThrowing:
-                        advice = new AspectJAfterThrowingAdvice(method, pointcut, aspectName);
+                        advice = new AspectJAfterThrowingAdvice(method, pointcut, aspectName, aspectJBean);
                         break;
                     default:
                         throw new UnsupportedOperationException(
@@ -113,10 +101,6 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
         return (advice != null ? advice : EMPTY_ADVICE);
     }
 
-    public void setAdvice(Advice advice) {
-        this.advice = advice;
-    }
-
     @Override
     public Pointcut getPointcut() {
         return this.pointcut;
@@ -125,10 +109,6 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
     @Override
     public Advice getAdvice() {
         return this.advice;
-    }
-
-    public Object getAspectJBean() {
-        return aspectJBean;
     }
 
     protected enum AspectJAnnotationType {
