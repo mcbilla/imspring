@@ -84,12 +84,6 @@ final class TrueMethodMatcher implements MethodMatcher {
     }
 
     @Override
-    public boolean matches(Method method, Class<?> targetClass, Object... args) {
-        throw new UnsupportedOperationException();
-    }
-
-
-    @Override
     public String toString() {
         return "MethodMatcher.TRUE";
     }

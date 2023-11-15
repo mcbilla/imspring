@@ -5,7 +5,6 @@ import com.mcb.imspring.aop.joinpoint.ProxyMethodInvocation;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.weaver.tools.JoinPointMatch;
 
 import java.lang.reflect.Method;
 
@@ -27,7 +26,6 @@ public class AspectJAroundAdvice extends AbstractAspectJAdvice{
         }
         ProxyMethodInvocation pmi = (ProxyMethodInvocation) mi;
         ProceedingJoinPoint pjp = new MethodInvocationProceedingJoinPoint(pmi);
-        JoinPointMatch jpm = getJoinPointMatch(pmi);
-        return invokeAdviceMethod(pjp, jpm, null, null);
+        return invokeAdviceMethod(pjp, null, null);
     }
 }

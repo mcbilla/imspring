@@ -8,8 +8,6 @@ import com.mcb.imspring.core.common.Ordered;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.weaver.tools.JoinPointMatch;
-import org.aspectj.weaver.tools.PointcutParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,29 +88,18 @@ public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, C
         return jp;
     }
 
-    protected JoinPointMatch getJoinPointMatch() {
-        ProxyMethodInvocation pmi = (ProxyMethodInvocation)ExposeInvocationInterceptor.currentInvocation();
-        String expression = this.pointcut.getExpression();
-        return (expression != null ? (JoinPointMatch) pmi.getUserAttribute(expression) : null);
+    protected Object invokeAdviceMethod(JoinPoint jp, Object returnValue, Throwable ex) throws Throwable {
+        return invokeAdviceMethodWithGivenArgs(argBinding(jp, returnValue, ex));
     }
 
-    protected JoinPointMatch getJoinPointMatch(ProxyMethodInvocation pmi) {
-        String expression = this.pointcut.getExpression();
-        return (expression != null ? (JoinPointMatch) pmi.getUserAttribute(expression) : null);
-    }
-
-    protected Object invokeAdviceMethod(JoinPoint jp, JoinPointMatch jpMatch, Object returnValue, Throwable ex) throws Throwable {
-        return invokeAdviceMethodWithGivenArgs(argBinding(jp, jpMatch, returnValue, ex));
-    }
-
-    protected Object invokeAdviceMethod(JoinPointMatch jpMatch, Object returnValue, Throwable ex) throws Throwable {
-        return invokeAdviceMethodWithGivenArgs(argBinding(getJoinPoint(), jpMatch, returnValue, ex));
+    protected Object invokeAdviceMethod(Object returnValue, Throwable ex) throws Throwable {
+        return invokeAdviceMethodWithGivenArgs(argBinding(getJoinPoint(), returnValue, ex));
     }
 
     /**
      * Advice 参数绑定，JoinPoint 类型的参数必须是第一位
      */
-    protected Object[] argBinding(JoinPoint jp, JoinPointMatch jpMatch, Object returnValue, Throwable ex) {
+    protected Object[] argBinding(JoinPoint jp, Object returnValue, Throwable ex) {
         Object[] adviceInvocationArgs = new Object[this.aspectJParameterTypes.length];
         if (adviceInvocationArgs.length == 0) {
             return adviceInvocationArgs;
@@ -122,16 +109,9 @@ public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, C
             adviceInvocationArgs[0] = jp;
             numBound++;
         }
-        if (numBound < adviceInvocationArgs.length) {
-            PointcutParameter[] parameterBindings = jpMatch.getParameterBindings();
-            for (PointcutParameter parameter : parameterBindings) {
-                adviceInvocationArgs[numBound++] = parameter.getBinding();
-            }
-        }
         if (numBound != this.aspectJParameterTypes.length) {
             throw new IllegalStateException("Required to bind " + this.aspectJParameterTypes.length +
-                    " arguments, but only bound " + numBound + " (JoinPointMatch " +
-                    (jpMatch == null ? "was NOT" : "WAS") + " bound in invocation)");
+                    " arguments, but only bound " + numBound + " (JoinPointMatch " + " bound in invocation)");
         }
 
         return adviceInvocationArgs;

@@ -51,6 +51,6 @@ public class ExposeInvocationInterceptor implements MethodInterceptor, Ordered {
 
     @Override
     public int getOrder() {
-        return HIGHEST_PRECEDENCE + 1;
+        return HIGHEST_PRECEDENCE >> 1;
     }
 }

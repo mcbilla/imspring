@@ -80,36 +80,6 @@ public class AspectJExpressionPointcut implements Pointcut, MethodMatcher, Class
         return false;
     }
 
-    /**
-     * 使用 AspectJ Expression 匹配包含参数的方法，如果匹配成功就把参数保存到 JoinPointMatch，然后把 JoinPointMatch 保存到当前 MethodInvocation 的用户属性里面
-     */
-    @Override
-    public boolean matches(Method method, Class<?> targetClass, Object... args) {
-        try {
-            // Bind Spring AOP proxy to AspectJ "this" and Spring AOP target to AspectJ target,
-            ShadowMatch shadowMatch = obtainPointcutExpression().matchesMethodExecution(method);
-            ProxyMethodInvocation pmi = (ProxyMethodInvocation) ExposeInvocationInterceptor.currentInvocation();
-            Object targetObject = pmi.getThis();
-            Object thisObject = pmi.getProxy();
-            JoinPointMatch joinPointMatch = shadowMatch.matchesJoinPoint(thisObject, targetObject, args);
-            if (joinPointMatch.matches()) {
-                bindParameters(pmi, joinPointMatch);
-                return true;
-            }
-        } catch (Throwable ex) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Failed to evaluate join point for arguments " + Arrays.toString(args) +
-                        " - falling back to non-match", ex);
-            }
-        }
-
-        return false;
-    }
-
-    private void bindParameters(ProxyMethodInvocation pmi, JoinPointMatch joinPointMatch) {
-        pmi.setUserAttribute(getExpression(), joinPointMatch);
-    }
-
     private PointcutExpression obtainPointcutExpression() {
         if (getExpression() == null) {
             throw new IllegalStateException("Must set property 'expression' before attempting to match");
