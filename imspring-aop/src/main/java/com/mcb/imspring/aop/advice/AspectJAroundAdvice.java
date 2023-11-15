@@ -1,7 +1,11 @@
 package com.mcb.imspring.aop.advice;
 
+import com.mcb.imspring.aop.joinpoint.MethodInvocationProceedingJoinPoint;
+import com.mcb.imspring.aop.joinpoint.ProxyMethodInvocation;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import org.aopalliance.intercept.MethodInvocation;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.weaver.tools.JoinPointMatch;
 
 import java.lang.reflect.Method;
 
@@ -17,7 +21,13 @@ public class AspectJAroundAdvice extends AbstractAspectJAdvice{
     }
 
     @Override
-    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-        return null;
+    public Object invoke(MethodInvocation mi) throws Throwable {
+        if (!(mi instanceof ProxyMethodInvocation)) {
+            throw new IllegalStateException("MethodInvocation is not a Spring ProxyMethodInvocation: " + mi);
+        }
+        ProxyMethodInvocation pmi = (ProxyMethodInvocation) mi;
+        ProceedingJoinPoint pjp = new MethodInvocationProceedingJoinPoint(pmi);
+        JoinPointMatch jpm = getJoinPointMatch(pmi);
+        return invokeAdviceMethod(pjp, jpm, null, null);
     }
 }

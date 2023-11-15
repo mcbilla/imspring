@@ -16,16 +16,16 @@ public class AspectJAfterAdvice extends AbstractAspectJAdvice{
         return 2;
     }
 
-    public void after(MethodInvocation methodInvocation) throws Throwable {
+    public void after(Method method, Object[] args, Object target) throws Throwable {
         invokeAdviceMethod(getJoinPointMatch(), null, null);
     }
 
     @Override
-    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
+    public Object invoke(MethodInvocation mi) throws Throwable {
         try {
-            return methodInvocation.proceed();
+            return mi.proceed();
         } finally {
-            this.after(methodInvocation);
+            this.after(mi.getMethod(), mi.getArguments(), mi.getThis());
         }
     }
 }

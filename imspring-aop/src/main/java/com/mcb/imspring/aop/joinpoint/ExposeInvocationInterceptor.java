@@ -8,7 +8,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 /**
- * ExposeInvocationInterceptor 是拦截器链中第一个拦截器，它的作用是在进入拦截器执行逻辑的时候，将 MethodInvocation 方法调用对象暴露到 ThreadLocal 中，在拦截器链执行完之后再还原
+ * ExposeInvocationInterceptor 是拦截器链中第一个拦截器，它的作用是在进入拦截器执行逻辑的时候，将原始 MethodInvocation 方法调用对象暴露到 ThreadLocal 中，在拦截器链执行完之后再还原
  */
 public class ExposeInvocationInterceptor implements MethodInterceptor, Ordered {
 

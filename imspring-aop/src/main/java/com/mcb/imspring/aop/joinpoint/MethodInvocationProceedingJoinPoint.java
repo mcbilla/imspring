@@ -13,12 +13,12 @@ import org.aspectj.runtime.internal.AroundClosure;
 public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint {
 
     // 内部持有 JoinPoint
-    private final ReflectiveMethodInvocation methodInvocation;
+    private final ProxyMethodInvocation methodInvocation;
 
     // JoinPoint 参数
     private Object[] args;
 
-    public MethodInvocationProceedingJoinPoint(ReflectiveMethodInvocation methodInvocation) {
+    public MethodInvocationProceedingJoinPoint(ProxyMethodInvocation methodInvocation) {
         Assert.notNull(methodInvocation, "MethodInvocation must not be null");
         this.methodInvocation = methodInvocation;
     }
@@ -52,7 +52,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint 
 
     @Override
     public Object getTarget() {
-        return this.methodInvocation.getTarget();
+        return this.methodInvocation.getThis();
     }
 
     @Override

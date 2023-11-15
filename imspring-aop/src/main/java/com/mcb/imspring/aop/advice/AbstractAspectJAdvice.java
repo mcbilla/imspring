@@ -6,6 +6,7 @@ import com.mcb.imspring.aop.joinpoint.ProxyMethodInvocation;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import com.mcb.imspring.core.common.Ordered;
 import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.weaver.tools.JoinPointMatch;
 import org.aspectj.weaver.tools.PointcutParameter;
@@ -56,6 +57,8 @@ public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, C
 
     private final AspectJExpressionPointcut pointcut;
 
+    protected static final String JOIN_POINT_KEY = JoinPoint.class.getName();
+
     public AbstractAspectJAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, String aspectName, Object aspectJBean) {
         this.aspectName = aspectName;
         this.aspectJBean = aspectJBean;
@@ -69,12 +72,31 @@ public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, C
     /**
      * 从 ThreadLocal 获取当前执行到的 JoinPoint
      */
-    protected MethodInvocationProceedingJoinPoint getJoinPoint() {
-        return null;
+    protected JoinPoint getJoinPoint() {
+        return currentJoinPoint();
+    }
+
+    public static JoinPoint currentJoinPoint() {
+        MethodInvocation mi = ExposeInvocationInterceptor.currentInvocation();
+        if (!(mi instanceof ProxyMethodInvocation)) {
+            throw new IllegalStateException("MethodInvocation is not a Spring ProxyMethodInvocation: " + mi);
+        }
+        ProxyMethodInvocation pmi = (ProxyMethodInvocation) mi;
+        JoinPoint jp = (JoinPoint) pmi.getUserAttribute(JOIN_POINT_KEY);
+        if (jp == null) {
+            jp = new MethodInvocationProceedingJoinPoint(pmi);
+            pmi.setUserAttribute(JOIN_POINT_KEY, jp);
+        }
+        return jp;
     }
 
     protected JoinPointMatch getJoinPointMatch() {
         ProxyMethodInvocation pmi = (ProxyMethodInvocation)ExposeInvocationInterceptor.currentInvocation();
+        String expression = this.pointcut.getExpression();
+        return (expression != null ? (JoinPointMatch) pmi.getUserAttribute(expression) : null);
+    }
+
+    protected JoinPointMatch getJoinPointMatch(ProxyMethodInvocation pmi) {
         String expression = this.pointcut.getExpression();
         return (expression != null ? (JoinPointMatch) pmi.getUserAttribute(expression) : null);
     }
@@ -91,24 +113,24 @@ public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, C
      * Advice 参数绑定，JoinPoint 类型的参数必须是第一位
      */
     protected Object[] argBinding(JoinPoint jp, JoinPointMatch jpMatch, Object returnValue, Throwable ex) {
-        int numUnboundArgs = this.aspectJParameterTypes.length;
-        Object[] adviceInvocationArgs = new Object[numUnboundArgs];
-        if (numUnboundArgs == 0) {
+        Object[] adviceInvocationArgs = new Object[this.aspectJParameterTypes.length];
+        if (adviceInvocationArgs.length == 0) {
             return adviceInvocationArgs;
         }
+        int numBound = 0;
         if (JoinPoint.class.isAssignableFrom(this.aspectJParameterTypes[0])) {
             adviceInvocationArgs[0] = jp;
-            numUnboundArgs--;
+            numBound++;
         }
-        if (numUnboundArgs > 0) {
+        if (numBound < adviceInvocationArgs.length) {
             PointcutParameter[] parameterBindings = jpMatch.getParameterBindings();
             for (PointcutParameter parameter : parameterBindings) {
-                adviceInvocationArgs[numUnboundArgs++] = parameter.getBinding();
+                adviceInvocationArgs[numBound++] = parameter.getBinding();
             }
         }
-        if (numUnboundArgs != this.aspectJParameterTypes.length) {
+        if (numBound != this.aspectJParameterTypes.length) {
             throw new IllegalStateException("Required to bind " + this.aspectJParameterTypes.length +
-                    " arguments, but only bound " + numUnboundArgs + " (JoinPointMatch " +
+                    " arguments, but only bound " + numBound + " (JoinPointMatch " +
                     (jpMatch == null ? "was NOT" : "WAS") + " bound in invocation)");
         }
 

@@ -16,14 +16,14 @@ public class AspectJAfterReturningAdvice extends AbstractAspectJAdvice{
         return 4;
     }
 
-    public void afterReturning(MethodInvocation methodInvocation, Object retVal) throws Throwable {
-        invokeAdviceMethod(getJoinPointMatch(), retVal, null);
+    public void afterReturning(Object returnValue, Method method, Object[] args, Object target) throws Throwable {
+        invokeAdviceMethod(getJoinPointMatch(), returnValue, null);
     }
 
     @Override
-    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-        Object retVal = methodInvocation.proceed();
-        this.afterReturning(methodInvocation, retVal);
+    public Object invoke(MethodInvocation mi) throws Throwable {
+        Object retVal = mi.proceed();
+        this.afterReturning(retVal, mi.getMethod(), mi.getArguments(), mi.getThis());
         return retVal;
     }
 }
