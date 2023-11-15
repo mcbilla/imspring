@@ -63,7 +63,7 @@ public class AspectJExpressionPointcut implements Pointcut, MethodMatcher, Class
     }
 
     /**
-     * 使用 AspectJ Expression 匹配方法
+     * 使用 AspectJ Expression 匹配方法，默认不包含参数
      *
      * @param method
      * @param targetClass
@@ -80,6 +80,9 @@ public class AspectJExpressionPointcut implements Pointcut, MethodMatcher, Class
         return false;
     }
 
+    /**
+     * 使用 AspectJ Expression 匹配包含参数的方法，如果匹配成功就把参数保存到 JoinPointMatch，然后把 JoinPointMatch 保存到当前 MethodInvocation 的用户属性里面
+     */
     @Override
     public boolean matches(Method method, Class<?> targetClass, Object... args) {
         try {

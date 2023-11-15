@@ -12,6 +12,10 @@ public class MySingleService {
         System.out.println("这是mySingleService的test方法");
     }
 
+    public void test(String str) {
+        System.out.println("这是mySingleService的test方法 " + str);
+    }
+
     public void hello() {
         System.out.println("这是mySingleService的hello方法");
     }
