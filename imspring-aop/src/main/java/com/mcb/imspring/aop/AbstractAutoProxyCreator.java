@@ -130,6 +130,8 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
         List<Advisor> candidateAdvisors = findCandidateAdvisors();
         // 从获取到的通知中筛选出能应用到这个 Bean 上的通知
         List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
+        // 扩展通知
+        extendAdvisors(eligibleAdvisors);
         // 如果通知不为空，还需要进行排序
         if (!eligibleAdvisors.isEmpty()) {
             eligibleAdvisors = sortAdvisors(eligibleAdvisors);
@@ -147,7 +149,7 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
             Pointcut pointcut = ((PointcutAdvisor) advisor).getPointcut();
             Method[] methods = beanClass.getDeclaredMethods();
             for (Method method : methods) {
-                if (pointcut.getMethodMatcher().matchers(method, beanClass)) {
+                if (pointcut.getMethodMatcher().matches(method, beanClass)) {
                     eligibleAdvisors.add(advisor);
                     break;
                 }
@@ -185,6 +187,8 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
     }
 
     protected abstract List<Advisor> findCandidateAdvisors();
+
+    protected abstract void extendAdvisors(List<Advisor> advisors);
 
     protected abstract TargetSource getCustomTargetSource(Object bean, Advisor advisor);
 }

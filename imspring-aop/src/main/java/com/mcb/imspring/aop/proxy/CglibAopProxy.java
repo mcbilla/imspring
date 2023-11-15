@@ -39,6 +39,6 @@ public class CglibAopProxy extends AbstractAopProxy implements MethodInterceptor
      */
     @Override
     public Object intercept(Object proxy, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-        return doInvoke(proxy, method, objects);
+        return doInvoke(proxy, method, objects, methodProxy);
     }
 }

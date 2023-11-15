@@ -3,7 +3,6 @@ package com.mcb.imspring.aop.advice;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import org.aopalliance.intercept.MethodInvocation;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class AspectJAfterThrowingAdvice extends AbstractAspectJAdvice{
@@ -16,8 +15,8 @@ public class AspectJAfterThrowingAdvice extends AbstractAspectJAdvice{
         return 3;
     }
 
-    public void afterThrowing(MethodInvocation methodInvocation, Throwable ex) throws InvocationTargetException, IllegalAccessException {
-        invokeAdviceMethod(getJoinPoint(), null, ex);
+    public void afterThrowing(MethodInvocation methodInvocation, Throwable ex) throws Throwable {
+        invokeAdviceMethod(getJoinPointMatch(), null, ex);
     }
 
     @Override

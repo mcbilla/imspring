@@ -15,10 +15,10 @@ public class AspectJExpressionPointcutTest {
     public void testClazz() {
         AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
         pointcut.setExpression("execution(* cn.javass..*.*(..))");
-        System.out.println(pointcut.matchers(MyServiceImpl.class));
-        System.out.println(pointcut.matchers(MySingleService.class));
-        System.out.println(pointcut.matchers(AopConfig.class));
-        System.out.println(pointcut.matchers(AopUtils.class));
+        System.out.println(pointcut.matches(MyServiceImpl.class));
+        System.out.println(pointcut.matches(MySingleService.class));
+        System.out.println(pointcut.matches(AopConfig.class));
+        System.out.println(pointcut.matches(AopUtils.class));
     }
 
     @Test
@@ -27,12 +27,12 @@ public class AspectJExpressionPointcutTest {
         pointcut.setExpression("execution(* com.mcb.imspring.aop..*.*Service*.*(..))");
         Method[] methods1 = MyServiceImpl.class.getDeclaredMethods();
         for (Method method : methods1) {
-            System.out.println("1" + pointcut.matchers(method, MyServiceImpl.class));
+            System.out.println("1" + pointcut.matches(method, MyServiceImpl.class));
         }
 
         Method[] methods2 = MySingleService.class.getDeclaredMethods();
         for (Method method : methods2) {
-            System.out.println("2" + pointcut.matchers(method, MySingleService.class));
+            System.out.println("2" + pointcut.matches(method, MySingleService.class));
         }
     }
 }

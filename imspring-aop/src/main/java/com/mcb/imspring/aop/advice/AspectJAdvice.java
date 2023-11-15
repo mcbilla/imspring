@@ -1,8 +1,8 @@
 package com.mcb.imspring.aop.advice;
 
-import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
 
-public interface AspectJAdvice extends Advice {
+public interface AspectJAdvice extends MethodInterceptor {
     String getAspectName();
 
     String getAspectMethodName();

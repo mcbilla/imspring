@@ -12,14 +12,14 @@ public class MyAspect {
     public void getPointcut() {
     }
 
-    @Around("getPointcut()")
+//    @Around("getPointcut()")
     public void around(ProceedingJoinPoint joinPoint) throws Throwable {
         System.out.println("我是一个AroundAdvice前置处理");
         joinPoint.proceed();
         System.out.println("我是一个AroundAdvice后置处理");
     }
 
-    @AfterReturning("getPointcut()")
+//    @AfterReturning("getPointcut()")
     public void afterReturning() {
         System.out.println("我是一个AfterReturningAdvice");
     }

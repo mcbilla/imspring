@@ -1,21 +1,23 @@
 package com.mcb.imspring.aop.advice;
 
+import com.mcb.imspring.aop.joinpoint.ExposeInvocationInterceptor;
 import com.mcb.imspring.aop.joinpoint.MethodInvocationProceedingJoinPoint;
+import com.mcb.imspring.aop.joinpoint.ProxyMethodInvocation;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
-import com.mcb.imspring.aop.proxy.ReflectiveMethodInvocation;
 import com.mcb.imspring.core.common.Ordered;
 import org.aopalliance.aop.Advice;
-import org.aopalliance.intercept.MethodInterceptor;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.weaver.tools.JoinPointMatch;
+import org.aspectj.weaver.tools.PointcutParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * 所有的增强通知都是 MethodInterceptor 的子类，MethodInterceptor 是 AspectJ 提供的拦截器接口
+ * Advice 对 Joinpoint 执行的某些增强操作
+ * 例如 JDK 动态代理使用的 InvocationHandler、cglib 使用的 MethodInterceptor，在抽象概念上可以算是 Advice（即使它们没有继承Advice）。
+ * 主要使用 Advice 的子接口--MethodInterceptor。
  *
  * 五种通知的执行顺序
  * public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -36,7 +38,7 @@ import java.lang.reflect.Method;
  *    }
  * }
  */
-public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, MethodInterceptor, Comparable<Advice> {
+public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, Comparable<Advice> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -64,32 +66,66 @@ public abstract class AbstractAspectJAdvice implements AspectJAdvice, Ordered, M
         this.pointcut = pointcut;
     }
 
+    /**
+     * 从 ThreadLocal 获取当前执行到的 JoinPoint
+     */
     protected MethodInvocationProceedingJoinPoint getJoinPoint() {
-        Object[] args = new Object[this.aspectJParameterTypes.length];
-        ReflectiveMethodInvocation mi = new ReflectiveMethodInvocation(this.aspectJBean, null,
-                this.aspectJAdviceMethod, args, null);
-        return new MethodInvocationProceedingJoinPoint(mi);
+        return null;
     }
 
-    protected Object invokeAdviceMethod(JoinPoint jp, Object returnValue, Throwable t) throws InvocationTargetException, IllegalAccessException {
-        Object[] actualArgs = new Object[this.aspectJParameterTypes.length];
-        if (actualArgs.length == 0) {
-            actualArgs = null;
-        } else if (actualArgs.length == 1 && this.aspectJParameterTypes[0].isAssignableFrom(ProceedingJoinPoint.class)) {
-            actualArgs[0] = jp;
+    protected JoinPointMatch getJoinPointMatch() {
+        ProxyMethodInvocation pmi = (ProxyMethodInvocation)ExposeInvocationInterceptor.currentInvocation();
+        String expression = this.pointcut.getExpression();
+        return (expression != null ? (JoinPointMatch) pmi.getUserAttribute(expression) : null);
+    }
+
+    protected Object invokeAdviceMethod(JoinPoint jp, JoinPointMatch jpMatch, Object returnValue, Throwable ex) throws Throwable {
+        return invokeAdviceMethodWithGivenArgs(argBinding(jp, jpMatch, returnValue, ex));
+    }
+
+    protected Object invokeAdviceMethod(JoinPointMatch jpMatch, Object returnValue, Throwable ex) throws Throwable {
+        return invokeAdviceMethodWithGivenArgs(argBinding(getJoinPoint(), jpMatch, returnValue, ex));
+    }
+
+    /**
+     * Advice 参数绑定，JoinPoint 类型的参数必须是第一位
+     */
+    protected Object[] argBinding(JoinPoint jp, JoinPointMatch jpMatch, Object returnValue, Throwable ex) {
+        int numUnboundArgs = this.aspectJParameterTypes.length;
+        Object[] adviceInvocationArgs = new Object[numUnboundArgs];
+        if (numUnboundArgs == 0) {
+            return adviceInvocationArgs;
         }
-        this.aspectJAdviceMethod.setAccessible(true);
-        return this.aspectJAdviceMethod.invoke(jp.getThis(), actualArgs);
+        if (JoinPoint.class.isAssignableFrom(this.aspectJParameterTypes[0])) {
+            adviceInvocationArgs[0] = jp;
+            numUnboundArgs--;
+        }
+        if (numUnboundArgs > 0) {
+            PointcutParameter[] parameterBindings = jpMatch.getParameterBindings();
+            for (PointcutParameter parameter : parameterBindings) {
+                adviceInvocationArgs[numUnboundArgs++] = parameter.getBinding();
+            }
+        }
+        if (numUnboundArgs != this.aspectJParameterTypes.length) {
+            throw new IllegalStateException("Required to bind " + this.aspectJParameterTypes.length +
+                    " arguments, but only bound " + numUnboundArgs + " (JoinPointMatch " +
+                    (jpMatch == null ? "was NOT" : "WAS") + " bound in invocation)");
+        }
+
+        return adviceInvocationArgs;
+    }
+
+    protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
+        Object[] actualArgs = args;
+        if (this.aspectJAdviceMethod.getParameterCount() == 0) {
+            actualArgs = null;
+        }
+        return this.aspectJAdviceMethod.invoke(this.aspectJBean, actualArgs);
     }
 
     @Override
     public abstract int getOrder();
 
-    /**
-     * 当前对象（调用这个方法的对象）和形参对象（被比较的另一个对象）进行比较
-     * a - b < 0，说明 a < b，a排前面，b排后面
-     * a - b > 0，说明 a > b，b排前面，a排后面
-     */
     @Override
     public int compareTo(Advice advice) {
         return this.getOrder() - ((Ordered)advice).getOrder();

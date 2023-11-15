@@ -1,19 +1,25 @@
 package com.mcb.imspring.aop.pointcut;
 
+import com.mcb.imspring.aop.joinpoint.ExposeInvocationInterceptor;
+import com.mcb.imspring.aop.joinpoint.ProxyMethodInvocation;
 import com.sun.istack.internal.Nullable;
-import org.aspectj.weaver.tools.PointcutExpression;
-import org.aspectj.weaver.tools.PointcutParser;
-import org.aspectj.weaver.tools.PointcutPrimitive;
-import org.aspectj.weaver.tools.ShadowMatch;
+import org.aspectj.weaver.tools.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 目前只支持方法级别的匹配
+ * Pointcut = ClassFilter + MethodMatcher
+ * ClassFilter：过滤类
+ * MethodMatcher：过滤方法
  */
-public class AspectJExpressionPointcut implements MethodMatcher, Pointcut, ClassFilter {
+public class AspectJExpressionPointcut implements Pointcut, MethodMatcher, ClassFilter {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private PointcutParser pointcutParser;
 
@@ -47,41 +53,68 @@ public class AspectJExpressionPointcut implements MethodMatcher, Pointcut, Class
 
     /**
      * 使用 AspectJ Expression 匹配类，这里只是可能会匹配成功
+     *
      * @param targetClass
      * @return
      */
     @Override
-    public boolean matchers(Class targetClass) {
-        obtainPointcutExpression();
-        return pointcutExpression.couldMatchJoinPointsInType(targetClass);
+    public boolean matches(Class targetClass) {
+        return obtainPointcutExpression().couldMatchJoinPointsInType(targetClass);
     }
 
     /**
      * 使用 AspectJ Expression 匹配方法
+     *
      * @param method
      * @param targetClass
      * @return
      */
     @Override
-    public boolean matchers(Method method, Class<?> targetClass) {
-        obtainPointcutExpression();
-        ShadowMatch shadowMatch = pointcutExpression.matchesMethodExecution(method);
+    public boolean matches(Method method, Class<?> targetClass) {
+        ShadowMatch shadowMatch = obtainPointcutExpression().matchesMethodExecution(method);
         if (shadowMatch.alwaysMatches()) {
             return true;
-        }
-        else if (shadowMatch.neverMatches()) {
+        } else if (shadowMatch.neverMatches()) {
             return false;
         }
         return false;
     }
 
-    private void obtainPointcutExpression() {
+    @Override
+    public boolean matches(Method method, Class<?> targetClass, Object... args) {
+        try {
+            // Bind Spring AOP proxy to AspectJ "this" and Spring AOP target to AspectJ target,
+            ShadowMatch shadowMatch = obtainPointcutExpression().matchesMethodExecution(method);
+            ProxyMethodInvocation pmi = (ProxyMethodInvocation) ExposeInvocationInterceptor.currentInvocation();
+            Object targetObject = pmi.getThis();
+            Object thisObject = pmi.getProxy();
+            JoinPointMatch joinPointMatch = shadowMatch.matchesJoinPoint(thisObject, targetObject, args);
+            if (joinPointMatch.matches()) {
+                bindParameters(pmi, joinPointMatch);
+                return true;
+            }
+        } catch (Throwable ex) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Failed to evaluate join point for arguments " + Arrays.toString(args) +
+                        " - falling back to non-match", ex);
+            }
+        }
+
+        return false;
+    }
+
+    private void bindParameters(ProxyMethodInvocation pmi, JoinPointMatch joinPointMatch) {
+        pmi.setUserAttribute(getExpression(), joinPointMatch);
+    }
+
+    private PointcutExpression obtainPointcutExpression() {
         if (getExpression() == null) {
             throw new IllegalStateException("Must set property 'expression' before attempting to match");
         }
         if (pointcutExpression == null) {
             pointcutExpression = pointcutParser.parsePointcutExpression(getExpression());
         }
+        return this.pointcutExpression;
     }
 
     @Override

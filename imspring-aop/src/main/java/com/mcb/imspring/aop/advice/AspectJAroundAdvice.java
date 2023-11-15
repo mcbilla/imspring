@@ -18,6 +18,6 @@ public class AspectJAroundAdvice extends AbstractAspectJAdvice{
 
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-        return invokeAdviceMethod(getJoinPoint(), null, null);
+        return null;
     }
 }

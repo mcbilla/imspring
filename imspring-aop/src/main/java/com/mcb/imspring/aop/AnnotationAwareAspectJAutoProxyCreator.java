@@ -1,8 +1,12 @@
 package com.mcb.imspring.aop;
 
+import com.mcb.imspring.aop.advice.AbstractAspectJAdvice;
 import com.mcb.imspring.aop.advisor.Advisor;
 import com.mcb.imspring.aop.advisor.AspectJExpressionPointcutAdvisor;
+import com.mcb.imspring.aop.advisor.PointcutAdvisor;
 import com.mcb.imspring.aop.advisor.TargetSource;
+import com.mcb.imspring.aop.joinpoint.ExposeInvocationInterceptor;
+import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import com.mcb.imspring.aop.utils.AopUtils;
 import com.mcb.imspring.core.ConfigurableListableBeanFactory;
 
@@ -39,6 +43,33 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCre
     @Override
     protected List<Advisor> findCandidateAdvisors() {
         return this.buildAspectJAdvisors();
+    }
+
+    /**
+     * 把 ExposeInvocationInterceptor 添加到拦截器链中，经过排序后会成为链中的第一个拦截器
+     */
+    @Override
+    protected void extendAdvisors(List<Advisor> advisors) {
+        if (!advisors.isEmpty()) {
+            boolean foundAspectJAdvice = false;
+            for (Advisor advisor : advisors) {
+                // Be careful not to get the Advice without a guard, as this might eagerly
+                // instantiate a non-singleton AspectJ aspect...
+                if (isAspectJAdvice(advisor)) {
+                    foundAspectJAdvice = true;
+                    break;
+                }
+            }
+            if (foundAspectJAdvice && !advisors.contains(ExposeInvocationInterceptor.ADVISOR)) {
+                advisors.add(0, ExposeInvocationInterceptor.ADVISOR);
+            }
+        }
+    }
+
+    private static boolean isAspectJAdvice(Advisor advisor) {
+        return advisor.getAdvice() instanceof AbstractAspectJAdvice ||
+                (advisor instanceof PointcutAdvisor &&
+                        ((PointcutAdvisor) advisor).getPointcut() instanceof AspectJExpressionPointcut);
     }
 
     @Override

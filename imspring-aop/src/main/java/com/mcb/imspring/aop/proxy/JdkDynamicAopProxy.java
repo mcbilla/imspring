@@ -41,6 +41,6 @@ final public class JdkDynamicAopProxy extends AbstractAopProxy implements Invoca
      */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        return doInvoke(proxy, method, args);
+        return doInvoke(proxy, method, args, null);
     }
 }

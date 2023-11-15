@@ -4,6 +4,7 @@ import com.mcb.imspring.aop.advice.*;
 import com.mcb.imspring.aop.exception.AopConfigException;
 import com.mcb.imspring.aop.pointcut.AspectJExpressionPointcut;
 import com.mcb.imspring.aop.pointcut.Pointcut;
+import com.mcb.imspring.core.common.Ordered;
 import org.aopalliance.aop.Advice;
 import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ import java.util.Map;
 
 /**
  * Advice 是通知，Advisor 是增强器，Advisor 和 Advice 是一一对应关系。
- * Advice 只包含通知本身的内容，Advisor 相当于 Advice 的 plus 版，包含 pointcut、bean 等其他信息，在使用 Proxy 生成代理对象的时候需要用到这些信息。
+ * Advisor = Advice Filter + Advice，这里的 Advice Filter 是 Pointcut。
  */
 public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
 
@@ -24,11 +25,9 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
 
     private final AspectJExpressionPointcut pointcut;
 
-    private final Advice advice;
-
     public AspectJExpressionPointcutAdvisor(Method aspectJAdviceMethod, Object aspectJBean, String aspectName) {
         this.pointcut = instantiatePointcut(aspectJAdviceMethod, aspectJAdviceMethod.getDeclaringClass());
-        this.advice = instantiateAdvice(aspectJAdviceMethod, this.pointcut, aspectName, aspectJBean);
+        setAdvice(instantiateAdvice(aspectJAdviceMethod, this.pointcut, aspectName, aspectJBean));
     }
 
     private AspectJExpressionPointcut instantiatePointcut(Method aspectJAdviceMethod, Class<?> declaringClass) {
@@ -104,11 +103,6 @@ public class AspectJExpressionPointcutAdvisor extends AbstractPointcutAdvisor {
     @Override
     public Pointcut getPointcut() {
         return this.pointcut;
-    }
-
-    @Override
-    public Advice getAdvice() {
-        return this.advice;
     }
 
     protected enum AspectJAnnotationType {
