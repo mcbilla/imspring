@@ -14,7 +14,8 @@ public class ImspringAopTest {
 //            bean1.test();
             MySingleService bean2 = context.getBean("mySingleService");
 //            bean2.test();
-            bean2.test("111");
+            String res = bean2.test("111");
+            System.out.println(res);
 //            bean2.hello();
         } catch (Exception e) {
             throw e;
