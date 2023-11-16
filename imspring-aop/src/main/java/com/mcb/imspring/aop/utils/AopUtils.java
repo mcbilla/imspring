@@ -1,6 +1,7 @@
 package com.mcb.imspring.aop.utils;
 
 import com.mcb.imspring.aop.advisor.AspectJExpressionPointcutAdvisor;
+import com.mcb.imspring.aop.proxy.SpringProxy;
 import com.mcb.imspring.core.utils.Assert;
 import com.mcb.imspring.core.utils.ReflectionUtils;
 import org.aspectj.lang.annotation.Aspect;
@@ -30,7 +31,7 @@ public abstract class AopUtils {
     }
 
     public static boolean isProxy(Object object) {
-        return isJdkProxy(object) || isCglibProxy(object);
+        return object instanceof SpringProxy || isJdkProxy(object) || isCglibProxy(object);
     }
 
     public static boolean isAspect(Class<?> beanClass) {
@@ -41,6 +42,15 @@ public abstract class AopUtils {
         Set<Class<? extends Annotation>> aspectJAnnoTypes = AspectJExpressionPointcutAdvisor.AspectJAnnotation.annotationTypeMap.keySet();
         for (Class<? extends Annotation> anno : aspectJAnnoTypes) {
             if (method.isAnnotationPresent(anno)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isInterfaceProxied(Class<?> proxyIntf, Class<?>[] intfs) {
+        for (Class<?> intf : intfs) {
+            if (proxyIntf.isAssignableFrom(intf)) {
                 return true;
             }
         }

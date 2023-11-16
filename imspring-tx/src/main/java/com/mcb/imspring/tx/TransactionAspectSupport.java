@@ -1,4 +1,4 @@
-package com.mcb.imspring.tx.interceptor;
+package com.mcb.imspring.tx;
 
 import com.mcb.imspring.core.BeanFactory;
 import com.mcb.imspring.core.context.BeanFactoryAware;
@@ -117,7 +117,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
         }
     }
 
-    private TransactionAttributeSource getTransactionAttributeSource() {
+    public TransactionAttributeSource getTransactionAttributeSource() {
         return this.transactionAttributeSource;
     }
 

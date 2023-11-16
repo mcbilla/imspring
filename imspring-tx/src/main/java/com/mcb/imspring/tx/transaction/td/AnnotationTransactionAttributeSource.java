@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 获取方法的事务属性
+ * 用于解析@Transaction注解，获取注解的事务属性
  */
 public class AnnotationTransactionAttributeSource implements TransactionAttributeSource{
     private static final TransactionAttribute NULL_TRANSACTION_ATTRIBUTE = new DefaultTransactionAttribute() {

@@ -21,8 +21,10 @@ public class CglibAopProxy extends AbstractAopProxy implements MethodInterceptor
 
     @Override
     public Object getProxy() {
+        Class<?>[] proxiedInterfaces = completeProxiedInterfaces(advised.getTargetSource().getInterfaces());
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(advised.getTargetSource().getTargetClass());
+        enhancer.setInterfaces(proxiedInterfaces);
         enhancer.setCallback(this);
         Object proxy = enhancer.create();
         logger.debug("create cglib proxy target: [{}]，proxy: [{}]", advised.getTargetSource().getTarget().getClass(), proxy.getClass());

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcb.imspring.aop.advisor.Advisor.EMPTY_ADVICE;
@@ -79,5 +80,17 @@ public abstract class AbstractAopProxy implements AopProxy{
             }
         }
         return eligibleAdivors;
+    }
+
+    /**
+     * 给代理对象添加实现接口 SpringProxy
+     */
+    protected Class<?>[] completeProxiedInterfaces(Class<?>[] interfaces) {
+        List<Class<?>> proxiedInterfaces = new ArrayList<>(Arrays.asList(interfaces));
+        boolean addSpringProxy = !AopUtils.isInterfaceProxied(SpringProxy.class, interfaces);
+        if (addSpringProxy) {
+            proxiedInterfaces.add(SpringProxy.class);
+        }
+        return proxiedInterfaces.toArray(new Class[]{});
     }
 }

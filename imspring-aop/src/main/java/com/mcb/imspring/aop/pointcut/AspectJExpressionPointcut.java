@@ -1,14 +1,14 @@
 package com.mcb.imspring.aop.pointcut;
 
-import com.mcb.imspring.aop.joinpoint.ExposeInvocationInterceptor;
-import com.mcb.imspring.aop.joinpoint.ProxyMethodInvocation;
 import com.sun.istack.internal.Nullable;
-import org.aspectj.weaver.tools.*;
+import org.aspectj.weaver.tools.PointcutExpression;
+import org.aspectj.weaver.tools.PointcutParser;
+import org.aspectj.weaver.tools.PointcutPrimitive;
+import org.aspectj.weaver.tools.ShadowMatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +17,7 @@ import java.util.Set;
  * ClassFilter：过滤类
  * MethodMatcher：过滤方法
  */
-public class AspectJExpressionPointcut implements Pointcut, MethodMatcher, ClassFilter {
+public class AspectJExpressionPointcut extends AbstractPointcut {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 

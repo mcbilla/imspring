@@ -26,7 +26,8 @@ final public class JdkDynamicAopProxy extends AbstractAopProxy implements Invoca
      */
     @Override
     public Object getProxy() {
-        Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), advised.getTargetSource().getInterfaces(), this);
+        Class<?>[] proxiedInterfaces = completeProxiedInterfaces(advised.getTargetSource().getInterfaces());
+        Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), proxiedInterfaces, this);
         logger.debug("create jdk proxy target: [{}]，proxy: [{}]", advised.getTargetSource().getTarget().getClass(), proxy.getClass());
         return proxy;
     }
