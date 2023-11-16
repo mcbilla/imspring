@@ -42,7 +42,9 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCre
      */
     @Override
     protected List<Advisor> findCandidateAdvisors() {
-        return this.buildAspectJAdvisors();
+        List<Advisor> advisors = super.findCandidateAdvisors();
+        advisors.addAll(this.buildAspectJAdvisors());
+        return advisors;
     }
 
     /**

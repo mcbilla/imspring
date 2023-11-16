@@ -21,6 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * AOP 的入口，实现 BeanPostProcessor 接口，主要做了两件事：
+ * 1、前置处理，遍历所有的切面和对应的通知信息，然后将信息保存在缓存中。
+ * 2、后置处理，从缓存中拿到所有的通知和当前 bean 的所有方法进行匹配，如果适配就创建代理对象。
+ */
 public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, BeanFactoryAware {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -37,7 +42,7 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
     protected static final Advisor[] DO_NOT_PROXY = null;
 
     /**
-     * 前置处理，遍历所有的切面信息，然后将切面信息保存在缓存中
+     * 前置处理，遍历所有的切面和对应的通知信息，然后将信息保存在缓存中。这里的所有通知包括事务 + AspectJ 通知
      */
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -62,7 +67,7 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
 
     /**
      * 后置处理
-     * 1、获取切面方法：首先会从缓存中拿到所有的通知，和该 bean 的所有方法进行匹配，找到和该 bean 适配的通知。
+     * 1、获取切面方法：首先会从缓存中拿到所有的通知，和当前 bean 的所有方法进行匹配，找到和该 bean 适配的通知。
      * 2、创建 AOP 代理对象：结合需要进行 AOP 的方法，选择 Cglib 或 JDK，创建 AOP 代理对象。
      */
     @Override
@@ -140,6 +145,14 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
     }
 
     /**
+     * 扫描 beanFactory 中的所有 advisor，默认只会扫描到事务的 TransactionAttributeSourceAdvisor
+     * 子类 {@link AnnotationAwareAspectJAutoProxyCreator} 会覆盖该方法，扫描并创建 AspectJ 类型的的通知
+     */
+    protected List<Advisor> findCandidateAdvisors() {
+        return beanFactory.getBeans(Advisor.class);
+    }
+
+    /**
      * 找出所有通知，挨个匹配某个 bean 的所有方法
      * 如果匹配成功说明这个通知可以用来增强这个 bean，添加到返回队列
      */
@@ -185,8 +198,6 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
     public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
-
-    protected abstract List<Advisor> findCandidateAdvisors();
 
     protected abstract void extendAdvisors(List<Advisor> advisors);
 

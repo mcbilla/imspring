@@ -24,6 +24,9 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
 
     private final Map<Object, TransactionAttribute> attributeCache = new ConcurrentHashMap<>(1024);
 
+    public AnnotationTransactionAttributeSource() {
+    }
+
     @Override
     public TransactionAttribute getTransactionAttribute(Method method, Class<?> targetClass) {
         if (method.getDeclaringClass() == Object.class) {

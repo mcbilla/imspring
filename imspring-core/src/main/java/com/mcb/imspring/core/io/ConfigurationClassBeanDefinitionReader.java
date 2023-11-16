@@ -2,6 +2,7 @@ package com.mcb.imspring.core.io;
 
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanDefinitionRegistry;
+import com.mcb.imspring.core.context.ConfigurationClassBeanDefinition;
 import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.support.ConfigurationClass;
 import com.mcb.imspring.core.utils.BeanUtils;
@@ -26,13 +27,13 @@ public class ConfigurationClassBeanDefinitionReader extends AbstractBeanDefiniti
     }
 
     /**
-     * 把@Import引入的类注册为BeanDefinition
+     * 把 @Import 引入的类注册为 BeanDefinition
      */
     private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass) {
     }
 
     /**
-     * 把配置类中带@Bean注解的方法注册为BeanDefinition
+     * 把配置类中带 @Bean 注解的方法注册为 ConfigurationClassBeanDefinition
      */
     private void loadBeanDefinitionsForBeanMethod(Method beanMethod) {
         Class<?> returnType = beanMethod.getReturnType();
@@ -40,8 +41,11 @@ public class ConfigurationClassBeanDefinitionReader extends AbstractBeanDefiniti
             throw new BeansException(String.format("@Bean method return type can not be void %s", beanMethod.getName()));
         }
         String beanName = BeanUtils.getBeanName(beanMethod);
-        BeanDefinition def = createBeanDefinition(returnType, beanName);
+        BeanDefinition def = createConfigurationClassBeanDefinition(beanMethod, beanName);
         this.registry.registerBeanDefinition(beanName, def);
     }
 
+    private ConfigurationClassBeanDefinition createConfigurationClassBeanDefinition(Method beanMethod, String beanName) {
+        return null;
+    }
 }

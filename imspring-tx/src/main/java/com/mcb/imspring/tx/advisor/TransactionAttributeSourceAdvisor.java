@@ -1,7 +1,9 @@
 package com.mcb.imspring.tx.advisor;
 
 import com.mcb.imspring.aop.advisor.AbstractPointcutAdvisor;
+import com.mcb.imspring.aop.pointcut.ClassFilter;
 import com.mcb.imspring.aop.pointcut.Pointcut;
+import com.mcb.imspring.core.utils.Assert;
 import com.mcb.imspring.tx.TransactionInterceptor;
 import com.mcb.imspring.tx.pointcut.TransactionAttributeSourcePointcut;
 import com.mcb.imspring.tx.transaction.td.TransactionAttributeSource;
@@ -18,13 +20,29 @@ public class TransactionAttributeSourceAdvisor extends AbstractPointcutAdvisor {
         }
     };
 
+    public TransactionAttributeSourceAdvisor() {
+    }
+    public TransactionAttributeSourceAdvisor(TransactionInterceptor interceptor) {
+        setTransactionInterceptor(interceptor);
+    }
+
+    public void setTransactionInterceptor(TransactionInterceptor interceptor) {
+        this.transactionInterceptor = interceptor;
+    }
+
+    public void setClassFilter(ClassFilter classFilter) {
+        this.pointcut.setClassFilter(classFilter);
+    }
+
+
     @Override
     public Advice getAdvice() {
-        return null;
+        Assert.state(this.transactionInterceptor != null, "No TransactionInterceptor set");
+        return this.transactionInterceptor;
     }
 
     @Override
     public Pointcut getPointcut() {
-        return null;
+        return this.pointcut;
     }
 }
