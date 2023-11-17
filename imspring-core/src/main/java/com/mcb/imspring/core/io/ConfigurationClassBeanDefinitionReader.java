@@ -44,6 +44,7 @@ public class ConfigurationClassBeanDefinitionReader extends AbstractBeanDefiniti
         BeanDefinition def = createBeanDefinition(beanName);
         def.setFactoryBeanName(configClass.getBeanName());
         def.setFactoryMethodName(beanMethod.getName());
+        def.setTargetType(returnType);
         this.registry.registerBeanDefinition(beanName, def);
     }
 }

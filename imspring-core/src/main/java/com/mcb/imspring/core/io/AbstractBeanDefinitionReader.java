@@ -44,6 +44,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
                     bd.setDestroyMethodName(method.getName());
                 }
             }
+            bd.setTargetType(beanClass);
             return bd;
         }
     }

@@ -44,6 +44,9 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
     @Nullable
     private String destroyMethodName;
 
+    // 目标类型
+    private Class<?> targetType;
+
     // bean的其他属性，比如排序、包含某些注解等
     private final Map<String, Object> attributes = new LinkedHashMap<>();
 
@@ -102,6 +105,14 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
 
     public String getDestroyMethodName() {
         return destroyMethodName;
+    }
+
+    public Class<?> getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(Class<?> targetType) {
+        this.targetType = targetType;
     }
 
     public void setAttribute(String name, @Nullable Object value) {

@@ -54,7 +54,7 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     @Override
     public List<BeanDefinition> getBeanDefinitions(Class<?> type) {
         return this.beanDefinitionMap.values().stream()
-                .filter(def -> def.getBeanClass() != null && type.isAssignableFrom(def.getBeanClass()))
+                .filter(def -> def.getTargetType() != null && type.isAssignableFrom(def.getTargetType()))
                 .sorted().collect(Collectors.toList());
     }
 
@@ -106,14 +106,14 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
         // 按照 order 升序排序
         List<BeanDefinition> candidateDefs = new ArrayList<>(beanDefinitionMap.values());
         candidateDefs.sort((bd1, bd2) -> {
-            int i1 = OrderComparator.getOrder(bd1.getBeanClass());
-            int i2 = OrderComparator.getOrder(bd2.getBeanClass());
+            int i1 = OrderComparator.getOrder(bd1.getTargetType());
+            int i2 = OrderComparator.getOrder(bd2.getTargetType());
             return Integer.compare(i1, i2);
         });
         for (BeanDefinition def : candidateDefs) {
             this.getBean(def.getName());
         }
-        logger.debug("beanFactory pre init finish，all beans: {}", beanDefinitionMap.keySet());
+        logger.debug("BeanFactory pre instantiate finish，all beans: {}", beanDefinitionMap.keySet());
     }
 
     @Override

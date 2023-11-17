@@ -70,11 +70,8 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
     }
 
     @Override
-    public <T> List<T> getBeans(Class<T> requiredType) {
+    public <T> List<T> getBeans(Class<T> requiredType) throws BeansException{
         List<BeanDefinition> defs = getBeanDefinitions(requiredType);
-        if (defs.isEmpty()) {
-            throw new BeansException(String.format("No bean defined with type '%s'.", requiredType));
-        }
         List<T> list = new ArrayList<>(defs.size());
         for (BeanDefinition def : defs) {
             list.add(getBean(def.getName()));
@@ -115,7 +112,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
         bean = initializeBean(bean, name, def);
         def.setBean(bean);
 
-        logger.debug("finish init Bean: [{}]", name);
+        logger.debug("Bean finish instantiate: [{}]", name);
 
         return (T) bean;
     }

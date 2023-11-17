@@ -139,7 +139,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     private void registerBeanPostProcessors(DefaultListableBeanFactory beanFactory) {
         List<BeanDefinition> beanDefinitions = beanFactory.getBeanDefinitions(BeanPostProcessor.class);
         for (BeanDefinition beanDefinition : beanDefinitions) {
-            if (BeanPostProcessor.class.isAssignableFrom(beanDefinition.getBeanClass())) {
+            if (BeanPostProcessor.class.isAssignableFrom(beanDefinition.getTargetType())) {
                 beanFactory.addBeanPostProcessor(getBean(beanDefinition.getName()));
             }
         }
