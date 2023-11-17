@@ -2,7 +2,6 @@ package com.mcb.imspring.core.io;
 
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanDefinitionRegistry;
-import com.mcb.imspring.core.context.ConfigurationClassBeanDefinition;
 import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.support.ConfigurationClass;
 import com.mcb.imspring.core.utils.BeanUtils;
@@ -41,11 +40,8 @@ public class ConfigurationClassBeanDefinitionReader extends AbstractBeanDefiniti
             throw new BeansException(String.format("@Bean method return type can not be void %s", beanMethod.getName()));
         }
         String beanName = BeanUtils.getBeanName(beanMethod);
-        BeanDefinition def = createConfigurationClassBeanDefinition(beanMethod, beanName);
+        BeanDefinition def = createBeanDefinition(beanMethod, beanName);
         this.registry.registerBeanDefinition(beanName, def);
     }
 
-    private ConfigurationClassBeanDefinition createConfigurationClassBeanDefinition(Method beanMethod, String beanName) {
-        return null;
-    }
 }

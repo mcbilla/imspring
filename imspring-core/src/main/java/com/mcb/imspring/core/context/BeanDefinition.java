@@ -21,11 +21,20 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
     // Bean的声明类型:
     private final Class<?> beanClass;
 
-    // 构造器
-    private Constructor constructor;
-
     // Bean的实例:
     private Object bean = null;
+
+    // 工厂bean名称
+    @Nullable
+    private String factoryBeanName;
+
+    // 工厂方法名称
+    @Nullable
+    private String factoryMethodName;
+
+    // 构造函数参数值
+    @Nullable
+    private Object[] constructorArgumentValues;
 
     @Nullable
     private String initMethodName;
@@ -37,18 +46,18 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
     private final Map<String, Object> attributes = new LinkedHashMap<>();
 
     public BeanDefinition(@Nullable Class<?> beanClass) {
-        this(beanClass.getName(), beanClass, BeanUtils.getBeanConstructor(beanClass));
+        this(beanClass.getSimpleName(), beanClass, null);
     }
 
     public BeanDefinition(String name, @Nullable Class<?> beanClass) {
-        this(name, beanClass, BeanUtils.getBeanConstructor(beanClass));
+        this(name, beanClass, null);
     }
 
     public BeanDefinition(String name, Class<?> beanClass, Constructor constructor) {
         this.name = name;
         this.beanClass = beanClass;
         this.constructor = constructor;
-        setInitAndDestroyMethodName();
+
     }
 
     public String getName() {
@@ -57,10 +66,6 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
 
     public Class<?> getBeanClass() {
         return beanClass;
-    }
-
-    public Constructor getConstructor() {
-        return constructor;
     }
 
     public Object getBean() {
