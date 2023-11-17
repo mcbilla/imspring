@@ -79,7 +79,7 @@ public class ClassPathBeanDefinitionScanner extends AbstractBeanDefinitionReader
             Component component = ReflectionUtils.findAnnotation(clazz, Component.class);
             if (component != null) {
                 String beanName = BeanUtils.getBeanName(clazz);
-                BeanDefinition def = createBeanDefinition(clazz, beanName);
+                BeanDefinition def = createBeanDefinition(beanName, clazz);
                 defs.add(def);
             }
         }

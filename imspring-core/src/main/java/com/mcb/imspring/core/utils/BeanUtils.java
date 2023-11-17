@@ -6,11 +6,30 @@ import com.mcb.imspring.core.exception.BeansException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.mcb.imspring.core.utils.ReflectionUtils.findAnnotation;
 
 public abstract class BeanUtils {
+
+    private static final Map<Class<?>, Object> DEFAULT_TYPE_VALUES;
+
+    static {
+        Map<Class<?>, Object> values = new HashMap<>();
+        values.put(boolean.class, false);
+        values.put(byte.class, (byte) 0);
+        values.put(short.class, (short) 0);
+        values.put(int.class, 0);
+        values.put(long.class, 0L);
+        values.put(float.class, 0F);
+        values.put(double.class, 0D);
+        values.put(char.class, '\0');
+        DEFAULT_TYPE_VALUES = Collections.unmodifiableMap(values);
+    }
 
     /**
      * 获取bean名称，优先使用注解的值，如果没有设置注解值，默认使用小写开头的类名
@@ -72,4 +91,44 @@ public abstract class BeanUtils {
         return res;
     }
 
+    /**
+     * 类实例化，默认使用无参构造函数
+     */
+    public static <T> T instantiateClass(Class<T> clazz) {
+        Assert.notNull(clazz, "Class must not be null");
+        if (clazz.isInterface()) {
+            throw new BeansException("Specified class is an interface");
+        }
+        try {
+            return instantiateClass(clazz.getDeclaredConstructor());
+        }
+        catch (NoSuchMethodException ex) {
+            throw new BeansException("No default constructor found", ex);
+        }
+    }
+
+    /**
+     * 使用指定构造函数实例化
+     */
+    public static <T> T instantiateClass(Constructor<T> ctor, Object... args) {
+        Assert.notNull(ctor, "Constructor must not be null");
+        try {
+            ctor.setAccessible(true);
+            Class<?>[] parameterTypes = ctor.getParameterTypes();
+            Assert.isTrue(args.length <= parameterTypes.length, "Can't specify more arguments than constructor parameters");
+            Object[] argsWithDefaultValues = new Object[args.length];
+            for (int i = 0 ; i < args.length; i++) {
+                if (args[i] == null) {
+                    Class<?> parameterType = parameterTypes[i];
+                    argsWithDefaultValues[i] = (parameterType.isPrimitive() ? DEFAULT_TYPE_VALUES.get(parameterType) : null);
+                }
+                else {
+                    argsWithDefaultValues[i] = args[i];
+                }
+            }
+            return ctor.newInstance(argsWithDefaultValues);
+        } catch (Exception ex) {
+            throw new BeansException(String.format("instantiate fail by constructor %s", ctor.getName()), ex);
+        }
+    }
 }

@@ -75,9 +75,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
         // 筛选出配置类，包括 FULL + LITE 两类配置类
         Set<BeanDefinition> configCandidates = findConfigCandidates(registry);
-        // 从配置类解析出需要加载为Bean的类
+        // 从配置类解析出需要加载为 Bean 的类
         Set<ConfigurationClass> configClasses = parse(configCandidates);
-        // 把这些类加载为BeanDefinition
+        // 把这些类加载为 BeanDefinition
         this.reader.loadBeanDefinitions(configClasses);
     }
 
@@ -123,7 +123,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         Set<ConfigurationClass> res = new HashSet<>();
         for (BeanDefinition beanDef : configCandidates) {
             ConfigurationClass configClass = new ConfigurationClass(beanDef.getName(), beanDef.getBeanClass());
-            processConfigurationClass(beanDef, configClass);
+            processConfigurationClass(configClass);
             res.add(configClass);
         }
         return res;
@@ -132,7 +132,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     /**
      * 目前暂时处理 @Configuration、@ComponentScan 这两种配置类
      */
-    private void processConfigurationClass(BeanDefinition beanDef, ConfigurationClass configClass) {
+    private void processConfigurationClass(ConfigurationClass configClass) {
         if (ReflectionUtils.hasAnnotation(configClass.getBeanClass(), Configuration.class)) {
             Set<Method> beanMethods = retrieveBeanMethodMetadata(configClass.getBeanClass());
             for (Method method : beanMethods) {

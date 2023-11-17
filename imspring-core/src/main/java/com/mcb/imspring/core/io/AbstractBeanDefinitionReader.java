@@ -3,12 +3,12 @@ package com.mcb.imspring.core.io;
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanDefinitionReader;
 import com.mcb.imspring.core.context.BeanDefinitionRegistry;
-import com.mcb.imspring.core.exception.BeansException;
-import com.mcb.imspring.core.utils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.lang.reflect.Method;
 
 public abstract class AbstractBeanDefinitionReader implements BeanDefinitionReader {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -19,14 +19,32 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
         this.registry = registry;
     }
 
-    protected BeanDefinition createBeanDefinition(Class<?> clazz, String beanName) {
+    protected BeanDefinition createBeanDefinition(String beanName) {
+        return this.createBeanDefinition(beanName, null);
+    }
+
+    protected BeanDefinition createBeanDefinition(String beanName, Class<?> beanClass) {
         // 允许BeanDefinition同名覆盖
         if (this.registry.containsBeanDefinition(beanName)) {
-            logger.debug("overwrite duplicate BeanDefinition，beanName: [{}]，class: [{}]" + beanName, clazz.getName());
+            logger.debug("overwrite duplicate BeanDefinition，beanName: [{}]" + beanName);
         } else  {
-            logger.debug("create BeanDefinition beanName: [{}]，class: [{}]", beanName, clazz.getName());
+            logger.debug("create BeanDefinition beanName: [{}]", beanName);
         }
-        Constructor constructor = BeanUtils.getBeanConstructor(clazz);
-        return new BeanDefinition(beanName, clazz, constructor);
+        if (beanClass == null) {
+            return new BeanDefinition(beanName);
+        } else {
+            BeanDefinition bd = new BeanDefinition(beanName, beanClass);
+            Method[] methods = beanClass.getDeclaredMethods();
+            for (Method method : methods) {
+                if (method.isAnnotationPresent(PostConstruct.class)) {
+                    bd.setInitMethodName(method.getName());
+                }
+
+                if (method.isAnnotationPresent(PreDestroy.class)) {
+                    bd.setDestroyMethodName(method.getName());
+                }
+            }
+            return bd;
+        }
     }
 }

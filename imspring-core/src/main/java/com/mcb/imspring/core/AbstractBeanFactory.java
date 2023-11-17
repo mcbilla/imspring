@@ -121,15 +121,26 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
     }
 
     /**
-     * 初始化bean实例，暂时只支持构造器创建
+     * 初始化bean实例，这里分两种情况
+     * 1、如果是 @Bean 注入的 Bean，使用 factoryBean + factoryMethod 创建实例
+     * 2、如果是 @Component 注入的 Bean，使用 beanClass 的默认构造器创建实例
      */
     private Object createBean(BeanDefinition def) {
         try {
-            Constructor cons = def.getConstructor();
-            final Parameter[] parameters = cons.getParameters();
-            Object[] args = new Object[parameters.length];
-            Object bean = cons.newInstance(args);
-            return bean;
+            if (def.getBeanClass() != null) {
+                // 使用 beanClass 的构造器创建
+                Constructor<?> cons = BeanUtils.getBeanConstructor(def.getBeanClass());
+                final Parameter[] parameters = cons.getParameters();
+                Object[] args = new Object[parameters.length];
+                return cons.newInstance(args);
+            } else {
+                // 使用指定 bean 和 method 创建
+                String beanName = def.getFactoryBeanName();
+                Object bean = getBean(beanName);
+                String methodName = def.getFactoryMethodName();
+                Method method = bean.getClass().getMethod(methodName);
+                return method.invoke(bean);
+            }
         } catch (Exception e) {
             throw new BeansException(String.format("Exception when create bean '%s': %s", def.getName(), def.getBeanClass().getName()), e);
         }

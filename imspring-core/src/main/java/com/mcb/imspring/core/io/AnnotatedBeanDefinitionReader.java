@@ -26,7 +26,7 @@ public class AnnotatedBeanDefinitionReader extends AbstractBeanDefinitionReader{
      */
     private void registerAnnotationConfigProcessors(BeanDefinitionRegistry registry) {
         // 注册ConfigurationClassPostProcessor
-        BeanDefinition def = createBeanDefinition(ConfigurationClassPostProcessor.class, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME);
+        BeanDefinition def = createBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME, ConfigurationClassPostProcessor.class);
         registry.registerBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME, def);
 
         // TODO 注册AutowiredAnnotationBeanPostProcessor
@@ -43,7 +43,7 @@ public class AnnotatedBeanDefinitionReader extends AbstractBeanDefinitionReader{
 
     public void registerBean(Class<?> beanClass) {
         String beanName = BeanUtils.getBeanName(beanClass);
-        BeanDefinition beanDef = createBeanDefinition(beanClass, beanName);
+        BeanDefinition beanDef = createBeanDefinition(beanName, beanClass);
         this.registry.registerBeanDefinition(beanName, beanDef);
     }
 }

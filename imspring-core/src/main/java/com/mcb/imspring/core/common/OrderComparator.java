@@ -18,6 +18,9 @@ public class OrderComparator implements Comparator<Object> {
 
     public static int getOrder(Object obj) {
         int order = Ordered.DEFAULT_PRECEDENCE;
+        if (obj == null) {
+            return order;
+        }
         if (obj instanceof Ordered) {
             order = ((Ordered) obj).getOrder();
         } else {

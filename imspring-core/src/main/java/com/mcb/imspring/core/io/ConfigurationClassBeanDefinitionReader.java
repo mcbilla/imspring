@@ -21,7 +21,7 @@ public class ConfigurationClassBeanDefinitionReader extends AbstractBeanDefiniti
                 registerBeanDefinitionForImportedConfigurationClass(configClass);
             }
             for (Method beanMethod : configClass.getBeanMethods())
-                loadBeanDefinitionsForBeanMethod(beanMethod);
+                loadBeanDefinitionsForBeanMethod(configClass, beanMethod);
         }
     }
 
@@ -29,19 +29,21 @@ public class ConfigurationClassBeanDefinitionReader extends AbstractBeanDefiniti
      * 把 @Import 引入的类注册为 BeanDefinition
      */
     private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass) {
+        // TODO
     }
 
     /**
      * 把配置类中带 @Bean 注解的方法注册为 ConfigurationClassBeanDefinition
      */
-    private void loadBeanDefinitionsForBeanMethod(Method beanMethod) {
+    private void loadBeanDefinitionsForBeanMethod(ConfigurationClass configClass, Method beanMethod) {
         Class<?> returnType = beanMethod.getReturnType();
         if (returnType.equals(Void.TYPE)) {
             throw new BeansException(String.format("@Bean method return type can not be void %s", beanMethod.getName()));
         }
         String beanName = BeanUtils.getBeanName(beanMethod);
-        BeanDefinition def = createBeanDefinition(beanMethod, beanName);
+        BeanDefinition def = createBeanDefinition(beanName);
+        def.setFactoryBeanName(configClass.getBeanName());
+        def.setFactoryMethodName(beanMethod.getName());
         this.registry.registerBeanDefinition(beanName, def);
     }
-
 }
