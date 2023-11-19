@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * Spring IOC容器的的抽象类，实现ConfigurableBeanFactory的接口
  * Spring的单例IOC容器实际上由SingletonBeanRegistry管理的，默认实现类是DefaultSingletonBeanRegistry，这里为了简化直接把IOC容器放在BeanFactory中
- *
+ * <p>
  * Spring Bean 的生命周期
  * 1、实例化 Instantiation
  * 2、属性赋值 Populate
@@ -70,7 +70,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
     }
 
     @Override
-    public <T> List<T> getBeans(Class<T> requiredType) throws BeansException{
+    public <T> List<T> getBeans(Class<T> requiredType) throws BeansException {
         List<BeanDefinition> defs = getBeanDefinitions(requiredType);
         List<T> list = new ArrayList<>(defs.size());
         for (BeanDefinition def : defs) {
@@ -98,7 +98,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
         return null;
     }
 
-    public  <T> T doGetBean(String name, @Nullable Class<T> requiredType, @Nullable Object[] args) throws InvocationTargetException, IllegalAccessException {
+    public <T> T doGetBean(String name, @Nullable Class<T> requiredType, @Nullable Object[] args) throws InvocationTargetException, IllegalAccessException {
         BeanDefinition def = getBeanDefinition(name, requiredType);
         name = def.getName();
 
@@ -135,8 +135,18 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
                 String beanName = def.getFactoryBeanName();
                 Object bean = getBean(beanName);
                 String methodName = def.getFactoryMethodName();
-                Method method = bean.getClass().getMethod(methodName);
-                return method.invoke(bean);
+                Class<?>[] argumentTypes = def.getArgumentTypes();
+                if (argumentTypes.length == 0) {
+                    Method method = bean.getClass().getDeclaredMethod(methodName);
+                    return method.invoke(bean);
+                } else {
+                    Method method = bean.getClass().getDeclaredMethod(methodName, argumentTypes);
+                    Object[] args = new Object[argumentTypes.length];
+                    for (int i = 0; i < argumentTypes.length; i++) {
+                        args[i] = this.getBean(argumentTypes[i]);
+                    }
+                    return method.invoke(bean, args);
+                }
             }
         } catch (Exception e) {
             throw new BeansException(String.format("Exception when create bean '%s': %s", def.getName(), def.getBeanClass().getName()), e);
@@ -173,6 +183,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
     /**
      * 检查Aware相关接口并设置依赖，Spring中是通过BeanPostProcessor来处理的，比如ApplicationContextAwareProcessor
      * 这里做了简化处理，仅对 BeanFactoryAware 接口实现类提供了支持
+     *
      * @param bean
      * @param name
      * @return

@@ -6,6 +6,7 @@ import com.mcb.imspring.aop.advisor.TargetSource;
 import com.mcb.imspring.aop.pointcut.Pointcut;
 import com.mcb.imspring.aop.proxy.ProxyFactory;
 import com.mcb.imspring.core.BeanFactory;
+import com.mcb.imspring.core.DefaultListableBeanFactory;
 import com.mcb.imspring.core.common.OrderComparator;
 import com.mcb.imspring.core.context.BeanFactoryAware;
 import com.mcb.imspring.core.context.BeanPostProcessor;
@@ -32,7 +33,7 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
     /**
      * beanFactory 通过 Aware 接口注入
      */
-    protected BeanFactory beanFactory;
+    protected DefaultListableBeanFactory beanFactory;
 
     /**
      * key 是 beanName，value 代表了这个 Bean 是否需要被代理
@@ -196,7 +197,7 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+        this.beanFactory = (DefaultListableBeanFactory) beanFactory;
     }
 
     protected abstract void extendAdvisors(List<Advisor> advisors);

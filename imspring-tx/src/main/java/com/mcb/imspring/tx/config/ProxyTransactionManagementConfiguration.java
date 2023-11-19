@@ -13,6 +13,11 @@ import com.mcb.imspring.tx.transaction.td.TransactionAttributeSource;
 public class ProxyTransactionManagementConfiguration {
 
     @Bean
+    public AnnotationAwareAspectJAutoProxyCreator annotationAwareAspectJAutoProxyCreator() {
+        return new AnnotationAwareAspectJAutoProxyCreator();
+    }
+
+    @Bean
     public TransactionAttributeSource transactionAttributeSource() {
         return new AnnotationTransactionAttributeSource();
     }
@@ -30,10 +35,5 @@ public class ProxyTransactionManagementConfiguration {
         TransactionAttributeSourceAdvisor advisor = new TransactionAttributeSourceAdvisor();
         advisor.setTransactionInterceptor(transactionInterceptor());
         return advisor;
-    }
-
-    @Bean
-    public AnnotationAwareAspectJAutoProxyCreator aspectJAwareAdvisorAutoProxyCreator() {
-        return new AnnotationAwareAspectJAutoProxyCreator();
     }
 }

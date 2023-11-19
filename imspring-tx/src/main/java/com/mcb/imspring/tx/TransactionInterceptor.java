@@ -13,6 +13,11 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
         System.out.println("spring事务");
         Class<?> targetClass = (methodInvocation.getThis() != null ? AopUtils.getTargetClass(methodInvocation.getThis()) : null);
-        return methodInvocation.proceed();
+        return invokeWithinTransaction(methodInvocation.getMethod(), targetClass, new InvocationCallback() {
+            @Override
+            public Object proceedWithInvocation() throws Throwable {
+                return methodInvocation.proceed();
+            }
+        });
     }
 }

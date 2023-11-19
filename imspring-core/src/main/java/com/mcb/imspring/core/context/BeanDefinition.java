@@ -36,6 +36,10 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
     @Nullable
     private String factoryMethodName;
 
+    // 构造器或者工厂方法的参数类型
+    @Nullable
+    public Class<?>[] argumentTypes;
+
     // @PostConstruct 方法名
     @Nullable
     private String initMethodName;
@@ -113,6 +117,14 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
 
     public void setTargetType(Class<?> targetType) {
         this.targetType = targetType;
+    }
+
+    public Class<?>[] getArgumentTypes() {
+        return argumentTypes;
+    }
+
+    public void setArgumentTypes(Class<?>[] argumentTypes) {
+        this.argumentTypes = argumentTypes;
     }
 
     public void setAttribute(String name, @Nullable Object value) {

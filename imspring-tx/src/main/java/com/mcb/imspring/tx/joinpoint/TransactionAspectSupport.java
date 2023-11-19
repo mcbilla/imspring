@@ -117,12 +117,18 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
         }
     }
 
-    public TransactionAttributeSource getTransactionAttributeSource() {
-        return this.transactionAttributeSource;
-    }
-
-    private TransactionManager determineTransantionManager(TransactionAttribute txAttr) {
-        return null;
+    /**
+     * 获取事务管理器，默认DataSourceTransactionManager
+     */
+    protected TransactionManager determineTransantionManager(TransactionAttribute txAttr) {
+        if (txAttr == null || this.beanFactory == null) {
+            return getTransactionManager();
+        }
+        TransactionManager defaultTransactionManager = getTransactionManager();
+        if (defaultTransactionManager == null) {
+            defaultTransactionManager = this.beanFactory.getBean(TransactionManager.class);
+        }
+        return defaultTransactionManager;
     }
 
     private PlatformTransactionManager asPlatformTransactionManager(TransactionManager tm) {
@@ -195,5 +201,13 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     public void setTransactionAttributeSource(TransactionAttributeSource transactionAttributeSource) {
         this.transactionAttributeSource = transactionAttributeSource;
+    }
+
+    public TransactionAttributeSource getTransactionAttributeSource() {
+        return this.transactionAttributeSource;
+    }
+
+    public TransactionManager getTransactionManager() {
+        return transactionManager;
     }
 }
