@@ -25,10 +25,10 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
      */
     private Object bean = null;
 
-    // Bean的声明类型:
+    // Bean声明类型
     private Class<?> beanClass;
 
-    // 工厂bean名称
+    // 工厂Bean名称
     @Nullable
     private String factoryBeanName;
 

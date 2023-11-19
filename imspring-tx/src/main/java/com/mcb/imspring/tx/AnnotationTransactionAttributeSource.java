@@ -1,8 +1,12 @@
-package com.mcb.imspring.tx.transaction.td;
+package com.mcb.imspring.tx;
 
 import com.mcb.imspring.core.common.MethodClassKey;
 import com.mcb.imspring.core.utils.ReflectionUtils;
 import com.mcb.imspring.tx.annotation.Transactional;
+import com.mcb.imspring.tx.transaction.td.DefaultTransactionAttribute;
+import com.mcb.imspring.tx.transaction.td.RollbackRuleAttribute;
+import com.mcb.imspring.tx.transaction.td.TransactionAttribute;
+import com.mcb.imspring.tx.transaction.td.TransactionAttributeSource;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -14,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 用于解析@Transaction注解，获取注解的事务属性
  */
-public class AnnotationTransactionAttributeSource implements TransactionAttributeSource{
+public class AnnotationTransactionAttributeSource implements TransactionAttributeSource {
     private static final TransactionAttribute NULL_TRANSACTION_ATTRIBUTE = new DefaultTransactionAttribute() {
         @Override
         public String toString() {
@@ -22,6 +26,7 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
         }
     };
 
+    // key是MethodClassKey，用于唯一确认某个类中的某个方法，value是事务属性
     private final Map<Object, TransactionAttribute> attributeCache = new ConcurrentHashMap<>(1024);
 
     public AnnotationTransactionAttributeSource() {
@@ -59,8 +64,7 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
     }
 
     /**
-     * 定义某个类中某个方法的事务属性
-     * @return
+     * 计算某个类中某个方法的事务属性
      */
     private TransactionAttribute computeTransactionAttribute(Method method, Class<?> targetClass) {
         // 非 public 方法不能开启事务

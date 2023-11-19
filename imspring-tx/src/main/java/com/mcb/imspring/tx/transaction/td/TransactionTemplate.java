@@ -1,4 +1,4 @@
-package com.mcb.imspring.tx;
+package com.mcb.imspring.tx.transaction.td;
 
 import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.tx.exception.TransactionException;

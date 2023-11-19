@@ -1,4 +1,4 @@
-package com.mcb.imspring.tx;
+package com.mcb.imspring.tx.joinpoint;
 
 import com.mcb.imspring.core.BeanFactory;
 import com.mcb.imspring.core.context.BeanFactoryAware;
