@@ -23,6 +23,15 @@ public class OrderComparator implements Comparator<Object> {
         }
         if (obj instanceof Ordered) {
             order = ((Ordered) obj).getOrder();
+        } else if (obj instanceof Class<?>) {
+            try {
+                Class<?> clazz = (Class<?>) obj;
+                Object instance = clazz.newInstance();
+                Method method = clazz.getMethod("getOrder", null);
+                order = (int) method.invoke(instance, null);
+            } catch (Exception e) {
+
+            }
         } else {
             try {
                 Method method = obj.getClass().getMethod("getOrder", null);

@@ -44,4 +44,9 @@ public class TransactionAttributeSourceAdvisor extends AbstractPointcutAdvisor {
     public Pointcut getPointcut() {
         return this.pointcut;
     }
+
+    @Override
+    public int getOrder() {
+        return -1;
+    }
 }

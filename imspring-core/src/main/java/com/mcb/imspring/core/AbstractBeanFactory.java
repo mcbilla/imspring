@@ -74,7 +74,10 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
         List<BeanDefinition> defs = getBeanDefinitions(requiredType);
         List<T> list = new ArrayList<>(defs.size());
         for (BeanDefinition def : defs) {
-            list.add(getBean(def.getName()));
+            T bean = getBean(def.getName());
+            if (bean != null) {
+                list.add(bean);
+            }
         }
         return list;
     }
@@ -100,7 +103,9 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
 
     public <T> T doGetBean(String name, @Nullable Class<T> requiredType, @Nullable Object[] args) throws InvocationTargetException, IllegalAccessException {
         BeanDefinition def = getBeanDefinition(name, requiredType);
-        name = def.getName();
+        if (name == null) {
+            name = def.getName();
+        }
 
         // 初始化bean实例
         Object bean = createBean(def);
