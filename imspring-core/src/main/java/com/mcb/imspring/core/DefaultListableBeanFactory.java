@@ -1,16 +1,15 @@
 package com.mcb.imspring.core;
 
 import com.mcb.imspring.core.common.OrderComparator;
-import com.mcb.imspring.core.common.Ordered;
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanPostProcessor;
+import com.mcb.imspring.core.context.ObjectFactory;
 import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.utils.Assert;
 import com.mcb.imspring.core.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,7 +27,7 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     protected final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
     // beanName列表，和beanDefinitionMap对应
-    private volatile List<String> beanDefinitionNames = new ArrayList<>(256);
+    private volatile Set<String> beanDefinitionNames = new LinkedHashSet<>(256);
 
     // beanPostProcessors列表，每个beanPostProcessor会对所有bean实例生效
     protected final List<BeanPostProcessor> beanPostProcessors = new CopyOnWriteArrayList<>();
@@ -39,8 +38,8 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     // 二级缓存，提前曝光的单例对象的cache，存放原始的 bean 对象（尚未填充属性），用于解决循环依赖
     private final Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(16);
 
-    // 三级缓存，存放 bean 工厂对象，用来解决 AOP 的循环依赖，暂时没用上
-//    private final Map<String, Object> singletonFactories = new HashMap<>(16);
+    // 三级缓存，存放 bean 工厂对象，这个对象其实是一个函数式接口，用来解决 AOP 的循环依赖
+    private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
     // 已经实例化结束的beanName集合
     private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
@@ -153,9 +152,11 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
         }
     }
 
+    @Override
     protected void addSingleton(String beanName, Object singletonObject) {
         synchronized (this.singletonObjects) {
             this.singletonObjects.put(beanName, singletonObject);
+            this.singletonFactories.remove(beanName);
             this.earlySingletonObjects.remove(beanName);
             this.registeredSingletons.add(beanName);
         }
@@ -163,8 +164,19 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
 
     @Override
     public Object getSingleton(String beanName) {
-        // TODO 这里是解决循环依赖的关键
-        return this.singletonObjects.get(beanName);
+        Object singletonObject = this.singletonObjects.get(beanName);
+        if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+            singletonObject = this.earlySingletonObjects.get(beanName);
+            if (singletonObject == null) {
+                ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+                if (singletonFactory != null) {
+                    singletonObject = singletonFactory.getObject();
+                    this.earlySingletonObjects.put(beanName, singletonObject);
+                    this.singletonFactories.remove(beanName);
+                }
+            }
+        }
+        return singletonObject;
     }
 
     @Override
@@ -176,6 +188,35 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     public String[] getSingletonNames() {
         synchronized (this.singletonObjects) {
             return StringUtils.toStringArray(this.registeredSingletons);
+        }
+    }
+
+    public boolean isSingletonCurrentlyInCreation(String beanName) {
+        return this.singletonsCurrentlyInCreation.contains(beanName);
+    }
+
+    @Override
+    protected void beforeSingletonCreation(String beanName) {
+        if (!this.singletonsCurrentlyInCreation.add(beanName)) {
+            throw new BeansException(String.format("bean %s currently in creation before handle fail", beanName));
+        }
+    }
+
+    @Override
+    protected void afterSingletonCreation(String beanName) {
+        if (!this.singletonsCurrentlyInCreation.remove(beanName)) {
+            throw new BeansException(String.format("bean %s currently in creation after handle fail", beanName));
+        }
+    }
+
+    protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
+        Assert.notNull(singletonFactory, "Singleton factory must not be null");
+        synchronized (this.singletonObjects) {
+            if (!this.singletonObjects.containsKey(beanName)) {
+                this.singletonFactories.put(beanName, singletonFactory);
+                this.earlySingletonObjects.remove(beanName);
+                this.registeredSingletons.add(beanName);
+            }
         }
     }
 }

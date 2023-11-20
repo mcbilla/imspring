@@ -9,7 +9,7 @@ import com.mcb.imspring.core.BeanFactory;
 import com.mcb.imspring.core.DefaultListableBeanFactory;
 import com.mcb.imspring.core.common.OrderComparator;
 import com.mcb.imspring.core.context.BeanFactoryAware;
-import com.mcb.imspring.core.context.BeanPostProcessor;
+import com.mcb.imspring.core.context.InstantiationAwareBeanPostProcessor;
 import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.utils.StringUtils;
 import org.aopalliance.aop.Advice;
@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 1、前置处理，遍历所有的切面和对应的通知信息，然后将信息保存在缓存中。
  * 2、后置处理，从缓存中拿到所有的通知和当前 bean 的所有方法进行匹配，如果适配就创建代理对象。
  */
-public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, BeanFactoryAware {
+public abstract class AbstractAutoProxyCreator implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
@@ -39,6 +39,8 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
      * key 是 beanName，value 代表了这个 Bean 是否需要被代理
      */
     private final Map<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
+
+    private final Map<Object, Object> earlyProxyReferences = new ConcurrentHashMap<>(16);
 
     protected static final Advisor[] DO_NOT_PROXY = null;
 
@@ -75,7 +77,9 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (bean != null) {
             Object cacheKey = getCacheKey(bean.getClass(), beanName);
-            return wrapIfNecessary(bean, beanName, cacheKey);
+            if (this.earlyProxyReferences.remove(cacheKey) != bean) {
+                return wrapIfNecessary(bean, beanName, cacheKey);
+            }
         }
         return bean;
     }
@@ -193,6 +197,13 @@ public abstract class AbstractAutoProxyCreator implements BeanPostProcessor, Bea
             proxyFactory.addAdvisors(advisor);
         }
         return proxyFactory.getProxy();
+    }
+
+    @Override
+    public Object getEarlyBeanReference(Object bean, String beanName) {
+        Object cacheKey = getCacheKey(bean.getClass(), beanName);
+        this.earlyProxyReferences.put(cacheKey, bean);
+        return wrapIfNecessary(bean, beanName, cacheKey);
     }
 
     @Override

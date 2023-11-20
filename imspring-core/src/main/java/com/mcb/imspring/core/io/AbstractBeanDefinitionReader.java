@@ -26,7 +26,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
     protected BeanDefinition createBeanDefinition(String beanName, Class<?> beanClass) {
         // 允许BeanDefinition同名覆盖
         if (this.registry.containsBeanDefinition(beanName)) {
-            logger.debug("overwrite duplicate BeanDefinition，beanName: [{}]" + beanName);
+            logger.debug("overwrite duplicate BeanDefinition，beanName: [{}]", beanName);
         } else  {
             logger.debug("create BeanDefinition beanName: [{}]", beanName);
         }

@@ -4,10 +4,7 @@ import com.mcb.imspring.core.annotation.Autowired;
 import com.mcb.imspring.core.annotation.Value;
 import com.mcb.imspring.core.context.*;
 import com.mcb.imspring.core.exception.BeansException;
-import com.mcb.imspring.core.utils.BeanUtils;
-import com.mcb.imspring.core.utils.CollectionUtils;
-import com.mcb.imspring.core.utils.ReflectionUtils;
-import com.mcb.imspring.core.utils.StringUtils;
+import com.mcb.imspring.core.utils.*;
 import com.sun.istack.internal.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,26 +44,13 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
 
     @Override
     public <T> T getBean(String name, Class<T> requiredType) {
-        BeanDefinition def = getBeanDefinition(name, requiredType);
-        if (def == null) {
-            StringBuilder errMsg = new StringBuilder("No bean defined with ");
-            if (name != null) {
-                errMsg.append("name ").append(name);
-            }
-            if (requiredType != null) {
-                errMsg.append("type ").append(requiredType);
-            }
-            throw new BeansException(errMsg.toString());
+        try {
+            BeanDefinition def = getBeanDefinition(name, requiredType);
+            Assert.notNull(def, String.format("No such BeanDefinition defined with name: %s, type: %s", name, requiredType));
+            return doGetBean(name, requiredType, null);
+        } catch (Exception e) {
+            throw new BeansException(String.format("get bean fail, name: %s, type: %s", name, requiredType), e);
         }
-        Object bean = getSingleton(name);
-        if (bean == null) {
-            try {
-                bean = doGetBean(name, requiredType, null);
-            } catch (Exception e) {
-                throw new BeansException(e);
-            }
-        }
-        return (T) bean;
     }
 
     @Override
@@ -101,25 +85,86 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
         return null;
     }
 
-    public <T> T doGetBean(String name, @Nullable Class<T> requiredType, @Nullable Object[] args) throws InvocationTargetException, IllegalAccessException {
-        BeanDefinition def = getBeanDefinition(name, requiredType);
-        if (name == null) {
-            name = def.getName();
+    public <T> T doGetBean(String beanName, @Nullable Class<T> requiredType, @Nullable Object[] args) throws InvocationTargetException, IllegalAccessException {
+        BeanDefinition def = getBeanDefinition(beanName, requiredType);
+        if (beanName == null) {
+            beanName = def.getName();
         }
 
-        // 初始化bean实例
-        Object bean = createBean(def);
+        Object beanInstance = getSingleton(beanName);
+        if (beanInstance != null) {
+            // 如果找到实例，不管是否正在初始化，都直接返回
+            if (isSingletonCurrentlyInCreation(beanName)) {
+                logger.debug("Returning eagerly cached instance of singleton bean '" + beanName +
+                        "' that is not fully initialized yet - a consequence of a circular reference");
+            }
+            return (T) beanInstance;
+        } else {
+            String finalBeanName = beanName;
+            beanInstance = getSingleton(beanName, () -> {
+                return createBean(finalBeanName, def);
+            });
+        }
 
-        // 属性填充
-        populateBean(bean, name);
+        logger.debug("Bean finish instantiate: [{}]", beanName);
 
-        // 初始化bean
-        bean = initializeBean(bean, name, def);
-        this.registerSingleton(name, bean);
+        return (T) beanInstance;
+    }
 
-        logger.debug("Bean finish instantiate: [{}]", name);
+    public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
+        Assert.notNull(beanName, "Bean name must not be null");
+        Object singletonObject = this.getSingleton(beanName);
+        if (singletonObject == null) {
+            // 设置初始化开始标记
+            beforeSingletonCreation(beanName);
 
-        return (T) bean;
+            // 真正实例化bean
+            singletonObject = singletonFactory.getObject();
+
+            // 设置初始化结束标记
+            afterSingletonCreation(beanName);
+
+            // 添加到实例容器
+            addSingleton(beanName, singletonObject);
+        }
+
+        return singletonObject;
+    }
+
+    private Object createBean(String beanName, BeanDefinition def) {
+        Object beanInstance;
+        try {
+            // 创建bean
+            beanInstance = createBeanInstance(beanName, def);
+
+            if (isSingletonCurrentlyInCreation(beanName)) {
+                Object finalBeanInstance = beanInstance;
+                addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, def, finalBeanInstance));
+            }
+
+            // 属性填充
+            populateBean(beanInstance, beanName);
+
+            // 初始化bean
+            beanInstance = initializeBean(beanInstance, beanName, def);
+        } catch (Exception e) {
+            throw new BeansException(String.format("Exception when create bean '%s': %s", def.getName(), def.getBeanClass().getName()), e);
+        }
+        return beanInstance;
+    }
+
+    private Object getEarlyBeanReference(String beanName, BeanDefinition def, Object bean) {
+        Object exposedObject = bean;
+        List<BeanPostProcessor> beanPostProcessors = this.getBeanPostProcessors();
+        if (!beanPostProcessors.isEmpty()) {
+            for (BeanPostProcessor bp : beanPostProcessors) {
+                if (bp instanceof InstantiationAwareBeanPostProcessor) {
+                    exposedObject = ((InstantiationAwareBeanPostProcessor) bp).getEarlyBeanReference(exposedObject, beanName);
+
+                }
+            }
+        }
+        return exposedObject;
     }
 
     /**
@@ -127,34 +172,30 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
      * 1、如果是 @Bean 注入的 Bean，使用 factoryBean + factoryMethod 创建实例
      * 2、如果是 @Component 注入的 Bean，使用 beanClass 的默认构造器创建实例
      */
-    private Object createBean(BeanDefinition def) {
-        try {
-            if (def.getBeanClass() != null) {
-                // 使用 beanClass 的构造器创建
-                Constructor<?> cons = BeanUtils.getBeanConstructor(def.getBeanClass());
-                final Parameter[] parameters = cons.getParameters();
-                Object[] args = new Object[parameters.length];
-                return cons.newInstance(args);
+    private Object createBeanInstance(String beanName, BeanDefinition def) throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
+        if (def.getBeanClass() != null) {
+            // 使用 beanClass 的构造器创建
+            Constructor<?> cons = BeanUtils.getBeanConstructor(def.getBeanClass());
+            final Parameter[] parameters = cons.getParameters();
+            Object[] args = new Object[parameters.length];
+            return cons.newInstance(args);
+        } else {
+            // 使用指定 bean 和 method 创建
+            String factoryBeanName = def.getFactoryBeanName();
+            Object factoryBean = getBean(factoryBeanName);
+            String factoryMethodName = def.getFactoryMethodName();
+            Class<?>[] argumentTypes = def.getArgumentTypes();
+            if (argumentTypes.length == 0) {
+                Method factoryMethod = factoryBean.getClass().getDeclaredMethod(factoryMethodName);
+                return factoryMethod.invoke(factoryBean);
             } else {
-                // 使用指定 bean 和 method 创建
-                String beanName = def.getFactoryBeanName();
-                Object bean = getBean(beanName);
-                String methodName = def.getFactoryMethodName();
-                Class<?>[] argumentTypes = def.getArgumentTypes();
-                if (argumentTypes.length == 0) {
-                    Method method = bean.getClass().getDeclaredMethod(methodName);
-                    return method.invoke(bean);
-                } else {
-                    Method method = bean.getClass().getDeclaredMethod(methodName, argumentTypes);
-                    Object[] args = new Object[argumentTypes.length];
-                    for (int i = 0; i < argumentTypes.length; i++) {
-                        args[i] = this.getBean(argumentTypes[i]);
-                    }
-                    return method.invoke(bean, args);
+                Method factoryMethod = factoryBean.getClass().getDeclaredMethod(factoryMethodName, argumentTypes);
+                Object[] args = new Object[argumentTypes.length];
+                for (int i = 0; i < argumentTypes.length; i++) {
+                    args[i] = this.getBean(argumentTypes[i]);
                 }
+                return factoryMethod.invoke(factoryBean, args);
             }
-        } catch (Exception e) {
-            throw new BeansException(String.format("Exception when create bean '%s': %s", def.getName(), def.getBeanClass().getName()), e);
         }
     }
 
@@ -280,4 +321,14 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
      * 实例化所有非延迟加载的bean
      */
     public abstract void preInstantiateSingletons();
+
+    protected abstract boolean isSingletonCurrentlyInCreation(String beanName);
+
+    protected abstract void beforeSingletonCreation(String beanName);
+
+    protected abstract void afterSingletonCreation(String beanName);
+
+    protected abstract void addSingleton(String beanName, Object singletonObject);
+
+    protected abstract void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory);
 }
