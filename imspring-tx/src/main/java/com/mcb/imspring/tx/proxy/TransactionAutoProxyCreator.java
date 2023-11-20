@@ -2,8 +2,6 @@ package com.mcb.imspring.tx.proxy;
 
 import com.mcb.imspring.aop.AnnotationAwareAspectJAutoProxyCreator;
 import com.mcb.imspring.aop.advisor.Advisor;
-import com.mcb.imspring.core.context.BeanDefinition;
-import com.mcb.imspring.tx.TransactionAttributeSourceAdvisor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +12,8 @@ import java.util.List;
 public class TransactionAutoProxyCreator extends AnnotationAwareAspectJAutoProxyCreator {
     @Override
     protected List<Advisor> findCandidateAdvisors() {
-        BeanDefinition bd = beanFactory.getBeanDefinition(TransactionAttributeSourceAdvisor.class);
-        if (bd.getBean() == null) {
+        Object singleton = beanFactory.getSingleton("transactionAttributeSourceAdvisor");
+        if (singleton == null) {
             return new ArrayList<>();
         } else {
             return super.findCandidateAdvisors();

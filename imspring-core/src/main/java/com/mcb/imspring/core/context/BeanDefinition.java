@@ -1,34 +1,24 @@
 package com.mcb.imspring.core.context;
 
 import com.mcb.imspring.core.utils.Assert;
-import com.mcb.imspring.core.utils.BeanUtils;
 import com.sun.istack.internal.Nullable;
 
-import javax.annotation.PostConstruct;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * BeanDefinition 保存 Bean 的类信息、类实例、用户属性等，是 IOC 容器中的核心类
- * Spring 的 BeanDefinition 和实例是分开保存的（实例放在DefaultSingletonBeanRegistry中），这里为了简化放一起保存
+ * BeanDefinition 保存 Bean 的类信息、用户属性等，是 IOC 容器中的核心类。注意这里不保存 Bean 的实例
  */
 public class BeanDefinition implements Comparable<BeanDefinition>{
     // 全局唯一的 Bean Name
     private final String name;
 
-    /**
-     * Bean的实例，有两种实例化方式:
-     * 1、如果是 @Bean 注入的 Bean，设置 factoryBeanName 和 factoryMethodName，使用 factoryMethod 创建实例
-     * 2、如果是 @Component 注入的 Bean，设置 beanClass，使用默认构造器创建实例
-     */
-    private Object bean = null;
-
     // Bean声明类型
+    // 如果是 @Component 注入的 Bean，设置 beanClass，使用默认构造器创建实例
     private Class<?> beanClass;
 
     // 工厂Bean名称
+    // 如果是 @Bean 注入的 Bean，设置 factoryBeanName 和 factoryMethodName，使用这两者创建实例
     @Nullable
     private String factoryBeanName;
 
@@ -85,14 +75,6 @@ public class BeanDefinition implements Comparable<BeanDefinition>{
 
     public String getFactoryMethodName() {
         return factoryMethodName;
-    }
-
-    public Object getBean() {
-        return bean;
-    }
-
-    public void setBean(Object bean) {
-        this.bean = bean;
     }
 
     public void setInitMethodName(String initMethodName) {
