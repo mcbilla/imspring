@@ -36,10 +36,12 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint 
     @Override
     public Object proceed(Object[] objects) throws Throwable {
         Assert.notNull(objects, "Argument array passed to proceed cannot be null");
-        if (objects.length != this.methodInvocation.getArguments().length) {
+        int actualLen = objects.length;
+        int expectLen = this.methodInvocation.getArguments() != null ? this.methodInvocation.getArguments().length : 0;
+        if (actualLen != expectLen) {
             throw new IllegalArgumentException("Expecting " +
-                    this.methodInvocation.getArguments().length + " arguments to proceed, " +
-                    "but was passed " + objects.length + " arguments");
+                    expectLen + " arguments to proceed, " +
+                    "but was passed " + actualLen + " arguments");
         }
         this.methodInvocation.setArguments(objects);
         return this.methodInvocation.proceed();

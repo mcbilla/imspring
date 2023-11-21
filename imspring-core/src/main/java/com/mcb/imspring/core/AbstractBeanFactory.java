@@ -68,9 +68,13 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
 
     @Override
     public Class<?> getType(String name) {
-        Object bean = getBean(name);
-        if (bean != null) {
-            return bean.getClass();
+        Object beanInstance = getSingleton(name, false);
+        if (beanInstance != null) {
+            return beanInstance.getClass();
+        }
+        BeanDefinition bd = getBeanDefinition(name);
+        if (bd != null) {
+            return bd.getTargetType();
         }
         return null;
     }
@@ -100,6 +104,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
             }
             return (T) beanInstance;
         } else {
+            // 如果没找到实例，就走创建流程
             String finalBeanName = beanName;
             beanInstance = getSingleton(beanName, () -> {
                 return createBean(finalBeanName, def);
@@ -160,7 +165,6 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
             for (BeanPostProcessor bp : beanPostProcessors) {
                 if (bp instanceof InstantiationAwareBeanPostProcessor) {
                     exposedObject = ((InstantiationAwareBeanPostProcessor) bp).getEarlyBeanReference(exposedObject, beanName);
-
                 }
             }
         }
@@ -321,6 +325,8 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
      * 实例化所有非延迟加载的bean
      */
     public abstract void preInstantiateSingletons();
+
+    protected abstract Object getSingleton(String beanName, boolean allowEarlyReference);
 
     protected abstract boolean isSingletonCurrentlyInCreation(String beanName);
 

@@ -164,10 +164,23 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
 
     @Override
     public Object getSingleton(String beanName) {
+        return getSingleton(beanName, true);
+    }
+
+    /**
+     * 获取bean实例
+     * 1、先从一级缓存拿
+     * 2、一级缓存拿不到，再从二级缓存拿
+     * 3、二级缓存拿不到，从三级缓存拿，拿到之后放入二级缓存，并删除三级缓存
+     * @param beanName
+     * @param allowEarlyReference 是否获取提前实例化的bean
+     * @return
+     */
+    protected Object getSingleton(String beanName, boolean allowEarlyReference) {
         Object singletonObject = this.singletonObjects.get(beanName);
         if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
             singletonObject = this.earlySingletonObjects.get(beanName);
-            if (singletonObject == null) {
+            if (singletonObject == null && allowEarlyReference) {
                 ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
                 if (singletonFactory != null) {
                     singletonObject = singletonFactory.getObject();

@@ -14,9 +14,10 @@ public class MyAspect {
 
     @Around("getPointcut()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object res = null;
         System.out.println("我是一个AroundAdvice前置处理");
 //        joinPoint.proceed();
-        Object res = joinPoint.proceed(new String[]{"222"});
+        res = joinPoint.proceed(new String[]{"222"});
         System.out.println("我是一个AroundAdvice后置处理");
         return res;
     }

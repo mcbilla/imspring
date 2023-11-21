@@ -90,16 +90,17 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AbstractAutoProxyCre
             this.aspectBeanNames = new ArrayList<>();
             String[] beanNames = ((ConfigurableListableBeanFactory) this.beanFactory).getBeanNamesForType(Object.class);
             for (String beanName : beanNames) {
-                Object bean = this.beanFactory.getBean(beanName);
+                Class<?> type = this.beanFactory.getType(beanName);
                 // 如果 bean 是切面类型就进行解析
-                if (AopUtils.isAspect(bean.getClass())) {
+                if (AopUtils.isAspect(type)) {
+                    Object aspectJBean = this.beanFactory.getBean(beanName);
                     aspectBeanNames.add(beanName);
-                    Method[] methods = bean.getClass().getDeclaredMethods();
+                    Method[] methods = aspectJBean.getClass().getDeclaredMethods();
                     List<Advisor> classAdvisors = new ArrayList<>();
                     for (Method method : methods) {
                         // 如果方法是通知类型就进行解析
                         if (AopUtils.isAdvice(method)) {
-                            classAdvisors.add(new AspectJExpressionPointcutAdvisor(method, bean, beanName));
+                            classAdvisors.add(new AspectJExpressionPointcutAdvisor(method, aspectJBean, beanName));
                         }
                     }
                     advisorsCache.put(beanName, classAdvisors);
