@@ -77,6 +77,8 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (bean != null) {
             Object cacheKey = getCacheKey(bean.getClass(), beanName);
+            // 如果从缓存删除的bean和传进来的bean相同，说明该bean已经提前创建过代理对象，这里就不需要创建代理对象，直接返回原来的bean
+            // 否则才需要返回代理对象
             if (this.earlyProxyReferences.remove(cacheKey) != bean) {
                 return wrapIfNecessary(bean, beanName, cacheKey);
             }
@@ -199,6 +201,9 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
         return proxyFactory.getProxy();
     }
 
+    /**
+     * 这里把原始的bean对象放到缓存，然后返回代理对象
+     */
     @Override
     public Object getEarlyBeanReference(Object bean, String beanName) {
         Object cacheKey = getCacheKey(bean.getClass(), beanName);

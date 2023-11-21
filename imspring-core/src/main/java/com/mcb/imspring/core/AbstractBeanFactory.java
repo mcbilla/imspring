@@ -159,7 +159,10 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
             // 初始化bean
             exposedObject = initializeBean(exposedObject, beanName, def);
 
-            // 发生循环依赖且没有发生AOP的情况下，从二级缓存取出对象返回，保证返回的bean和被依赖的bean是同一个
+            // 这一步非常的巧妙，目的是为了保证本方法返回的bean和其他对象依赖的bean是同一个对象
+            // 1、没有发生循环依赖，且没有AOP。那就没有经过二级缓存，earlySingletonReference一定为null。这里返回的exposedObject就是初始创建的bean，放到一级缓存，其他bean在后面初始化的时候也从一级缓存里面取出该bean使用。
+            // 2、发生了循环依赖，没有AOP。因为没有发生AOP，exposedObject并没有经过代理，exposedObject == beanInstance恒成立；因为发生了循环依赖，earlySingletonReference不为null，等于从二级缓存拿到的bean。赋值exposedObject = earlySingletonReference，保证返回的bean和其他bean依赖的bean其实都是二级缓存的bean。
+            // 3、发生了循环依赖，且发生了AOP。虽然exposedObject经过了代理，但是注意initializeBean返回的并不是代理的对象，而是AbstractAutoProxyCreator的earlyProxyReferences缓存的原始bean，所以exposedObject == beanInstance也是成立的！！！另外earlySingletonReference不为null，等于从二级缓存拿到的bean。这样返回的bean和其他bean依赖的bean其实都是二级缓存的bean，和第二点的区别是，这个二级缓存的bean是一个提前创建的代理对象。
             if (earlySingletonExposure) {
                 Object earlySingletonReference = getSingleton(beanName, false);
                 if (earlySingletonReference != null && exposedObject == beanInstance) {
