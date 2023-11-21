@@ -11,6 +11,10 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
 
     private DataSource dataSource;
 
+    public DataSourceTransactionManager(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     @Override
     public TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException {
         return null;

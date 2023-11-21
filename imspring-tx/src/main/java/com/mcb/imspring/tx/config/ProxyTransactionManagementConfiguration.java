@@ -10,6 +10,8 @@ import com.mcb.imspring.tx.TransactionAttributeSourceAdvisor;
 import com.mcb.imspring.tx.proxy.TransactionAutoProxyCreator;
 import com.mcb.imspring.tx.transaction.td.TransactionAttributeSource;
 
+import javax.sql.DataSource;
+
 @Configuration
 public class ProxyTransactionManagementConfiguration {
 
@@ -18,15 +20,26 @@ public class ProxyTransactionManagementConfiguration {
         return new TransactionAutoProxyCreator();
     }
 
+    @Bean(destroyMethod = "close")
+    public DataSource dataSource() {
+        // TODO
+        return null;
+    }
+
     @Bean
     public TransactionAttributeSource transactionAttributeSource() {
         return new AnnotationTransactionAttributeSource();
     }
 
     @Bean
-    public TransactionInterceptor transactionInterceptor(TransactionAttributeSource transactionAttributeSource) {
+    public DataSourceTransactionManager dataSourceTransactionManager(DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
+    }
+
+    @Bean
+    public TransactionInterceptor transactionInterceptor(TransactionAttributeSource transactionAttributeSource, DataSourceTransactionManager dataSourceTransactionManager) {
         TransactionInterceptor interceptor = new TransactionInterceptor();
-        interceptor.setTransactionManager(new DataSourceTransactionManager());
+        interceptor.setTransactionManager(dataSourceTransactionManager);
         interceptor.setTransactionAttributeSource(transactionAttributeSource);
         return interceptor;
     }
