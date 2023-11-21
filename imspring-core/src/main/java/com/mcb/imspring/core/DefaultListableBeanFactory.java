@@ -162,6 +162,11 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
         }
     }
 
+    /**
+     * 获取实例，这里是Spring 解决循环依赖的关键：
+     * Spring 在创建 bean 的时候并不是等它完全完成，而是在创建过程中将创建中的 bean 的 ObjectFactory 提前曝光（即加入到 singletonFactories 缓存中）
+     * 一旦下一个 bean 创建的时候需要依赖 bean ，则直接使用 ObjectFactory 的 getObject() 获取。
+     */
     @Override
     public Object getSingleton(String beanName) {
         return getSingleton(beanName, true);

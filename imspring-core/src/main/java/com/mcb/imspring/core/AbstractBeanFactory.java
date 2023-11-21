@@ -120,16 +120,16 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
         Assert.notNull(beanName, "Bean name must not be null");
         Object singletonObject = this.getSingleton(beanName);
         if (singletonObject == null) {
-            // 设置初始化开始标记
+            // 设置bean正在初始化的标记
             beforeSingletonCreation(beanName);
 
             // 真正实例化bean
             singletonObject = singletonFactory.getObject();
 
-            // 设置初始化结束标记
+            // 清除bean正在初始化的标记
             afterSingletonCreation(beanName);
 
-            // 添加到实例容器
+            // 清除二级和三级缓存，把bean添加到一级缓存
             addSingleton(beanName, singletonObject);
         }
 
@@ -137,27 +137,45 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
     }
 
     private Object createBean(String beanName, BeanDefinition def) {
-        Object beanInstance;
         try {
             // 创建bean
-            beanInstance = createBeanInstance(beanName, def);
+            Object beanInstance = createBeanInstance(beanName, def);
 
-            if (isSingletonCurrentlyInCreation(beanName)) {
+            // 这里是解决循环依赖的关键，
+            // 第一次getSingleton的时候，执行到这里，earlySingletonExposure一定为true，会把bean的工厂方法添加到三级缓存，相当于提前暴露bean
+            // 如果产生了循环依赖，第二次getSingleton的时候从三级缓存创建bean，放入二级缓存，如果没有产生循环依赖就跳过这一步
+            // 最后addSingleton，清除一级缓存和二级缓存的信息，把bean放入一级缓存
+            boolean earlySingletonExposure = isSingletonCurrentlyInCreation(beanName);
+            if (earlySingletonExposure) {
                 Object finalBeanInstance = beanInstance;
                 addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, def, finalBeanInstance));
             }
 
+            Object exposedObject = beanInstance;
+
             // 属性填充
-            populateBean(beanInstance, beanName);
+            populateBean(exposedObject, beanName);
 
             // 初始化bean
-            beanInstance = initializeBean(beanInstance, beanName, def);
+            exposedObject = initializeBean(exposedObject, beanName, def);
+
+            // 发生循环依赖且没有发生AOP的情况下，从二级缓存取出对象返回，保证返回的bean和被依赖的bean是同一个
+            if (earlySingletonExposure) {
+                Object earlySingletonReference = getSingleton(beanName, false);
+                if (earlySingletonReference != null && exposedObject == beanInstance) {
+                    exposedObject = earlySingletonReference;
+                }
+            }
+
+            return exposedObject;
         } catch (Exception e) {
             throw new BeansException(String.format("Exception when create bean '%s': %s", def.getName(), def.getBeanClass().getName()), e);
         }
-        return beanInstance;
     }
 
+    /**
+     * 如果发生了AOP，就返回代理对象，如果没有发生就返回原来的对象，这里相当于给AOP留了一个钩子
+     */
     private Object getEarlyBeanReference(String beanName, BeanDefinition def, Object bean) {
         Object exposedObject = bean;
         List<BeanPostProcessor> beanPostProcessors = this.getBeanPostProcessors();

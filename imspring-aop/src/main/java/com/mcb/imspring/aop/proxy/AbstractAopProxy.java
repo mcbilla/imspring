@@ -53,7 +53,7 @@ public abstract class AbstractAopProxy implements AopProxy{
                     adviceInfos[i] = chain.get(i).toString();
                 }
             }
-            logger.debug("use aop proxy enhance bean，target: [{}]，proxy:[{}]，method: [{}]，advices: {}", target.getClass().getSimpleName(),
+            logger.debug("Invoke aop proxy bean，target: [{}]，proxy:[{}]，method: [{}]，advices: {}", target.getClass().getSimpleName(),
                     proxy.getClass().getSimpleName(), method.getName(), adviceInfos);
             ReflectiveMethodInvocation invocation = new ReflectiveMethodInvocation(target, proxy, method, args, chain);
             return invocation.proceed();

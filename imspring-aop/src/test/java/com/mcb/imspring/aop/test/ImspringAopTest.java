@@ -10,12 +10,12 @@ public class ImspringAopTest {
 
     public static void main(String[] args) {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ImspringAopTest.class)) {
-            IMyService bean1 = context.getBean("myService");
-            bean1.test();
-//            MySingleService bean2 = context.getBean("mySingleService");
+//            IMyService bean1 = context.getBean("myService");
+//            bean1.test();
+            MySingleService bean2 = context.getBean("mySingleService");
 //            bean2.test();
-//            String res = bean2.test("111");
-//            System.out.println(res);
+            String res = bean2.test("111");
+            System.out.println(res);
 //            bean2.hello();
         } catch (Exception e) {
             throw e;
