@@ -38,8 +38,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * ApplicationContext的核心方法，实例化beanFactory的所有bean
-     * @throws BeansException
-     * @throws IllegalStateException
      */
     @Override
     public void refresh() throws BeansException, IllegalStateException {
@@ -65,12 +63,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     /**
-     * 初始化 refresh 的上下文环境，就是记录下容器的启动时间、标记已启动状态、处理配置文件中的占位符
+     * 初始化 refresh 的上下文环境，就是记录下容器的启动时间、标记已启动状态、初始化环境
      */
     private void prepareRefresh() {
         this.startupDate = System.currentTimeMillis();
         this.closed.set(false);
         this.active.set(true);
+
         logger.debug("ApplicationContext startup");
     }
 

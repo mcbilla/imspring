@@ -131,4 +131,13 @@ public abstract class BeanUtils {
             throw new BeansException(String.format("instantiate fail by constructor %s", ctor.getName()), ex);
         }
     }
+
+    public static ClassLoader getContextClassLoader() {
+        ClassLoader cl = null;
+        cl = Thread.currentThread().getContextClassLoader();
+        if (cl == null) {
+            cl = BeanUtils.class.getClassLoader();
+        }
+        return cl;
+    }
 }

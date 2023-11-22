@@ -3,6 +3,8 @@ package com.mcb.imspring.core;
 import com.mcb.imspring.core.annotation.Autowired;
 import com.mcb.imspring.core.annotation.Value;
 import com.mcb.imspring.core.context.*;
+import com.mcb.imspring.core.env.Environment;
+import com.mcb.imspring.core.env.StandardEnvironment;
 import com.mcb.imspring.core.exception.BeansException;
 import com.mcb.imspring.core.utils.*;
 import com.sun.istack.internal.Nullable;
@@ -26,6 +28,8 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractBeanFactory implements ConfigurableListableBeanFactory, BeanDefinitionRegistry, SingletonBeanRegistry {
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    protected Environment environment = new StandardEnvironment();
 
     @Override
     public boolean containsBean(String name) {
@@ -243,7 +247,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
                 Value annotation = field.getAnnotation(Value.class);
                 try {
                     field.setAccessible(true);
-                    field.set(bean, annotation.value());
+                    field.set(bean, environment.resolvePlaceholders(annotation.value()));
                 } catch (IllegalAccessException e) {
                     throw new BeansException(String.format("Exception when autowired '%s': %s", name, field.getName()), e);
                 }

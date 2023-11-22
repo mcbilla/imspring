@@ -2,6 +2,7 @@ package com.mcb.imspring.core.test;
 
 import com.mcb.imspring.core.AnnotationConfigApplicationContext;
 import com.mcb.imspring.core.test.bean.ComponentBean;
+import com.mcb.imspring.core.test.bean.PropertyBean;
 import com.mcb.imspring.core.test.bean.ServiceA;
 import com.mcb.imspring.core.test.bean.ServiceB;
 import com.mcb.imspring.core.test.config.ComponentScanConfig;
@@ -36,6 +37,16 @@ public class ImspringCoreTest {
 
             ServiceB serviceB = context.getBean("serviceB", ServiceB.class);
             serviceB.test();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Test
+    public void test3() {
+        try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ComponentScanConfig.class)) {
+            PropertyBean bean = context.getBean("propertyBean", PropertyBean.class);
+            System.out.println(bean);
         } catch (Exception e) {
             throw e;
         }

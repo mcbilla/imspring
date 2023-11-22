@@ -1,13 +1,13 @@
 package com.mcb.imspring.core.test.io;
 
-import com.mcb.imspring.core.io.DefaultResourceLoader;
+import com.mcb.imspring.core.resource.DefaultResourceLoader;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-public class ResourceLoaderTest {
+public class ResourceTest {
 
     @Test
     public void testSystem() {

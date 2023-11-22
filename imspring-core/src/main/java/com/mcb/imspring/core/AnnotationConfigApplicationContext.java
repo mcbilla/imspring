@@ -1,7 +1,7 @@
 package com.mcb.imspring.core;
 
-import com.mcb.imspring.core.io.AnnotatedBeanDefinitionReader;
-import com.mcb.imspring.core.io.ClassPathBeanDefinitionScanner;
+import com.mcb.imspring.core.resource.AnnotatedBeanDefinitionReader;
+import com.mcb.imspring.core.resource.ClassPathBeanDefinitionScanner;
 import com.mcb.imspring.core.utils.Assert;
 
 /**

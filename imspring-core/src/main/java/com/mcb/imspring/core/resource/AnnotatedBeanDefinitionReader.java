@@ -1,4 +1,4 @@
-package com.mcb.imspring.core.io;
+package com.mcb.imspring.core.resource;
 
 import com.mcb.imspring.core.context.BeanDefinition;
 import com.mcb.imspring.core.context.BeanDefinitionRegistry;
