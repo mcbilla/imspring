@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 /**
  * Spring IOC容器的的抽象类，实现ConfigurableBeanFactory的接口
  *
- *
  * Spring Bean 的生命周期
  * 1、实例化 Instantiation
  * 2、属性赋值 Populate

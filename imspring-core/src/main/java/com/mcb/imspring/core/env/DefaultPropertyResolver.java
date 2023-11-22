@@ -31,10 +31,6 @@ public class DefaultPropertyResolver implements PropertyResolver {
     private Map<String, Object> properties = new HashMap<>();
 
     public DefaultPropertyResolver() {
-    }
-
-    public DefaultPropertyResolver(Map<String, Object> properties) {
-        this.properties = properties;
         prepareProperties();
     }
 

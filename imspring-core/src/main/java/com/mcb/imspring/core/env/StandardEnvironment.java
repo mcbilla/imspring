@@ -1,7 +1,14 @@
 package com.mcb.imspring.core.env;
 
-import java.util.HashMap;
+import com.mcb.imspring.core.utils.Assert;
+import com.mcb.imspring.core.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Environment = PropertyResolver + Profile，Profile用于环境切换，PropertyResolver用于解析配置文件
@@ -9,29 +16,69 @@ import java.util.Map;
  */
 public class StandardEnvironment implements Environment {
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     public static final String ACTIVE_PROFILES_PROPERTY_NAME = "spring.profiles.active";
 
-    private Map<String, Object> properties = new HashMap<>();
+    private final Set<String> activeProfiles = new LinkedHashSet<>();
 
     private final PropertyResolver propertyResolver;
 
     public StandardEnvironment() {
-        this.propertyResolver = new DefaultPropertyResolver(properties);
-        prepareEnvironment();
+        this(new DefaultPropertyResolver());
     }
 
-    /**
-     * 初始化环境参数
-     */
-    private void prepareEnvironment() {
-        this.properties.putAll(getSystemEnvironment());
+    public StandardEnvironment(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
+    }
 
-        this.properties.putAll(getSystemProperties());
+    @Override
+    public void setActiveProfiles(String... profiles) {
+        Assert.notNull(profiles, "Profile array must not be null");
+        logger.debug("Activating profiles " + Arrays.toString(profiles));
+        synchronized (this.activeProfiles) {
+            this.activeProfiles.clear();
+            for (String profile : profiles) {
+                validateProfile(profile);
+                this.activeProfiles.add(profile);
+            }
+        }
+    }
+
+    @Override
+    public void addActiveProfile(String profile) {
+        logger.debug("Activating profile '" + profile + "'");
+        validateProfile(profile);
+        synchronized (this.activeProfiles) {
+            this.activeProfiles.add(profile);
+        }
     }
 
     @Override
     public String[] getActiveProfiles() {
-        return new String[0];
+        synchronized (this.activeProfiles) {
+            if (this.activeProfiles.isEmpty()) {
+                String profiles = doGetActiveProfilesProperty();
+                if (StringUtils.hasText(profiles)) {
+                    setActiveProfiles(StringUtils.commaDelimitedListToStringArray(
+                            StringUtils.trimAllWhitespace(profiles)));
+                }
+            }
+        }
+        return StringUtils.toStringArray(this.activeProfiles);
+    }
+
+    protected String doGetActiveProfilesProperty() {
+        return getProperty(ACTIVE_PROFILES_PROPERTY_NAME);
+    }
+
+    protected void validateProfile(String profile) {
+        if (!StringUtils.hasText(profile)) {
+            throw new IllegalArgumentException("Invalid profile [" + profile + "]: must contain text");
+        }
+        if (profile.charAt(0) == '!') {
+            throw new IllegalArgumentException("Invalid profile [" + profile + "]: must not begin with ! operator");
+        }
     }
 
     @Override

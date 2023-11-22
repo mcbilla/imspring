@@ -1,12 +1,11 @@
 package com.mcb.imspring.tx.config;
 
-import com.mcb.imspring.aop.AnnotationAwareAspectJAutoProxyCreator;
 import com.mcb.imspring.core.annotation.Bean;
 import com.mcb.imspring.core.annotation.Configuration;
 import com.mcb.imspring.tx.AnnotationTransactionAttributeSource;
 import com.mcb.imspring.tx.DataSourceTransactionManager;
-import com.mcb.imspring.tx.TransactionInterceptor;
 import com.mcb.imspring.tx.TransactionAttributeSourceAdvisor;
+import com.mcb.imspring.tx.TransactionInterceptor;
 import com.mcb.imspring.tx.proxy.TransactionAutoProxyCreator;
 import com.mcb.imspring.tx.transaction.td.TransactionAttributeSource;
 
@@ -20,12 +19,6 @@ public class ProxyTransactionManagementConfiguration {
         return new TransactionAutoProxyCreator();
     }
 
-    @Bean(destroyMethod = "close")
-    public DataSource dataSource() {
-        // TODO
-        return null;
-    }
-
     @Bean
     public TransactionAttributeSource transactionAttributeSource() {
         return new AnnotationTransactionAttributeSource();
@@ -33,6 +26,7 @@ public class ProxyTransactionManagementConfiguration {
 
     @Bean
     public DataSourceTransactionManager dataSourceTransactionManager(DataSource dataSource) {
+        System.out.println("我是一个数据源" + dataSource);
         return new DataSourceTransactionManager(dataSource);
     }
 

@@ -21,6 +21,8 @@
         <aopalliance.version>1.0</aopalliance.version>
         <cglib.version>3.3.0</cglib.version>
         <snakeyaml.version>2.0</snakeyaml.version>
+        <hikari.version>4.0.3</hikari.version>
+        <mysql.version>8.0.13</mysql.version>
     </properties>
 
     <dependencies>
@@ -76,6 +78,18 @@
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${hikari.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
