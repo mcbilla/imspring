@@ -33,6 +33,10 @@ public interface TransactionDefinition {
         return ISOLATION_DEFAULT;
     }
 
+    default String getName() {
+        return null;
+    }
+
     static TransactionDefinition withDefaults() {
         return StaticTransactionDefinition.INSTANCE;
     }

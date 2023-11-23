@@ -1,6 +1,7 @@
 package com.mcb.imspring.tx.transaction.td;
 
 import com.mcb.imspring.core.common.Constants;
+import com.sun.istack.internal.Nullable;
 
 public class DefaultTransactionDefinition implements TransactionDefinition {
 
@@ -11,6 +12,8 @@ public class DefaultTransactionDefinition implements TransactionDefinition {
     private int propagationBehavior = PROPAGATION_REQUIRED;
 
     private int isolationLevel = ISOLATION_DEFAULT;
+
+    private String name;
 
     static final Constants constants = new Constants(TransactionDefinition.class);
 
@@ -43,5 +46,15 @@ public class DefaultTransactionDefinition implements TransactionDefinition {
     @Override
     public int getIsolationLevel() {
         return isolationLevel;
+    }
+
+    public final void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    @Nullable
+    public final String getName() {
+        return this.name;
     }
 }

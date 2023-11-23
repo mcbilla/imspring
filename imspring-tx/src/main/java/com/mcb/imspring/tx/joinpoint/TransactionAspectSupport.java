@@ -1,10 +1,12 @@
 package com.mcb.imspring.tx.joinpoint;
 
 import com.mcb.imspring.core.BeanFactory;
+import com.mcb.imspring.core.common.NamedThreadLocal;
 import com.mcb.imspring.core.context.BeanFactoryAware;
 import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.tx.exception.TransactionException;
 import com.mcb.imspring.tx.transaction.td.DefaultTransactionAttribute;
+import com.mcb.imspring.tx.transaction.td.DefaultTransactionDefinition;
 import com.mcb.imspring.tx.transaction.td.TransactionAttribute;
 import com.mcb.imspring.tx.transaction.td.TransactionAttributeSource;
 import com.mcb.imspring.tx.transaction.tm.CallbackPreferringPlatformTransactionManager;
@@ -26,6 +28,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     private TransactionManager transactionManager;
 
     private TransactionAttributeSource transactionAttributeSource;
+
+    private static final ThreadLocal<TransactionInfo> transactionInfoHolder =
+            new NamedThreadLocal<>("Current aspect-driven transaction");
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -73,9 +78,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
             } catch (Throwable ex) {
                 // 7、异常回滚/提交
                 completeTransactionAfterThrowing(txInfo, ex);
-                throw new TransactionException(ex);
+                throw ex;
             } finally {
-                // 8、清除 ThreadLocal 中保存的事务信息
+                // 8、清除 ThreadLocal 中保存的当前事务信息
                 cleanupTransactionInfo(txInfo);
             }
 
@@ -148,8 +153,13 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     private TransactionInfo createTransactionIfNecessary(PlatformTransactionManager tm, TransactionAttribute txAttr, String joinpointIdentification) {
         TransactionStatus status = null;
-        if (txAttr != null && tm != null) {
-            status = tm.getTransaction(txAttr);
+        if (txAttr != null) {
+            if (txAttr.getName() == null && txAttr instanceof DefaultTransactionDefinition) {
+                ((DefaultTransactionDefinition) txAttr).setName(joinpointIdentification);
+            }
+            if (tm != null) {
+                status = tm.getTransaction(txAttr);
+            }
         } else {
             logger.debug("Skipping transactional joinpoint [" + joinpointIdentification +
                     "] because no transaction attribute or no transaction manager has been configured");
@@ -158,18 +168,58 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     }
 
     private void completeTransactionAfterThrowing(TransactionInfo txInfo, Throwable ex) {
+        if (txInfo != null && txInfo.getTransactionStatus() != null) {
+            logger.debug("Completing transaction for [" + txInfo.getJoinpointIdentification() +
+                    "] after exception: " + ex);
 
+            if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
+                try {
+                    logger.debug("Rollback completing transaction for [" + txInfo.getJoinpointIdentification() +
+                            "] after exception: " + ex);
+                    txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
+                } catch (RuntimeException | Error ex2) {
+                    logger.error("Application exception overridden by rollback exception", ex);
+                    throw ex2;
+                }
+            } else {
+                try {
+                    // 异常回滚规则不匹配，这种情况不做回滚
+                    logger.debug("skip Rollback completing transaction for [" + txInfo.getJoinpointIdentification() +
+                            "] after exception: " + ex);
+                    txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
+                } catch (RuntimeException | Error ex2) {
+                    logger.error("Application exception overridden by commit exception", ex);
+                    throw ex2;
+                }
+            }
+        }
     }
 
     private void cleanupTransactionInfo(TransactionInfo txInfo) {
+        if (txInfo != null) {
+            txInfo.restoreThreadLocalStatus();
+        }
     }
 
     private void commitTransactionAfterReturning(TransactionInfo txInfo) {
-
+        if (txInfo != null && txInfo.getTransactionStatus() != null) {
+            logger.debug("Completing transaction for [" + txInfo.getJoinpointIdentification() + "]");
+            txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
+        }
     }
 
-    private TransactionInfo prepareTransactionInfo(PlatformTransactionManager ptm, TransactionAttribute txAttr, String joinpointIdentification, TransactionStatus status) {
-        return null;
+    private TransactionInfo prepareTransactionInfo(PlatformTransactionManager tm, TransactionAttribute txAttr, String joinpointIdentification, TransactionStatus status) {
+        TransactionInfo txInfo = new TransactionInfo(tm, txAttr, joinpointIdentification);
+
+        if (txAttr != null) {
+            logger.debug("Getting transaction for [" + txInfo.getJoinpointIdentification() + "]");
+            txInfo.newTransactionStatus(status);
+        } else {
+            logger.debug("No need to create transaction for [" + joinpointIdentification +
+                    "]: This method is not transactional.");
+        }
+        txInfo.bindToThread();
+        return txInfo;
     }
 
     protected static final class TransactionInfo {
@@ -193,6 +243,35 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
             this.transactionManager = transactionManager;
             this.transactionAttribute = transactionAttribute;
             this.joinpointIdentification = joinpointIdentification;
+        }
+
+        public void newTransactionStatus(@Nullable TransactionStatus status) {
+            this.transactionStatus = status;
+        }
+
+        private void bindToThread() {
+            // Expose current TransactionStatus, preserving any existing TransactionStatus
+            // for restoration after this transaction is complete.
+            this.oldTransactionInfo = transactionInfoHolder.get();
+            transactionInfoHolder.set(this);
+        }
+
+        private void restoreThreadLocalStatus() {
+            // Use stack to restore old transaction TransactionInfo.
+            // Will be null if none was set.
+            transactionInfoHolder.set(this.oldTransactionInfo);
+        }
+
+        public PlatformTransactionManager getTransactionManager() {
+            return transactionManager;
+        }
+
+        public TransactionStatus getTransactionStatus() {
+            return transactionStatus;
+        }
+
+        public String getJoinpointIdentification() {
+            return this.joinpointIdentification;
         }
     }
 

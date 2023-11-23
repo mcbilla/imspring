@@ -18,7 +18,20 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
 
     @Override
     public boolean rollbackOn(Throwable ex) {
-        return false;
+        RollbackRuleAttribute winner = null;
+        int deepest = Integer.MAX_VALUE;
+
+        if (this.rollbackRules != null) {
+            for (RollbackRuleAttribute rule : this.rollbackRules) {
+                int depth = rule.getDepth(ex);
+                if (depth >= 0 && depth < deepest) {
+                    deepest = depth;
+                    winner = rule;
+                }
+            }
+        }
+
+        return winner == null ? (ex instanceof RuntimeException || ex instanceof Error) : true;
     }
 
     public void setRollbackRules(List<RollbackRuleAttribute> rollbackRules) {
