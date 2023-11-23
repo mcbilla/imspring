@@ -1,13 +1,18 @@
 package com.mcb.imspring.tx;
 
 import com.mcb.imspring.tx.exception.TransactionException;
+import com.mcb.imspring.tx.jdbc.ConnectionHolder;
+import com.mcb.imspring.tx.jdbc.JdbcTransactionObjectSupport;
+import com.mcb.imspring.tx.transaction.tm.AbstractPlatformTransactionManager;
 import com.mcb.imspring.tx.transaction.tm.PlatformTransactionManager;
 import com.mcb.imspring.tx.transaction.td.TransactionDefinition;
+import com.mcb.imspring.tx.transaction.ts.DefaultTransactionStatus;
 import com.mcb.imspring.tx.transaction.ts.TransactionStatus;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 
-public class DataSourceTransactionManager implements PlatformTransactionManager {
+public class DataSourceTransactionManager extends AbstractPlatformTransactionManager {
 
     private DataSource dataSource;
 
@@ -16,17 +21,23 @@ public class DataSourceTransactionManager implements PlatformTransactionManager 
     }
 
     @Override
-    public TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException {
-        return null;
+    protected Object doGetTransaction() throws TransactionException {
+        JdbcTransactionObjectSupport txObject = new JdbcTransactionObjectSupport();
+        try {
+            txObject.setConnectionHolder(new ConnectionHolder(dataSource.getConnection()));
+        } catch (SQLException e) {
+            throw new TransactionException("Could not get ConnectionHolder ", e);
+        }
+        return txObject;
     }
 
     @Override
-    public void commit(TransactionStatus status) throws TransactionException {
+    protected void doCommit(DefaultTransactionStatus status) throws TransactionException {
 
     }
 
     @Override
-    public void rollback(TransactionStatus status) throws TransactionException {
+    protected void doRollback(DefaultTransactionStatus status) throws TransactionException {
 
     }
 }

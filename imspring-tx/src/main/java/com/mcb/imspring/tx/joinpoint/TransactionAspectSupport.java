@@ -4,6 +4,7 @@ import com.mcb.imspring.core.BeanFactory;
 import com.mcb.imspring.core.context.BeanFactoryAware;
 import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.tx.exception.TransactionException;
+import com.mcb.imspring.tx.transaction.td.DefaultTransactionAttribute;
 import com.mcb.imspring.tx.transaction.td.TransactionAttribute;
 import com.mcb.imspring.tx.transaction.td.TransactionAttributeSource;
 import com.mcb.imspring.tx.transaction.tm.CallbackPreferringPlatformTransactionManager;
@@ -57,7 +58,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
         final TransactionManager tm = determineTransantionManager(txAttr);
         PlatformTransactionManager ptm = asPlatformTransactionManager(tm);
 
-        // 4、joinpoint标识，用于确定事务名称，值是全路径
+        // 4、获取事务方法的唯一标识
         final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
 
         // 声明式事务处理逻辑
@@ -131,16 +132,29 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
         return defaultTransactionManager;
     }
 
-    private PlatformTransactionManager asPlatformTransactionManager(TransactionManager tm) {
-        return null;
+    private PlatformTransactionManager asPlatformTransactionManager(@Nullable Object transactionManager) {
+        if (transactionManager == null || transactionManager instanceof PlatformTransactionManager) {
+            return (PlatformTransactionManager) transactionManager;
+        }
+        else {
+            throw new IllegalStateException(
+                    "Specified transaction manager is not a PlatformTransactionManager: " + transactionManager);
+        }
     }
 
     private String methodIdentification(Method method, Class<?> targetClass, TransactionAttribute txAttr) {
-        return null;
+        return ((DefaultTransactionAttribute) txAttr).getDescriptor();
     }
 
-    private TransactionInfo createTransactionIfNecessary(PlatformTransactionManager ptm, TransactionAttribute txAttr, String joinpointIdentification) {
-        return null;
+    private TransactionInfo createTransactionIfNecessary(PlatformTransactionManager tm, TransactionAttribute txAttr, String joinpointIdentification) {
+        TransactionStatus status = null;
+        if (txAttr != null && tm != null) {
+            status = tm.getTransaction(txAttr);
+        } else {
+            logger.debug("Skipping transactional joinpoint [" + joinpointIdentification +
+                    "] because no transaction attribute or no transaction manager has been configured");
+        }
+        return prepareTransactionInfo(tm, txAttr, joinpointIdentification, status);
     }
 
     private void completeTransactionAfterThrowing(TransactionInfo txInfo, Throwable ex) {

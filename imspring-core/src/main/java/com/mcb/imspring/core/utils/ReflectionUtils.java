@@ -56,4 +56,9 @@ public abstract class ReflectionUtils {
     public static boolean hasAnnotation(AnnotatedElement element, Class<? extends Annotation> annotationType) {
         return findAnnotation(element, annotationType) != null;
     }
+
+    public static String getQualifiedMethodName(Method method, @Nullable Class<?> clazz) {
+        Assert.notNull(method, "Method must not be null");
+        return (clazz != null ? clazz : method.getDeclaringClass()).getName() + '.' + method.getName();
+    }
 }

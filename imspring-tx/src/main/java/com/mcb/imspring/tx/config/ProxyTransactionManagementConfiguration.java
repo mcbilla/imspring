@@ -26,7 +26,6 @@ public class ProxyTransactionManagementConfiguration {
 
     @Bean
     public DataSourceTransactionManager dataSourceTransactionManager(DataSource dataSource) {
-        System.out.println("我是一个数据源" + dataSource);
         return new DataSourceTransactionManager(dataSource);
     }
 

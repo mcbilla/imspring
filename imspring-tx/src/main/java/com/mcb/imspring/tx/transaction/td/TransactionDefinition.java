@@ -32,4 +32,8 @@ public interface TransactionDefinition {
     default int getIsolationLevel() {
         return ISOLATION_DEFAULT;
     }
+
+    static TransactionDefinition withDefaults() {
+        return StaticTransactionDefinition.INSTANCE;
+    }
 }

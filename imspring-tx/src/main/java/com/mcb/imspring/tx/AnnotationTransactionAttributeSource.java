@@ -7,6 +7,8 @@ import com.mcb.imspring.tx.transaction.td.DefaultTransactionAttribute;
 import com.mcb.imspring.tx.transaction.td.RollbackRuleAttribute;
 import com.mcb.imspring.tx.transaction.td.TransactionAttribute;
 import com.mcb.imspring.tx.transaction.td.TransactionAttributeSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -16,9 +18,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 用于解析@Transaction注解，获取注解的事务属性
+ * 事务属性源头，在容器初始化阶段缓存所有@Transaction修饰的方法对应的事务属性TransactionAttributeSource
+ * 当某个@Transaction方法被调用的时候，从这里获取事务属性
  */
 public class AnnotationTransactionAttributeSource implements TransactionAttributeSource {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private static final TransactionAttribute NULL_TRANSACTION_ATTRIBUTE = new DefaultTransactionAttribute() {
         @Override
         public String toString() {
@@ -52,7 +58,11 @@ public class AnnotationTransactionAttributeSource implements TransactionAttribut
             if (txAttr == null) {
                 this.attributeCache.put(cacheKey, NULL_TRANSACTION_ATTRIBUTE);
             } else {
-
+                String methodIdentification = ReflectionUtils.getQualifiedMethodName(method, targetClass);
+                DefaultTransactionAttribute dta = (DefaultTransactionAttribute) txAttr;
+                dta.setDescriptor(methodIdentification);
+                logger.debug("Adding transactional method '" + methodIdentification + "' with attribute: " + txAttr);
+                this.attributeCache.put(cacheKey, txAttr);
             }
             return txAttr;
         }
