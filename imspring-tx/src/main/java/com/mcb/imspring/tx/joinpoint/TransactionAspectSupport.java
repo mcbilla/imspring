@@ -5,6 +5,7 @@ import com.mcb.imspring.core.common.NamedThreadLocal;
 import com.mcb.imspring.core.context.BeanFactoryAware;
 import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.tx.exception.TransactionException;
+import com.mcb.imspring.tx.sync.TransactionSynchronizationManager;
 import com.mcb.imspring.tx.transaction.td.DefaultTransactionAttribute;
 import com.mcb.imspring.tx.transaction.td.DefaultTransactionDefinition;
 import com.mcb.imspring.tx.transaction.td.TransactionAttribute;
@@ -80,7 +81,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
                 completeTransactionAfterThrowing(txInfo, ex);
                 throw ex;
             } finally {
-                // 8、清除 ThreadLocal 中保存的当前事务信息
+                // 8、清除当前事务状态
                 cleanupTransactionInfo(txInfo);
             }
 
@@ -195,20 +196,20 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
         }
     }
 
-    private void cleanupTransactionInfo(TransactionInfo txInfo) {
+    protected void cleanupTransactionInfo(TransactionInfo txInfo) {
         if (txInfo != null) {
             txInfo.restoreThreadLocalStatus();
         }
     }
 
-    private void commitTransactionAfterReturning(TransactionInfo txInfo) {
+    protected void commitTransactionAfterReturning(TransactionInfo txInfo) {
         if (txInfo != null && txInfo.getTransactionStatus() != null) {
             logger.debug("Completing transaction for [" + txInfo.getJoinpointIdentification() + "]");
             txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
         }
     }
 
-    private TransactionInfo prepareTransactionInfo(PlatformTransactionManager tm, TransactionAttribute txAttr, String joinpointIdentification, TransactionStatus status) {
+    protected TransactionInfo prepareTransactionInfo(PlatformTransactionManager tm, TransactionAttribute txAttr, String joinpointIdentification, TransactionStatus status) {
         TransactionInfo txInfo = new TransactionInfo(tm, txAttr, joinpointIdentification);
 
         if (txAttr != null) {

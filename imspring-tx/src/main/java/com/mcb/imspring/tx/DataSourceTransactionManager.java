@@ -1,8 +1,10 @@
 package com.mcb.imspring.tx;
 
+import com.mcb.imspring.core.utils.Assert;
 import com.mcb.imspring.tx.exception.TransactionException;
 import com.mcb.imspring.tx.jdbc.ConnectionHolder;
 import com.mcb.imspring.tx.jdbc.JdbcTransactionObjectSupport;
+import com.mcb.imspring.tx.sync.TransactionSynchronizationManager;
 import com.mcb.imspring.tx.transaction.td.TransactionDefinition;
 import com.mcb.imspring.tx.transaction.tm.AbstractPlatformTransactionManager;
 import com.mcb.imspring.tx.transaction.ts.DefaultTransactionStatus;
@@ -44,6 +46,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
             if (con.getAutoCommit()) {
                 con.setAutoCommit(false);
             }
+            TransactionSynchronizationManager.bindResource(obtainDataSource(), txObject.getConnectionHolder());
         } catch (Throwable ex) {
             throw new TransactionException("Could not open JDBC Connection for transaction", ex);
         }
@@ -74,5 +77,20 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
         catch (SQLException ex) {
             throw new TransactionException("JDBC rollback failed ", ex);
         }
+    }
+
+    @Override
+    protected void doCleanupAfterCompletion(Object transaction) {
+        TransactionSynchronizationManager.unbindResource(obtainDataSource());
+    }
+
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
+    protected DataSource obtainDataSource() {
+        DataSource dataSource = getDataSource();
+        Assert.state(dataSource != null, "No DataSource set");
+        return dataSource;
     }
 }

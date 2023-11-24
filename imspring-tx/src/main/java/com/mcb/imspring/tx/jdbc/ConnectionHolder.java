@@ -45,4 +45,10 @@ public class ConnectionHolder {
         this.savepointCounter++;
         return getConnection().setSavepoint(SAVEPOINT_NAME_PREFIX + this.savepointCounter);
     }
+
+    public void released() {
+        if (this.currentConnection != null) {
+            this.currentConnection = null;
+        }
+    }
 }

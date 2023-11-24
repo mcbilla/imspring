@@ -7,10 +7,10 @@ import com.mcb.imspring.tx.transaction.ts.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractPlatformTransactionManager implements PlatformTransactionManager{
-    
+public abstract class AbstractPlatformTransactionManager implements PlatformTransactionManager {
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     @Override
     public TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException {
         TransactionDefinition def = (definition != null ? definition : TransactionDefinition.withDefaults());
@@ -42,7 +42,11 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
             logger.debug("Releasing transaction savepoint");
             defStatus.releaseHeldSavepoint();
         }
-        doCommit(defStatus);
+        try {
+            doCommit(defStatus);
+        } finally {
+            doCleanupAfterCompletion(defStatus);
+        }
     }
 
     @Override
@@ -52,7 +56,12 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
             logger.debug("Rolling back transaction to savepoint");
             defStatus.rollbackToHeldSavepoint();
         }
-        doRollback(defStatus);
+        try {
+            doRollback(defStatus);
+        } finally {
+            doCleanupAfterCompletion(defStatus);
+        }
+
     }
 
     protected abstract Object doGetTransaction() throws TransactionException;
@@ -63,4 +72,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
     protected abstract void doCommit(DefaultTransactionStatus status) throws TransactionException;
 
     protected abstract void doRollback(DefaultTransactionStatus status) throws TransactionException;
+
+    protected void doCleanupAfterCompletion(Object transaction) {
+    }
 }

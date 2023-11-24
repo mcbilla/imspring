@@ -3,13 +3,14 @@ package com.mcb.imspring.tx.config;
 import com.mcb.imspring.core.annotation.Bean;
 import com.mcb.imspring.core.annotation.Configuration;
 import com.mcb.imspring.core.annotation.Value;
+import com.mcb.imspring.tx.jdbc.JdbcTemplate;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
 
 @Configuration
-public class DataSourceConfig {
+public class JdbcConfiguration {
 
     @Value("${imspring.datasource.url}")
     private String url;
@@ -31,5 +32,10 @@ public class DataSourceConfig {
         config.setUsername(username);
         config.setPassword(password);
         return new HikariDataSource(config);
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
     }
 }
