@@ -12,10 +12,21 @@ public class TxService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Transactional
-    public void hello() {
+    public User query() {
         String sql = "select * from user where id = 1";
-        User user = jdbcTemplate.queryForObject(sql, User.class);
-        System.out.println(user);
+        return jdbcTemplate.queryForObject(sql, User.class);
+    }
+
+    public int update() {
+        String sql = "insert into user(name, age, add_time) values('aaa', 18, now())";
+        return jdbcTemplate.update(sql);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public int tx() {
+        String sql = "insert into user(name, age, add_time) values('aaa', 18, now())";
+        int update = jdbcTemplate.update(sql);
+        System.out.println(1/0);
+        return update;
     }
 }

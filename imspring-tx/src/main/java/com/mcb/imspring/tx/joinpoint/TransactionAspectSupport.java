@@ -76,17 +76,18 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
             try {
                 // 6、通过回调执行目标方法
                 retVal = invocation.proceedWithInvocation();
+
+                // 7、提交事务
+                commitTransactionAfterReturning(txInfo);
             } catch (Throwable ex) {
-                // 7、异常回滚/提交
+                // 8、异常回滚/提交
                 completeTransactionAfterThrowing(txInfo, ex);
                 throw ex;
             } finally {
-                // 8、清除当前事务状态
+                // 9、清除当前事务状态
                 cleanupTransactionInfo(txInfo);
             }
 
-            // 9、提交事务，此时目标方法已经执行完成
-            commitTransactionAfterReturning(txInfo);
             return retVal;
         }
         // 编程式事务处理逻辑，逻辑和上类似

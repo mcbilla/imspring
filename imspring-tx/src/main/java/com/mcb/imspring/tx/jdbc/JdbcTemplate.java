@@ -49,11 +49,26 @@ public class JdbcTemplate implements JdbcOperations, InitializingBean {
     }
 
     protected Connection getConnection(DataSource dataSource) throws DataAccessException {
+        Connection con;
         try {
-            return dataSource.getConnection();
+            ConnectionHolder conHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
+            if (conHolder != null) {
+                if (!conHolder.hasConnection()) {
+                    logger.debug("Fetching resumed JDBC Connection from DataSource");
+                    conHolder.setConnection(dataSource.getConnection());
+                }
+                con =  conHolder.getConnection();
+            } else {
+                logger.debug("Fetching JDBC Connection from DataSource");
+                con = dataSource.getConnection();
+                conHolder = new ConnectionHolder(con);
+                TransactionSynchronizationManager.bindResource(dataSource, conHolder);
+            }
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }
+        logger.debug("Get JDBC Connection {}", con);
+        return con;
     }
 
     @Override
@@ -80,7 +95,6 @@ public class JdbcTemplate implements JdbcOperations, InitializingBean {
                 Connection heldCon = conHolder.getConnection();
                 if (heldCon == con || heldCon.equals(con)) {
                     // It's the transactional Connection: Don't close it.
-                    conHolder.released();
                     return;
                 }
             }
@@ -160,6 +174,20 @@ public class JdbcTemplate implements JdbcOperations, InitializingBean {
         Assert.notNull(sql, "SQL must not be null");
         logger.debug("Executing SQL update [" + sql + "]");
 
-        return 0;
+        class UpdateStatementCallback implements StatementCallback<Integer>, SqlProvider {
+
+            @Override
+            public Integer doInStatement(Statement stmt) throws SQLException, DataAccessException {
+                int rows = stmt.executeUpdate(sql);
+                logger.trace("SQL update affected " + rows + " rows");
+                return rows;
+            }
+
+            @Override
+            public String getSql() {
+                return sql;
+            }
+        }
+        return execute(new UpdateStatementCallback());
     }
 }
