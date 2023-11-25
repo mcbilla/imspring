@@ -59,7 +59,7 @@ public class RequestMappingHandlerMapping implements HandlerMapping, Initializin
     }
 
     private void detectHandlers(String beanName) {
-        Object bean = applicationContext.getBeanDefinition(beanName).getBean();
+        Object bean = applicationContext.getBean(beanName);
         if (bean == null) {
             return;
         }
