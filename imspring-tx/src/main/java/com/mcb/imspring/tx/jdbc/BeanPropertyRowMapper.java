@@ -34,7 +34,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
         this.mappedFields = new HashMap<>();
         this.mappedProperties = new HashSet<>();
 
-        for (Field f : mappedClass.getFields()) {
+        for (Field f : mappedClass.getDeclaredFields()) {
             String name = f.getName();
             String actualName = obtainActualFieldName(name);
             this.mappedFields.put(actualName, f);
@@ -50,11 +50,12 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
             bean = constructor.newInstance();
             ResultSetMetaData meta = rs.getMetaData();
             int columns = meta.getColumnCount();
-            for (int i = 0; i < columns; i++) {
+            for (int i = 1; i <= columns; i++) {
                 String label = meta.getColumnLabel(i);
                 String acutalName = obtainActualFieldName(label);
                 Field field = this.mappedFields.get(acutalName);
                 if (field != null) {
+                    field.setAccessible(true);
                     field.set(bean, rs.getObject(label));
                 }
             }
@@ -71,17 +72,23 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
     private String obtainActualFieldName(String name) {
         String lowerCaseName = lowerCaseName(name);
         String underscoreName = underscoreName(name);
-        if (lowerCaseName.equals(underscoreName)) {
+        if (!lowerCaseName.equals(underscoreName)) {
             return underscoreName;
         } else {
             return lowerCaseName;
         }
     }
 
+    /**
+     * 转小写
+     */
     protected String lowerCaseName(String name) {
         return name.toLowerCase(Locale.US);
     }
 
+    /**
+     * 驼峰转下划线
+     */
     protected String underscoreName(String name) {
         if (!StringUtils.hasLength(name)) {
             return "";
