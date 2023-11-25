@@ -19,8 +19,11 @@ public class ImspringTxTest {
 //            int update = bean.update();
 //            System.out.println("更新结果=" + update);
 
-            int tx = bean.tx();
-            System.out.println("事务结果=" + tx);
+//            Object rs = bean.declareTx();
+//            System.out.println("声明式事务结果=" + rs);
+
+            Object rs = bean.programTx();
+            System.out.println("编程式事务结果=" + rs);
         } catch (Exception e) {
             throw e;
         }

@@ -4,13 +4,10 @@ import com.mcb.imspring.core.BeanFactory;
 import com.mcb.imspring.core.common.NamedThreadLocal;
 import com.mcb.imspring.core.context.BeanFactoryAware;
 import com.mcb.imspring.core.context.InitializingBean;
-import com.mcb.imspring.tx.exception.TransactionException;
-import com.mcb.imspring.tx.sync.TransactionSynchronizationManager;
 import com.mcb.imspring.tx.transaction.td.DefaultTransactionAttribute;
 import com.mcb.imspring.tx.transaction.td.DefaultTransactionDefinition;
 import com.mcb.imspring.tx.transaction.td.TransactionAttribute;
 import com.mcb.imspring.tx.transaction.td.TransactionAttributeSource;
-import com.mcb.imspring.tx.transaction.tm.CallbackPreferringPlatformTransactionManager;
 import com.mcb.imspring.tx.transaction.tm.PlatformTransactionManager;
 import com.mcb.imspring.tx.transaction.tm.TransactionManager;
 import com.mcb.imspring.tx.transaction.ts.TransactionStatus;
@@ -48,7 +45,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     }
 
     /**
-     * 事务执行的核心方法
+     * 声明式事务处理逻辑
      */
     @Nullable
     protected Object invokeWithinTransaction(Method method, @Nullable Class<?> targetClass,
@@ -67,62 +64,26 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
         // 4、获取事务方法的唯一标识
         final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
 
-        // 声明式事务处理逻辑
-        if (txAttr == null || !(ptm instanceof CallbackPreferringPlatformTransactionManager)) {
-            // 5、创建事务
-            TransactionInfo txInfo = createTransactionIfNecessary(ptm, txAttr, joinpointIdentification);
+        // 5、创建事务
+        TransactionInfo txInfo = createTransactionIfNecessary(ptm, txAttr, joinpointIdentification);
 
-            Object retVal;
-            try {
-                // 6、通过回调执行目标方法
-                retVal = invocation.proceedWithInvocation();
+        Object retVal;
+        try {
+            // 6、通过回调执行目标方法
+            retVal = invocation.proceedWithInvocation();
 
-                // 7、提交事务
-                commitTransactionAfterReturning(txInfo);
-            } catch (Throwable ex) {
-                // 8、异常回滚/提交
-                completeTransactionAfterThrowing(txInfo, ex);
-                throw ex;
-            } finally {
-                // 9、清除当前事务状态
-                cleanupTransactionInfo(txInfo);
-            }
-
-            return retVal;
+            // 7、提交事务
+            commitTransactionAfterReturning(txInfo);
+        } catch (Throwable ex) {
+            // 8、异常回滚/提交
+            completeTransactionAfterThrowing(txInfo, ex);
+            throw ex;
+        } finally {
+            // 9、清除当前事务状态
+            cleanupTransactionInfo(txInfo);
         }
-        // 编程式事务处理逻辑，逻辑和上类似
-        else {
-            Object result;
-            final ThrowableHolder throwableHolder = new ThrowableHolder();
 
-            try {
-                result = ((CallbackPreferringPlatformTransactionManager) ptm).execute(txAttr, status -> {
-                    TransactionInfo txInfo = prepareTransactionInfo(ptm, txAttr, joinpointIdentification, status);
-                    try {
-                        return invocation.proceedWithInvocation();
-                    } catch (Throwable ex) {
-                        if (txAttr.rollbackOn(ex)) {
-                            throw new TransactionException(ex);
-                        } else {
-                            throwableHolder.throwable = ex;
-                            return null;
-                        }
-                    } finally {
-                        cleanupTransactionInfo(txInfo);
-                    }
-                });
-
-            } catch (Throwable ex) {
-                if (throwableHolder.throwable != null) {
-                    logger.error("Application exception overridden by commit exception", throwableHolder.throwable);
-                }
-                throw ex;
-            }
-            if (throwableHolder.throwable != null) {
-                throw throwableHolder.throwable;
-            }
-            return result;
-        }
+        return retVal;
     }
 
     /**

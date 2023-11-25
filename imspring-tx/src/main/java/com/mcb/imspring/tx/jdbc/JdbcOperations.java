@@ -5,6 +5,9 @@ import com.sun.istack.internal.Nullable;
 
 import java.util.List;
 
+/**
+ * JDBC方法接口，暂时只支持静态SQL，不支持预编译SQL
+ */
 public interface JdbcOperations {
 
     //-------------------------------------------------------------------------
@@ -21,9 +24,5 @@ public interface JdbcOperations {
     <T> List<T> queryForList(String sql, Class<T> elementType) throws DataAccessException;
 
     int update(String sql) throws DataAccessException;
-
-    //-------------------------------------------------------------------------
-    // Methods dealing with prepared statements
-    //-------------------------------------------------------------------------
 
 }
