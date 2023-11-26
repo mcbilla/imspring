@@ -22,9 +22,9 @@ public class MyAspect {
         return res;
     }
 
-    @AfterReturning("getPointcut()")
-    public void afterReturning() {
-        System.out.println("我是一个AfterReturningAdvice");
+    @Before("getPointcut()")
+    public void before() {
+        System.out.println("我是一个BeforeAdvice");
     }
 
     @After("getPointcut()")
@@ -32,9 +32,13 @@ public class MyAspect {
         System.out.println("我是一个AfterAdvice");
     }
 
-    @Before("getPointcut()")
-    public void before() {
-        System.out.println("我是一个BeforeAdvice");
+    @AfterReturning("getPointcut()")
+    public void afterReturning() {
+        System.out.println("我是一个AfterReturningAdvice");
     }
 
+    @AfterThrowing("getPointcut()")
+    public void afterThrowing() {
+        System.out.println("我是一个AfterThrowingAdvice");
+    }
 }
