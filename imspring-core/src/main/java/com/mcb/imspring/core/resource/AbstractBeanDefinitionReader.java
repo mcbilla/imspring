@@ -19,11 +19,11 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
         this.registry = registry;
     }
 
-    protected BeanDefinition createBeanDefinition(String beanName) {
+    public BeanDefinition createBeanDefinition(String beanName) {
         return this.createBeanDefinition(beanName, null);
     }
 
-    protected BeanDefinition createBeanDefinition(String beanName, Class<?> beanClass) {
+    public BeanDefinition createBeanDefinition(String beanName, Class<?> beanClass) {
         // 允许BeanDefinition同名覆盖
         if (this.registry.containsBeanDefinition(beanName)) {
             logger.debug("overwrite duplicate BeanDefinition，beanName: [{}]", beanName);

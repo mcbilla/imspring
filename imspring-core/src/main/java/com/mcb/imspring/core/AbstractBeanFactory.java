@@ -52,7 +52,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
             Assert.notNull(def, String.format("No such BeanDefinition defined with name: %s, type: %s", name, requiredType));
             return doGetBean(name, requiredType, null);
         } catch (Exception e) {
-            throw new BeansException(String.format("get bean fail, name: %s, type: %s", name, requiredType), e);
+            throw new BeansException(String.format("Get bean failed, name: %s, type: %s", name, requiredType), e);
         }
     }
 
@@ -234,10 +234,9 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
         Field[] fields = bean.getClass().getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Autowired.class)) {
-                String propertyBeanName = BeanUtils.getBeanName(field.getType().getSimpleName());
                 try {
                     field.setAccessible(true);
-                    field.set(bean, getBean(propertyBeanName));
+                    field.set(bean, getBean(field.getType()));
                 } catch (IllegalAccessException e) {
                     throw new BeansException(String.format("Exception when autowired '%s': %s", name, field.getName()), e);
                 }
