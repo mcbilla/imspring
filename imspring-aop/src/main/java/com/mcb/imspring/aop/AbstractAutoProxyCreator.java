@@ -48,24 +48,24 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
      * 前置处理，遍历所有的切面和对应的通知信息，然后将信息保存在缓存中。这里的所有通知包括事务 + AspectJ 通知
      */
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        Object cacheKey = getCacheKey(bean.getClass(), beanName);
+    public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+        Object cacheKey = getCacheKey(beanClass, beanName);
 
         // 如果已经包含了这个 key，不需要在进行判断了，直接返回即可
         if (this.advisedBeans.containsKey(cacheKey)) {
-            return bean;
+            return null;
         }
 
         // 判断是否 SpringAOP 中的基础设施类
-        if (isInfrastructureClass(bean.getClass())) {
+        if (isInfrastructureClass(beanClass)) {
             this.advisedBeans.put(cacheKey, Boolean.FALSE);
-            return bean;
+            return null;
         }
 
         // 查找所有的切面，并放到缓存，这里相当于 Spring 的 shouldSkip() 方法
         findCandidateAdvisors();
 
-        return bean;
+        return null;
     }
 
     /**

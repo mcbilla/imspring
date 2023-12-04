@@ -139,12 +139,21 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
         return singletonObject;
     }
 
-    private Object createBean(String beanName, BeanDefinition def) {
+    /**
+     * 创建 Bean 实例的核心流程
+     */
+    protected Object createBean(String beanName, BeanDefinition def) {
         try {
-            // 创建bean
+            // bean实例化前置处理
+            applyBeanPostProcessorsBeforeInstantiation(def.getTargetType(), beanName);
+
+            // bean实例化
             Object beanInstance = createBeanInstance(beanName, def);
 
-            // 这里是解决循环依赖的关键，
+            // bean实例化后置处理
+            applyBeanPostProcessorsAfterInstantiation(beanInstance, beanName);
+
+            // 这里是解决循环依赖的关键
             // 第一次getSingleton的时候，执行到这里，earlySingletonExposure一定为true，会把bean的工厂方法添加到三级缓存，相当于提前暴露bean
             // 如果产生了循环依赖，第二次getSingleton的时候从三级缓存创建bean，放入二级缓存，如果没有产生循环依赖就跳过这一步
             // 最后addSingleton，清除一级缓存和二级缓存的信息，把bean放入一级缓存
@@ -159,7 +168,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
             // 属性填充
             populateBean(exposedObject, beanName);
 
-            // 初始化bean
+            // bean初始化
             exposedObject = initializeBean(exposedObject, beanName, def);
 
             // 这一步非常的巧妙，目的是为了保证本方法返回的bean和其他对象依赖的bean是同一个对象
@@ -180,9 +189,37 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
     }
 
     /**
+     * 执行BeanFactoryPostProcessor前置处理
+     */
+    protected Object applyBeanPostProcessorsBeforeInstantiation(Class<?> beanClass, String beanName) {
+        for (BeanPostProcessor bp : getBeanPostProcessors()) {
+            if (bp instanceof InstantiationAwareBeanPostProcessor) {
+                Object result = ((InstantiationAwareBeanPostProcessor) bp).postProcessBeforeInstantiation(beanClass, beanName);
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 执行BeanFactoryPostProcessor后置处理
+     */
+    protected Object applyBeanPostProcessorsAfterInstantiation(Object existingBean, String beanName) {
+        Object result = existingBean;
+        for (BeanPostProcessor bp : getBeanPostProcessors()) {
+            if (bp instanceof InstantiationAwareBeanPostProcessor) {
+                result = ((InstantiationAwareBeanPostProcessor) bp).postProcessAfterInstantiation(existingBean, beanName);
+            }
+        }
+        return result;
+    }
+
+    /**
      * 如果发生了AOP，就返回代理对象，如果没有发生就返回原来的对象，这里相当于给AOP留了一个钩子
      */
-    private Object getEarlyBeanReference(String beanName, BeanDefinition def, Object bean) {
+    protected Object getEarlyBeanReference(String beanName, BeanDefinition def, Object bean) {
         Object exposedObject = bean;
         List<BeanPostProcessor> beanPostProcessors = this.getBeanPostProcessors();
         if (!beanPostProcessors.isEmpty()) {
@@ -270,7 +307,7 @@ public abstract class AbstractBeanFactory implements ConfigurableListableBeanFac
     /**
      * 初始化bean
      * 1、检查Aware相关接口并设置依赖
-     * 2、BeanPostProcessorq前置处理
+     * 2、BeanPostProcessor前置处理
      * 3、InitializingBean
      * 4、init-method
      * 5、BeanPostProcessor后置处理

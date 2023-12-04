@@ -17,6 +17,7 @@ import java.util.*;
 public class ClassPathBeanDefinitionScanner extends AbstractBeanDefinitionReader{
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    // 资源加载器
     private final DefaultResourceLoader loader = new DefaultResourceLoader();
 
     public ClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry) {
@@ -27,13 +28,14 @@ public class ClassPathBeanDefinitionScanner extends AbstractBeanDefinitionReader
         logger.debug("component scan in packages: [{}]", basePackages);
         Set<BeanDefinition> beanDefinitions = new LinkedHashSet<>();
         for (String basePackage : basePackages) {
-            // 从指定的路径加载该路径下所有类的全路径类名并过滤
+            // 1、扫描指定的路径下的所有文件，把符合条件（非接口/抽象类等）的文件加载成Class
             Map<String, Class<?>> candidateClasses = findCandidateClasses(basePackage);
 
-            // 查找待注册的BeanDefinition
+            // 2、查找带@Component的Class，封装成待注册的BeanDefinition
             Set<BeanDefinition> candidates = findCandidateComponents(candidateClasses);
             beanDefinitions.addAll(candidates);
         }
+        // 3、把待注册的BeanDefinition注册到registry中
         beanDefinitions.forEach(def -> {
             logger.debug("register BeanDefinition: [{}]", def.getName());
             this.registry.registerBeanDefinition(def.getName(), def);

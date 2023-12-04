@@ -38,7 +38,7 @@ public class DefaultListableBeanFactory extends AbstractBeanFactory {
     // 二级缓存，提前曝光的单例对象的cache，存放原始的 bean 对象（尚未填充属性），用于解决循环依赖
     private final Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(16);
 
-    // 三级缓存，存放 bean 工厂对象，这个对象其实是一个函数式接口，用来解决 AOP 的循环依赖
+    // 三级缓存，存放 bean 工厂对象，这个对象其实是一个函数式接口，接口实现是创建一个 bean 对象，用来解决 AOP 的循环依赖
     private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
     // 已经实例化结束的beanName集合

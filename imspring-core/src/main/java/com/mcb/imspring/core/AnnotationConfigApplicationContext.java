@@ -10,7 +10,7 @@ import com.mcb.imspring.core.utils.Assert;
 public class AnnotationConfigApplicationContext extends AbstractApplicationContext {
 
     /**
-     * 读取配置类的信息，包括一些内部后置处理器，将这些类解析成BeanDefinition，注册到Spring容器中
+     * 读取@Configuration配置类的信息，将这些类解析成BeanDefinition，注册到Spring容器中
      */
     private final AnnotatedBeanDefinitionReader reader;
 
