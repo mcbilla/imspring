@@ -71,7 +71,7 @@ public abstract class AbstractAutoProxyCreator implements InstantiationAwareBean
     /**
      * 后置处理
      * 1、获取切面方法：首先会从缓存中拿到所有的通知，和当前 bean 的所有方法进行匹配，找到和该 bean 适配的通知。
-     * 2、创建 AOP 代理对象：结合需要进行 AOP 的方法，选择 Cglib 或 JDK，创建 AOP 代理对象。
+     * 2、创建 AOP 代理对象：选择 Cglib 或 JDK 代理方式创建 AOP 代理对象，该 AOP 对象包含一条 Advisor List
      */
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {

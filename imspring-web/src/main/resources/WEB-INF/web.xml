@@ -16,7 +16,7 @@
         <listener-class>com.mcb.imspring.web.listener.SpringServletContextListener</listener-class>
     </listener>
 
-    <!--配置第一个servlet-->
+    <!--充当MVC中FrontController的角色-->
     <servlet>
         <!-- servlet自定义命名 -->
         <servlet-name>immvc</servlet-name>

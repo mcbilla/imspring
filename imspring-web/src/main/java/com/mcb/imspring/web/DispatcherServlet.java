@@ -122,8 +122,10 @@ public class DispatcherServlet extends FrameworkServlet {
     }
 
     private void processDispatchResult(HttpServletRequest request, HttpServletResponse response, HandlerExecutionChain chain, ModelAndView mv) throws Exception {
+        // 如果mv还没有被进行处理，就进行页面渲染
+        // 这里只支持json数据，且已经把json数据添加到response了，没有需要进行处理的mv了
         if (!mv.isRequestHandled()) {
-            // mv没有被进行处理，进行页面渲染
+
         }
     }
 }
