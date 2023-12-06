@@ -1,14 +1,12 @@
-package com.mcb.imspring.web;
+package com.mcb.imspring.web.handler;
 
 import com.mcb.imspring.core.utils.ReflectionUtils;
 import com.mcb.imspring.web.annotation.ResponseBody;
 import com.mcb.imspring.web.annotation.RestController;
 import com.mcb.imspring.web.exception.ServerErrorException;
-import com.mcb.imspring.web.handler.HandlerMethodReturnValueHandler;
-import com.mcb.imspring.web.handler.MethodParameter;
-import com.mcb.imspring.web.http.HttpStatus;
+import com.mcb.imspring.web.web.HttpStatus;
 import com.mcb.imspring.web.request.NativeWebRequest;
-import com.mcb.imspring.web.view.ModelAndView;
+import com.mcb.imspring.web.mav.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

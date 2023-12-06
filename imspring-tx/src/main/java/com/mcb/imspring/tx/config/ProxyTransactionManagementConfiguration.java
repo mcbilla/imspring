@@ -2,9 +2,9 @@ package com.mcb.imspring.tx.config;
 
 import com.mcb.imspring.core.annotation.Bean;
 import com.mcb.imspring.core.annotation.Configuration;
-import com.mcb.imspring.tx.AnnotationTransactionAttributeSource;
+import com.mcb.imspring.tx.transaction.td.AnnotationTransactionAttributeSource;
 import com.mcb.imspring.tx.DataSourceTransactionManager;
-import com.mcb.imspring.tx.TransactionAttributeSourceAdvisor;
+import com.mcb.imspring.tx.advisor.TransactionAttributeSourceAdvisor;
 import com.mcb.imspring.tx.TransactionInterceptor;
 import com.mcb.imspring.tx.proxy.TransactionAutoProxyCreator;
 import com.mcb.imspring.tx.transaction.td.TransactionAttributeSource;

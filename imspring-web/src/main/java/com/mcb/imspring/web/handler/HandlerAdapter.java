@@ -1,6 +1,6 @@
 package com.mcb.imspring.web.handler;
 
-import com.mcb.imspring.web.view.ModelAndView;
+import com.mcb.imspring.web.mav.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

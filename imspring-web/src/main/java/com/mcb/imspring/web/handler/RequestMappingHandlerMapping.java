@@ -1,16 +1,11 @@
-package com.mcb.imspring.web;
+package com.mcb.imspring.web.handler;
 
 import com.mcb.imspring.core.AnnotationConfigApplicationContext;
 import com.mcb.imspring.core.ApplicationContext;
-import com.mcb.imspring.core.annotation.Component;
 import com.mcb.imspring.core.common.Ordered;
 import com.mcb.imspring.core.context.ApplicationContextAware;
 import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.core.utils.CollectionUtils;
-import com.mcb.imspring.web.handler.HandlerExecutionChain;
-import com.mcb.imspring.web.handler.HandlerInterceptor;
-import com.mcb.imspring.web.handler.HandlerMapping;
-import com.mcb.imspring.web.handler.HandlerMethod;
 import com.mcb.imspring.web.utils.WebUtils;
 import com.sun.istack.internal.Nullable;
 import org.slf4j.Logger;
@@ -18,14 +13,16 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
  * RequestMappingHandlerMapping 主要负责在自身初始化阶段搜寻出当前容器内所有可用 Controller 实现，建立 url 和 HandlerMethod 的映射关系，并保存所有的 HandlerInterceptor
  * 当请求进来的时候，根据 url 匹配一个 HandlerMethod，加上所有的 HandlerInterceptor 封装成一个 HandlerExecutionChain 返回
  */
-@Component
 public class RequestMappingHandlerMapping implements HandlerMapping, InitializingBean, ApplicationContextAware, Ordered {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 

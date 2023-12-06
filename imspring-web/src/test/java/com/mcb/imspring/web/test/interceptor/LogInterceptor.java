@@ -1,7 +1,7 @@
 package com.mcb.imspring.web.test.interceptor;
 
 import com.mcb.imspring.web.handler.HandlerInterceptor;
-import com.mcb.imspring.web.view.ModelAndView;
+import com.mcb.imspring.web.mav.ModelAndView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

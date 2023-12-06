@@ -1,7 +1,7 @@
 package com.mcb.imspring.web.handler;
 
 import com.mcb.imspring.core.utils.CollectionUtils;
-import com.mcb.imspring.web.view.ModelAndView;
+import com.mcb.imspring.web.mav.ModelAndView;
 import com.sun.istack.internal.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

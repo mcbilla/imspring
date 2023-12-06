@@ -1,15 +1,10 @@
-package com.mcb.imspring.web;
+package com.mcb.imspring.web.handler;
 
-import com.mcb.imspring.core.annotation.Component;
 import com.mcb.imspring.core.common.Ordered;
 import com.mcb.imspring.core.context.InitializingBean;
 import com.mcb.imspring.web.exception.ServerErrorException;
-import com.mcb.imspring.web.handler.HandlerAdapter;
-import com.mcb.imspring.web.handler.HandlerMethod;
-import com.mcb.imspring.web.handler.HandlerMethodReturnValueHandler;
-import com.mcb.imspring.web.handler.MethodParameter;
+import com.mcb.imspring.web.mav.ModelAndView;
 import com.mcb.imspring.web.request.ServletWebRequest;
-import com.mcb.imspring.web.view.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +21,6 @@ import java.util.stream.Collectors;
  * 2、调用目标方法处理请求
  * 3、封装返回结果进行返回
  */
-@Component
 public class RequestMappingHandlerAdapter implements HandlerAdapter, InitializingBean, Ordered {
 
     private List<HandlerMethodReturnValueHandler> returnValueHandlers;

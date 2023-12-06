@@ -7,7 +7,7 @@ import com.mcb.imspring.web.test.interceptor.LogInterceptor;
 
 @ComponentScan("com.mcb.imspring")
 @Configuration
-public class WebConfig {
+public class WebTestConfig {
 
     @Bean
     public LogInterceptor logInterceptor() {

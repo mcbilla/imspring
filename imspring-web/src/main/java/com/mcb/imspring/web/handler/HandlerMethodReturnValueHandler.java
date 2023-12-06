@@ -1,7 +1,7 @@
 package com.mcb.imspring.web.handler;
 
 import com.mcb.imspring.web.request.NativeWebRequest;
-import com.mcb.imspring.web.view.ModelAndView;
+import com.mcb.imspring.web.mav.ModelAndView;
 import com.sun.istack.internal.Nullable;
 
 import java.io.IOException;

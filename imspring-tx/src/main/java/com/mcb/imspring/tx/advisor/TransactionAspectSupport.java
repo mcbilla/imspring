@@ -1,4 +1,4 @@
-package com.mcb.imspring.tx.joinpoint;
+package com.mcb.imspring.tx.advisor;
 
 import com.mcb.imspring.core.BeanFactory;
 import com.mcb.imspring.core.common.NamedThreadLocal;

@@ -7,7 +7,7 @@ import java.io.File;
 
 public class ImspringWebTest {
 
-    private static int port = 8086;
+    private static int port = 8087;
 
     private static String contextPath = "/";
 

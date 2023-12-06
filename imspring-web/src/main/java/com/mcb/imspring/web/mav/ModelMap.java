@@ -1,4 +1,4 @@
-package com.mcb.imspring.web.view;
+package com.mcb.imspring.web.mav;
 
 import java.util.LinkedHashMap;
 

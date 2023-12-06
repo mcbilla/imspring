@@ -1,4 +1,4 @@
-package com.mcb.imspring.web.servlet;
+package com.mcb.imspring.web.web;
 
 import com.mcb.imspring.core.ApplicationContext;
 

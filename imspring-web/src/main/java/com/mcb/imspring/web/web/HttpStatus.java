@@ -1,4 +1,4 @@
-package com.mcb.imspring.web.http;
+package com.mcb.imspring.web.web;
 
 /*
  * Copyright 2002-2021 the original author or authors.
