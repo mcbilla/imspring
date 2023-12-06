@@ -25,12 +25,18 @@ public interface TransactionDefinition {
 
     int ISOLATION_SERIALIZABLE = 8;  // same as java.sql.Connection.TRANSACTION_SERIALIZABLE;
 
+    int TIMEOUT_DEFAULT = -1;
+
     default int getPropagationBehavior() {
         return PROPAGATION_REQUIRED;
     }
 
     default int getIsolationLevel() {
         return ISOLATION_DEFAULT;
+    }
+
+    default int getTimeout() {
+        return TIMEOUT_DEFAULT;
     }
 
     default String getName() {

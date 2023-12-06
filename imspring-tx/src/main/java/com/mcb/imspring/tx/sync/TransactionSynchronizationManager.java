@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 事务同步管理器，使用ThreadLocal存储当前线程的数据库连接、事务同步器等
@@ -17,8 +18,13 @@ public abstract class TransactionSynchronizationManager {
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionSynchronizationManager.class);
 
+    // 保存DB连接资源，使用 Object 来保存是因为每种平台的DB连接资源对象可能不一样，比如：JDBC，Hibernate，EJB 等使用的 DB 连接对象是不一样的。
     private static final ThreadLocal<Map<Object, Object>> resources =
             new NamedThreadLocal<>("Transactional resources");
+
+    // 事务同步回调，每个线程可以注册多个事务同步回调
+    private static final ThreadLocal<Set<TransactionSynchronization>> synchronizations =
+            new NamedThreadLocal<>("Transaction synchronizations");
 
     public static boolean hasResource(Object key) {
         return (getResource(key) != null);
