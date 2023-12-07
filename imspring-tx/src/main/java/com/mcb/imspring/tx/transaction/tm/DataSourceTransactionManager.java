@@ -1,4 +1,4 @@
-package com.mcb.imspring.tx;
+package com.mcb.imspring.tx.transaction.tm;
 
 import com.mcb.imspring.core.utils.Assert;
 import com.mcb.imspring.tx.exception.TransactionException;

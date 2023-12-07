@@ -1,4 +1,4 @@
-package com.mcb.imspring.tx;
+package com.mcb.imspring.tx.advisor;
 
 import com.mcb.imspring.aop.utils.AopUtils;
 import com.mcb.imspring.tx.advisor.TransactionAspectSupport;
